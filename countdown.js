@@ -1,3 +1,4 @@
+// countdown.js - 倒數計時功能
 // 設定目標日期：2025年3月15日 11:30
 const targetDate = new Date(2025, 2, 15, 11, 30, 0).getTime();
 
