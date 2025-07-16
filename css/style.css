@@ -1,699 +1,569 @@
-/* =============================================
-   基本樣式
-   ============================================= */
-html {
-  scroll-behavior: smooth;
-}
-
+/* Reset and base styles */
 * {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
 body {
-  background-color: var(--background);
-  font-family: var(--font-mono);
-  color: var(--text-primary);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background-color: #f5f5f5;
+    color: #333;
+    line-height: 1.6;
 }
 
 .container {
-  font-family: "Geist Sans", "Microsoft JhengHei", Arial, sans-serif;
-  width: 100%;
-  max-width: 100%;
-  padding: var(--spacing-05) var(--spacing-11);
+    max-width: 414px;
+    margin: 0 auto;
+    background: white;
+    min-height: 100vh;
+    overflow-x: hidden;
 }
 
-/* =============================================
-       共通元素
-       ============================================= */
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  color: var(--text-primary);
-  margin-bottom: var(--spacing-03);
-}
-
-.logo {
-  font-family: Boxing-Regular;
-  font-size: 4rem;
-  text-transform: uppercase;
-  margin: 0;
-}
-
-/* =============================================
-       標題與頁首
-       ============================================= */
-header {
-  text-align: left;
-  padding: var(--spacing-05) 0;
-  margin-bottom: var(--spacing-05);
-}
-
-/* =============================================
-       帳篷區塊 - 獨立一行
-       ============================================= */
-.tent-section {
-  display: flex;
-  flex-direction: row; /* 水平排列帳篷圖片 */
-  justify-content: start;
-  gap: var(--spacing-03);
-  margin-bottom: var(--spacing-05); /* 增加與下方內容的間距 */
-}
-
-.tent-image {
-  width: 100%;
-  max-width: 300px;
-  height: auto;
-}
-
-/* =============================================
-       link
-       ============================================= */
-.links {
-  display: flex;
-  flex-direction: column;
-  margin-bottom: var(--spacing-05);
-}
-
-.link {
-  text-decoration: underlin;
-  color: var(--text-primary);
-  font-size: 24px;
-  font-family: "Geist Mono", monospace;
-  padding: 4px 0px;
-  transition: all 0.2s ease-in-out; /* 讓變化更順滑 */
-}
-
-.link:hover {
-  text-decoration: underline;
-  color: var(--text-secondary); /* 滑鼠懸停時改變文字顏色 */
-}
-
-.link:active {
-  text-decoration: underline;
-  color: var(--primary-dark); /* 讓顏色稍微變深 */
-}
-
-/* =============================================
-       內容區塊 - 左右兩欄
-       ============================================= */
-.content-layout {
-  display: flex;
-  gap: var(--spacing-05);
-}
-
-.left-column {
-  flex: 1; /* 左側佔比 1 */
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-05);
-}
-
-.right-column {
-  flex: 2; /* 右側佔比 2 */
-}
-
-/* 資訊區塊 */
-.info-blocks {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-05);
-}
-
-/* =============================================
-       倒數計時區塊
-       ============================================= */
-/* .countdown-section {
-  margin-bottom: var(--spacing-03);
-} */
-
-.countdown-container {
-  background: var(--layer-01);
-  padding: var(--spacing-05);
-  border-radius: var(--radius-02);
-  font-family: "Geist Mono", monospace;
+/* Header */
+.header {
+    padding: 20px 24px;
+    background: white;
 }
 
 .title {
-  font-size: 20px;
-  margin-bottom: var(--spacing-05);
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    color: #1f2937;
 }
 
-.countdown {
-  display: flex;
-  justify-content: space-between;
+.year {
+    font-size: 18px;
+    color: #666;
+    font-weight: 400;
 }
 
-.time-segment {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+/* Quick Links */
+.quick-links {
+    display: flex;
+    gap: 12px;
+    padding: 0 24px 20px;
+    flex-wrap: wrap;
 }
 
-.time-value {
-  font-size: 32px;
-  font-weight: 500;
-  margin-bottom: 5px;
+.link-btn {
+    background: #e5e7eb;
+    color: #374151;
+    padding: 8px 16px;
+    border-radius: 20px;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s;
 }
 
-.time-label {
-  font-size: 14px;
-  color: var(--text-secondary);
+.link-btn:hover {
+    background: #d1d5db;
 }
 
-/* =============================================
-       天氣區塊
-       ============================================= */
-
-.weather-container {
-  display: flex;
-  gap: var(--spacing-05);
+/* Countdown Card */
+.countdown-card {
+    background: linear-gradient(135deg, #8B7355 0%, #A0926B 100%);
+    color: white;
+    margin: 0 24px 20px;
+    padding: 24px;
+    border-radius: 16px;
+    text-align: center;
 }
 
-.weather-box {
-  display: flexbox;
-  flex: 1;
-  background: var(--layer-01);
-  padding: var(--spacing-05);
-  border-radius: var(--radius-02);
-  font-family: "Geist Mono", monospace;
+.countdown-date {
+    font-size: 16px;
+    margin-bottom: 16px;
+    opacity: 0.9;
+}
+
+.countdown-display {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.countdown-item {
+    text-align: center;
+}
+
+.countdown-number {
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 4px;
+}
+
+.countdown-label {
+    font-size: 12px;
+    opacity: 0.8;
+}
+
+/* Schedule Section */
+.schedule-section {
+    margin: 0 24px 20px;
+}
+
+.section-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    color: #1f2937;
+}
+
+.schedule-card {
+    background: #374151;
+    color: white;
+    padding: 20px;
+    border-radius: 12px;
+}
+
+.schedule-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.schedule-item:last-child {
+    margin-bottom: 0;
+}
+
+.schedule-time {
+    font-weight: 600;
+    width: 50px;
+    font-size: 14px;
+}
+
+.schedule-activity {
+    font-size: 14px;
+    margin-left: 16px;
+}
+
+/* Weather Section */
+.weather-section {
+    display: flex;
+    gap: 12px;
+    margin: 0 24px 20px;
+}
+
+.weather-card {
+    flex: 1;
+    background: #f3f4f6;
+    padding: 16px;
+    border-radius: 12px;
+    text-align: center;
 }
 
 .weather-date {
-  font-size: 16px;
-  width: 100%;
-  margin-bottom: var(--spacing-03);
-}
-
-.weather-info {
-  display: flex;
-  gap: var(--spacing-01);
-}
-
-.weather-temp {
-  grid-column: 1;
-  grid-row: 2;
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  font-size: 32px;
-}
-
-.high-temp {
-  font-weight: 500;
-}
-
-.low-temp {
-  font-weight: 400;
-}
-
-.weather-humidity {
-  font-size: 14px;
-  justify-content: center;
-  text-align: center;
-  flex: 1;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 8px;
 }
 
 .weather-icon {
-  margin-bottom: var(--spacing-02);
+    font-size: 24px;
+    margin-bottom: 8px;
 }
 
-.weather-icon img {
-  width: 64px;
-  height: auto;
+.weather-temps {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 4px;
 }
 
-/* =============================================
-       行程區塊
-       ============================================= */
-.schedule-section {
-  color: var(--text-primary);
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-03);
-  background: var(--layer-01);
-  padding: var(--spacing-05);
-  border-radius: var(--radius-02);
-  font-family: "Geist Mono", monospace;
+.temp-high {
+    font-size: 16px;
+    font-weight: 600;
 }
 
-.schedule-section a {
-  color: var(--text-primary);
+.temp-low {
+    font-size: 16px;
+    color: #6b7280;
 }
 
-.schedule-title {
-  font-size: 20px;
-  margin-bottom: var(--spacing-05);
+.weather-humidity {
+    font-size: 12px;
+    color: #6b7280;
 }
 
-.content {
-  display: flex;
-  font-size: 16px;
-  align-items: center;
+/* Packing Section */
+.packing-section {
+    margin: 0 24px 20px;
 }
 
-.time {
-  width: 72px;
-  margin-right: var(--spacing-03);
+.progress-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
 }
 
-/* =============================================
-       清單區塊
-       ============================================= */
-.list-section {
-  margin-bottom: var(--spacing-05);
-}
-
-.list {
-  background-color: var(--layer-01);
-  padding: var(--spacing-05);
-  border-radius: var(--radius-02);
-  height: 100%;
-}
-
-.list-title {
-  font-size: 20px;
-  margin-bottom: var(--spacing-05);
-  font-family: "Geist Mono", monospace;
-}
-
-/* =============================================
-       進度條
-       ============================================= */
-.progress-container {
-  margin-bottom: var(--spacing-07);
-  font-family: "Geist Mono", monospace;
-}
-
-#progress-text {
-  font-size: 14px;
-  margin-bottom: var(--spacing-02);
+.progress-text {
+    font-size: 14px;
+    color: #6b7280;
 }
 
 .progress-bar {
-  height: 8px;
-  background-color: var(--border-subtle);
-  border-radius: 4px;
-  overflow: hidden;
+    height: 4px;
+    background: #e5e7eb;
+    border-radius: 2px;
+    overflow: hidden;
+    margin-bottom: 20px;
 }
 
-.progress {
-  height: 100%;
-  background-color: var(--border-interactive);
-  width: 0;
-  transition: width 0.3s ease;
+.progress-fill {
+    height: 100%;
+    background: #10b981;
+    width: 0%;
+    transition: width 0.3s ease;
 }
 
-/* =============================================
-       人員篩選
-       ============================================= */
-.person-filter {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--spacing-03);
-  margin-bottom: var(--spacing-07);
+/* Filter Buttons */
+.filter-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 20px;
 }
 
-.person-filter button {
-  color: var(--text-primary);
-  height: 32px;
-  padding: 4px 12px;
-  background-color: transparent;
-  border: 1px solid var(--border-secondary);
-  cursor: pointer;
-  border-radius: 9999px;
+.filter-btn {
+    padding: 8px 16px;
+    border-radius: 20px;
+    border: 1px solid #d1d5db;
+    background: white;
+    color: #374151;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
 }
 
-.person-filter button.active {
-  background-color: var(--button-primary);
-  color: white;
-  border-color: var(--button-primary);
+.filter-btn.active {
+    background: #374151;
+    color: white;
+    border-color: #374151;
 }
 
-/* =============================================
-       類別與項目
-       ============================================= */
-.category {
-  margin-bottom: var(--spacing-07);
+.filter-btn:hover {
+    background: #f3f4f6;
+}
+
+.filter-btn.active:hover {
+    background: #4b5563;
+}
+
+/* Category Section */
+.category-section {
+    margin-bottom: 24px;
 }
 
 .category-title {
-  font-size: 16px;
-  margin-bottom: var(--spacing-03);
-  font-family: "Geist Mono", monospace;
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: #1f2937;
 }
 
 .item-list {
-  list-style: none;
+    list-style: none;
 }
 
-/* =============================================
-       項目樣式
-       ============================================= */
+/* Items */
 .item {
-  display: flex;
-  align-items: center;
-  padding: 10px 0;
-  border-bottom: 1px solid var(--border-subtle);
+    display: flex;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #f3f4f6;
 }
 
 .item:last-child {
-  border-bottom: none;
+    border-bottom: none;
 }
 
-.item-label {
-  flex: 1;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  cursor: pointer;
-  padding: 0;
-  margin: 0;
+.item.hidden {
+    display: none;
 }
 
-.item-name {
-  flex: 1;
-  font-size: 16px;
-}
-
-.checked .item-name {
-  text-decoration: line-through;
-  color: var(--text-secondary);
-  opacity: 0.7;
-}
-
-.item-quantity {
-  margin-left: 5px;
-  font-weight: bold;
-  color: var(--text-secondary);
-}
-
-.person-tags {
-  display: flex;
-  gap: 4px;
-}
-
-.person-tag {
-  border-radius: 9999px;
-  padding: 3px 12px;
-  font-size: 12px;
-  background-color: transparent;
-  border: 1px solid var(--border-secondary);
-  margin-left: var(--spacing-02);
-}
-
-.delete-btn {
-  width: 24px;
-  height: 24px;
-  background: transparent;
-  border-radius: 9999px;
-  border: none;
-  color: var(--icon-primary);
-  font-size: 20px;
-  padding: 0 var(--spacing-02);
-  margin-left: var(--spacing-02);
-  cursor: pointer;
-}
-
-.delete-btn:hover {
-  background-color: var(--field);
-  opacity: 0.8;
-}
-
-/* =============================================
-       輸入區域 - 修改為水平排列
-       ============================================= */
-.add-section {
-  display: flex;
-  flex-direction: row; /* 變更為水平排列 */
-  gap: var(--spacing-03);
-  margin-top: var(--spacing-05);
-  align-items: center; /* 確保所有項目垂直居中對齊 */
-}
-
-.add-section input[type="text"] {
-  padding: 12px;
-  background-color: var(--field);
-  color: var(--text-primary);
-  font-size: 14px;
-  border: none;
-  border-radius: 9999px;
-}
-
-.add-section input[type="text"]:focus {
-  outline: none;
-  box-shadow: 0 0 0 2px var(--border-interactive);
-}
-
-/* 為各個輸入欄位設置適當的寬度 */
-#new-item-name {
-  flex: 1; /* 名稱欄位自動填充剩餘空間 */
-  min-width: 140px;
-}
-
-#new-item-quantity {
-  width: 12%; /* 數量欄位寬度較小 */
-  min-width: 80px;
-}
-
-#new-item-person {
-  width: 20%; /* 負責人欄位適中寬度 */
-  min-width: 120px;
-}
-
-.add-section button {
-  background-color: var(--button-primary);
-  color: white;
-  font-weight: bold;
-  padding: 12px 24px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-  border: none;
-  border-radius: 9999px;
-  width: auto; /* 按鈕寬度根據內容自動調整 */
-  white-space: nowrap; /* 防止文字換行 */
-}
-
-.add-section button:hover {
-  background-color: var(--button-primary-hover);
-}
-
-/* =============================================
-     自定義複選框修正
-     ============================================= */
 .custom-checkbox {
-  position: relative;
-  display: inline-block;
-  width: 16px;
-  height: 16px;
-  margin-right: var(--spacing-03);
+    position: relative;
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    margin-right: 12px;
 }
 
 .custom-checkbox input[type="checkbox"] {
-  opacity: 0;
-  width: 0;
-  height: 0;
-  position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+    position: absolute;
 }
 
 .checkbox-label {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 16px;
-  height: 16px;
-  background-color: transparent;
-  border: 1px solid var(--border-secondary);
-  border-radius: 2px;
-  cursor: pointer;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 20px;
+    height: 20px;
+    background-color: transparent;
+    border: 2px solid #d1d5db;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
 }
 
-/* 未選中狀態 - 不設置背景圖，只保留邊框 */
-.custom-checkbox input[type="checkbox"] + .checkbox-label {
-  background-color: transparent;
-}
-
-/* 選中狀態 - 設置背景色和勾選標記 */
 .custom-checkbox input[type="checkbox"]:checked + .checkbox-label {
-  background-color: var(--button-primary);
-  border-color: var(--button-primary);
-  /* 使用內嵌的 SVG 作為勾選標記 */
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M8 12.5L11 15.5L16 9.5' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-  background-position: center;
-  background-repeat: no-repeat;
+    background-color: #10b981;
+    border-color: #10b981;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M8 12.5L11 15.5L16 9.5' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 12px;
 }
 
-/* =============================================
-       自定義下拉選單修正
-       ============================================= */
-.custom-select {
-  position: relative;
-  width: 20%; /* 類別選擇器佔 20% 寬度 */
-  min-width: 120px;
-  flex-shrink: 0; /* 防止 select 被壓縮 */
-}
-
-.category-select {
-  appearance: none;
-  background-color: var(--field);
-  color: var(--text-primary);
-  padding: 12px 20px;
-  width: 100%;
-  cursor: pointer;
-  font-size: 16px;
-  border: none;
-  border-radius: 9999px;
-}
-
-.category-select:focus {
-  outline: none;
-  box-shadow: 0 0 0 2px var(--border-interactive);
-}
-
-.select-arrow {
-  position: absolute;
-  right: 20px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 16px;
-  height: 16px;
-  pointer-events: none;
-  background-image: url("../icons/chevron down.svg");
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: contain;
-}
-
-/* =============================================
-     控制按鈕樣式
-     ============================================= */
-.controls {
-  display: flex;
-  gap: var(--spacing-05);
-  margin-top: var(--spacing-05);
-  flex-wrap: wrap;
-}
-
-.control-btn {
-  flex: 1;
-  background-color: var(--button-primary);
-  color: white;
-  height: 40px;
-  border: none;
-  padding: 0 2rem;
-  border-radius: 9999px;
-  cursor: pointer;
-  font-weight: bold;
-  transition: background-color 0.3s;
-}
-
-.control-btn:hover {
-  background-color: var(--button-primary-hover);
-}
-
-/* =============================================
-       Placeholder 文字樣式
-       ============================================= */
-::placeholder {
-  color: #3c423a !important;
-  opacity: 1;
-}
-
-/* =============================================
-       響應式設計
-       ============================================= */
-@media (max-width: 992px) {
-  .content-layout {
-    flex-direction: column; /* 寬度 < 992px 時轉為單欄 */
-  }
-
-  .left-column,
-  .right-column {
-    flex: 1 0 100%;
-  }
-
-  .tent-section {
-    flex-direction: row;
-    justify-content: center;
-    flex-wrap: wrap;
-  }
-
-  .tent-image {
-    max-width: 200px;
-  }
-}
-
-@media (max-width: 768px) {
-  .container {
-    padding: var(--spacing-02) var(--spacing-05);
-  }
-
-  .logo {
-    font-size: 3.5rem;
-    text-align: center;
-  }
-
-  .tent-section {
-    flex-direction: column; /* 手機版中帳篷圖片上下排列 */
-    align-items: center;
-  }
-
-  .tent-image {
-    max-width: 320px;
-  }
-
-  .countdown-container,
-  .weather-box {
-    padding: var(--spacing-05);
-  }
-
-  .time-value {
-    font-size: 32px;
-  }
-
-  .weather-temp {
-    font-size: 28px;
-  }
-
-  /* 手機版中恢復垂直排列的輸入區域 */
-  .add-section {
-    flex-direction: column;
-  }
-
-  .custom-select,
-  #new-item-name,
-  #new-item-quantity,
-  #new-item-person,
-  .add-section button {
-    width: 100%;
-    min-width: auto;
-  }
-
-  .controls {
-    flex-direction: row; /* 保持儲存和載入按鈕並排 */
+.item-label {
+    flex: 1;
+    display: flex;
     justify-content: space-between;
-  }
-
-  .control-btn {
-    width: 48%; /* 控制按鈕寬度 */
-  }
+    align-items: center;
+    cursor: pointer;
+    padding: 0;
+    margin: 0;
 }
 
-@media (max-width: 480px) {
-  .person-filter button {
-    padding: 5px 12px;
+.item-name {
     font-size: 14px;
-  }
+    color: #1f2937;
+    flex: 1;
+}
 
-  .time-value {
-    font-size: 32px;
-  }
+.checked .item-name {
+    text-decoration: line-through;
+    color: #9ca3af;
+}
 
-  .time-label {
+.item-quantity {
+    margin-left: 5px;
+    font-weight: bold;
+    color: #6b7280;
+}
+
+.person-tags {
+    display: flex;
+    gap: 6px;
+}
+
+.person-tag {
+    background: #f3f4f6;
+    color: #6b7280;
+    padding: 2px 8px;
+    border-radius: 10px;
     font-size: 12px;
-  }
+}
+
+.delete-btn {
+    width: 24px;
+    height: 24px;
+    background: transparent;
+    border-radius: 50%;
+    border: none;
+    color: #9ca3af;
+    font-size: 18px;
+    padding: 0;
+    margin-left: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.delete-btn:hover {
+    background-color: #f3f4f6;
+    color: #ef4444;
+}
+
+/* Add Item Section */
+.add-item-section {
+    background: #f9fafb;
+    padding: 16px;
+    border-radius: 12px;
+    margin-top: 16px;
+}
+
+.add-item-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.form-row {
+    display: flex;
+    gap: 8px;
+}
+
+.form-input {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 14px;
+    background: white;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: #10b981;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+
+.form-select {
+    padding: 8px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 14px;
+    background: white;
+    cursor: pointer;
+    min-width: 120px;
+}
+
+.form-select:focus {
+    outline: none;
+    border-color: #10b981;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+
+.add-btn {
+    background: #10b981;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.add-btn:hover {
+    background: #059669;
+}
+
+/* Save Button */
+.save-btn {
+    background: #3b82f6;
+    color: white;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    margin: 20px 24px;
+    width: calc(100% - 48px);
+    transition: background 0.2s;
+}
+
+.save-btn:hover {
+    background: #2563eb;
+}
+
+/* Sync Status */
+.sync-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 16px;
+    padding: 8px 12px;
+    background: #f0f9ff;
+    border: 1px solid #e0f2fe;
+    border-radius: 8px;
+    font-size: 12px;
+    color: #0369a1;
+}
+
+.sync-indicator {
+    font-size: 8px;
+    animation: pulse 2s infinite;
+}
+
+.sync-status.connected .sync-indicator {
+    color: #10b981;
+}
+
+.sync-status.connecting .sync-indicator {
+    color: #f59e0b;
+}
+
+.sync-status.offline .sync-indicator {
+    color: #ef4444;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+/* Responsive Design */
+@media (max-width: 480px) {
+    .container {
+        max-width: 100%;
+    }
+    
+    .header {
+        padding: 16px 20px;
+    }
+    
+    .quick-links {
+        padding: 0 20px 16px;
+    }
+    
+    .countdown-card {
+        margin: 0 20px 16px;
+        padding: 20px;
+    }
+    
+    .schedule-section,
+    .weather-section,
+    .packing-section {
+        margin: 0 20px 16px;
+    }
+    
+    .save-btn {
+        margin: 16px 20px;
+        width: calc(100% - 40px);
+    }
+    
+    .countdown-display {
+        gap: 16px;
+    }
+    
+    .countdown-number {
+        font-size: 28px;
+    }
+    
+    .form-row {
+        flex-direction: column;
+    }
+    
+    .form-select {
+        min-width: auto;
+    }
+}
+
+@media (max-width: 360px) {
+    .filter-buttons {
+        gap: 6px;
+    }
+    
+    .filter-btn {
+        padding: 6px 12px;
+        font-size: 12px;
+    }
+    
+    .countdown-display {
+        gap: 12px;
+    }
+    
+    .countdown-number {
+        font-size: 24px;
+    }
 }
