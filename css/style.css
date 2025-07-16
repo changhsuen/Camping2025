@@ -1,0 +1,699 @@
+/* =============================================
+   基本樣式
+   ============================================= */
+html {
+  scroll-behavior: smooth;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--background);
+  font-family: var(--font-mono);
+  color: var(--text-primary);
+}
+
+.container {
+  font-family: "Geist Sans", "Microsoft JhengHei", Arial, sans-serif;
+  width: 100%;
+  max-width: 100%;
+  padding: var(--spacing-05) var(--spacing-11);
+}
+
+/* =============================================
+       共通元素
+       ============================================= */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-03);
+}
+
+.logo {
+  font-family: Boxing-Regular;
+  font-size: 4rem;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+/* =============================================
+       標題與頁首
+       ============================================= */
+header {
+  text-align: left;
+  padding: var(--spacing-05) 0;
+  margin-bottom: var(--spacing-05);
+}
+
+/* =============================================
+       帳篷區塊 - 獨立一行
+       ============================================= */
+.tent-section {
+  display: flex;
+  flex-direction: row; /* 水平排列帳篷圖片 */
+  justify-content: start;
+  gap: var(--spacing-03);
+  margin-bottom: var(--spacing-05); /* 增加與下方內容的間距 */
+}
+
+.tent-image {
+  width: 100%;
+  max-width: 300px;
+  height: auto;
+}
+
+/* =============================================
+       link
+       ============================================= */
+.links {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: var(--spacing-05);
+}
+
+.link {
+  text-decoration: underlin;
+  color: var(--text-primary);
+  font-size: 24px;
+  font-family: "Geist Mono", monospace;
+  padding: 4px 0px;
+  transition: all 0.2s ease-in-out; /* 讓變化更順滑 */
+}
+
+.link:hover {
+  text-decoration: underline;
+  color: var(--text-secondary); /* 滑鼠懸停時改變文字顏色 */
+}
+
+.link:active {
+  text-decoration: underline;
+  color: var(--primary-dark); /* 讓顏色稍微變深 */
+}
+
+/* =============================================
+       內容區塊 - 左右兩欄
+       ============================================= */
+.content-layout {
+  display: flex;
+  gap: var(--spacing-05);
+}
+
+.left-column {
+  flex: 1; /* 左側佔比 1 */
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-05);
+}
+
+.right-column {
+  flex: 2; /* 右側佔比 2 */
+}
+
+/* 資訊區塊 */
+.info-blocks {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-05);
+}
+
+/* =============================================
+       倒數計時區塊
+       ============================================= */
+/* .countdown-section {
+  margin-bottom: var(--spacing-03);
+} */
+
+.countdown-container {
+  background: var(--layer-01);
+  padding: var(--spacing-05);
+  border-radius: var(--radius-02);
+  font-family: "Geist Mono", monospace;
+}
+
+.title {
+  font-size: 20px;
+  margin-bottom: var(--spacing-05);
+}
+
+.countdown {
+  display: flex;
+  justify-content: space-between;
+}
+
+.time-segment {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.time-value {
+  font-size: 32px;
+  font-weight: 500;
+  margin-bottom: 5px;
+}
+
+.time-label {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+/* =============================================
+       天氣區塊
+       ============================================= */
+
+.weather-container {
+  display: flex;
+  gap: var(--spacing-05);
+}
+
+.weather-box {
+  display: flexbox;
+  flex: 1;
+  background: var(--layer-01);
+  padding: var(--spacing-05);
+  border-radius: var(--radius-02);
+  font-family: "Geist Mono", monospace;
+}
+
+.weather-date {
+  font-size: 16px;
+  width: 100%;
+  margin-bottom: var(--spacing-03);
+}
+
+.weather-info {
+  display: flex;
+  gap: var(--spacing-01);
+}
+
+.weather-temp {
+  grid-column: 1;
+  grid-row: 2;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  font-size: 32px;
+}
+
+.high-temp {
+  font-weight: 500;
+}
+
+.low-temp {
+  font-weight: 400;
+}
+
+.weather-humidity {
+  font-size: 14px;
+  justify-content: center;
+  text-align: center;
+  flex: 1;
+}
+
+.weather-icon {
+  margin-bottom: var(--spacing-02);
+}
+
+.weather-icon img {
+  width: 64px;
+  height: auto;
+}
+
+/* =============================================
+       行程區塊
+       ============================================= */
+.schedule-section {
+  color: var(--text-primary);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-03);
+  background: var(--layer-01);
+  padding: var(--spacing-05);
+  border-radius: var(--radius-02);
+  font-family: "Geist Mono", monospace;
+}
+
+.schedule-section a {
+  color: var(--text-primary);
+}
+
+.schedule-title {
+  font-size: 20px;
+  margin-bottom: var(--spacing-05);
+}
+
+.content {
+  display: flex;
+  font-size: 16px;
+  align-items: center;
+}
+
+.time {
+  width: 72px;
+  margin-right: var(--spacing-03);
+}
+
+/* =============================================
+       清單區塊
+       ============================================= */
+.list-section {
+  margin-bottom: var(--spacing-05);
+}
+
+.list {
+  background-color: var(--layer-01);
+  padding: var(--spacing-05);
+  border-radius: var(--radius-02);
+  height: 100%;
+}
+
+.list-title {
+  font-size: 20px;
+  margin-bottom: var(--spacing-05);
+  font-family: "Geist Mono", monospace;
+}
+
+/* =============================================
+       進度條
+       ============================================= */
+.progress-container {
+  margin-bottom: var(--spacing-07);
+  font-family: "Geist Mono", monospace;
+}
+
+#progress-text {
+  font-size: 14px;
+  margin-bottom: var(--spacing-02);
+}
+
+.progress-bar {
+  height: 8px;
+  background-color: var(--border-subtle);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress {
+  height: 100%;
+  background-color: var(--border-interactive);
+  width: 0;
+  transition: width 0.3s ease;
+}
+
+/* =============================================
+       人員篩選
+       ============================================= */
+.person-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-03);
+  margin-bottom: var(--spacing-07);
+}
+
+.person-filter button {
+  color: var(--text-primary);
+  height: 32px;
+  padding: 4px 12px;
+  background-color: transparent;
+  border: 1px solid var(--border-secondary);
+  cursor: pointer;
+  border-radius: 9999px;
+}
+
+.person-filter button.active {
+  background-color: var(--button-primary);
+  color: white;
+  border-color: var(--button-primary);
+}
+
+/* =============================================
+       類別與項目
+       ============================================= */
+.category {
+  margin-bottom: var(--spacing-07);
+}
+
+.category-title {
+  font-size: 16px;
+  margin-bottom: var(--spacing-03);
+  font-family: "Geist Mono", monospace;
+}
+
+.item-list {
+  list-style: none;
+}
+
+/* =============================================
+       項目樣式
+       ============================================= */
+.item {
+  display: flex;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.item:last-child {
+  border-bottom: none;
+}
+
+.item-label {
+  flex: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  padding: 0;
+  margin: 0;
+}
+
+.item-name {
+  flex: 1;
+  font-size: 16px;
+}
+
+.checked .item-name {
+  text-decoration: line-through;
+  color: var(--text-secondary);
+  opacity: 0.7;
+}
+
+.item-quantity {
+  margin-left: 5px;
+  font-weight: bold;
+  color: var(--text-secondary);
+}
+
+.person-tags {
+  display: flex;
+  gap: 4px;
+}
+
+.person-tag {
+  border-radius: 9999px;
+  padding: 3px 12px;
+  font-size: 12px;
+  background-color: transparent;
+  border: 1px solid var(--border-secondary);
+  margin-left: var(--spacing-02);
+}
+
+.delete-btn {
+  width: 24px;
+  height: 24px;
+  background: transparent;
+  border-radius: 9999px;
+  border: none;
+  color: var(--icon-primary);
+  font-size: 20px;
+  padding: 0 var(--spacing-02);
+  margin-left: var(--spacing-02);
+  cursor: pointer;
+}
+
+.delete-btn:hover {
+  background-color: var(--field);
+  opacity: 0.8;
+}
+
+/* =============================================
+       輸入區域 - 修改為水平排列
+       ============================================= */
+.add-section {
+  display: flex;
+  flex-direction: row; /* 變更為水平排列 */
+  gap: var(--spacing-03);
+  margin-top: var(--spacing-05);
+  align-items: center; /* 確保所有項目垂直居中對齊 */
+}
+
+.add-section input[type="text"] {
+  padding: 12px;
+  background-color: var(--field);
+  color: var(--text-primary);
+  font-size: 14px;
+  border: none;
+  border-radius: 9999px;
+}
+
+.add-section input[type="text"]:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--border-interactive);
+}
+
+/* 為各個輸入欄位設置適當的寬度 */
+#new-item-name {
+  flex: 1; /* 名稱欄位自動填充剩餘空間 */
+  min-width: 140px;
+}
+
+#new-item-quantity {
+  width: 12%; /* 數量欄位寬度較小 */
+  min-width: 80px;
+}
+
+#new-item-person {
+  width: 20%; /* 負責人欄位適中寬度 */
+  min-width: 120px;
+}
+
+.add-section button {
+  background-color: var(--button-primary);
+  color: white;
+  font-weight: bold;
+  padding: 12px 24px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  border: none;
+  border-radius: 9999px;
+  width: auto; /* 按鈕寬度根據內容自動調整 */
+  white-space: nowrap; /* 防止文字換行 */
+}
+
+.add-section button:hover {
+  background-color: var(--button-primary-hover);
+}
+
+/* =============================================
+     自定義複選框修正
+     ============================================= */
+.custom-checkbox {
+  position: relative;
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  margin-right: var(--spacing-03);
+}
+
+.custom-checkbox input[type="checkbox"] {
+  opacity: 0;
+  width: 0;
+  height: 0;
+  position: absolute;
+}
+
+.checkbox-label {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 16px;
+  height: 16px;
+  background-color: transparent;
+  border: 1px solid var(--border-secondary);
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+/* 未選中狀態 - 不設置背景圖，只保留邊框 */
+.custom-checkbox input[type="checkbox"] + .checkbox-label {
+  background-color: transparent;
+}
+
+/* 選中狀態 - 設置背景色和勾選標記 */
+.custom-checkbox input[type="checkbox"]:checked + .checkbox-label {
+  background-color: var(--button-primary);
+  border-color: var(--button-primary);
+  /* 使用內嵌的 SVG 作為勾選標記 */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M8 12.5L11 15.5L16 9.5' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* =============================================
+       自定義下拉選單修正
+       ============================================= */
+.custom-select {
+  position: relative;
+  width: 20%; /* 類別選擇器佔 20% 寬度 */
+  min-width: 120px;
+  flex-shrink: 0; /* 防止 select 被壓縮 */
+}
+
+.category-select {
+  appearance: none;
+  background-color: var(--field);
+  color: var(--text-primary);
+  padding: 12px 20px;
+  width: 100%;
+  cursor: pointer;
+  font-size: 16px;
+  border: none;
+  border-radius: 9999px;
+}
+
+.category-select:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--border-interactive);
+}
+
+.select-arrow {
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 16px;
+  height: 16px;
+  pointer-events: none;
+  background-image: url("../icons/chevron down.svg");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+}
+
+/* =============================================
+     控制按鈕樣式
+     ============================================= */
+.controls {
+  display: flex;
+  gap: var(--spacing-05);
+  margin-top: var(--spacing-05);
+  flex-wrap: wrap;
+}
+
+.control-btn {
+  flex: 1;
+  background-color: var(--button-primary);
+  color: white;
+  height: 40px;
+  border: none;
+  padding: 0 2rem;
+  border-radius: 9999px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s;
+}
+
+.control-btn:hover {
+  background-color: var(--button-primary-hover);
+}
+
+/* =============================================
+       Placeholder 文字樣式
+       ============================================= */
+::placeholder {
+  color: #3c423a !important;
+  opacity: 1;
+}
+
+/* =============================================
+       響應式設計
+       ============================================= */
+@media (max-width: 992px) {
+  .content-layout {
+    flex-direction: column; /* 寬度 < 992px 時轉為單欄 */
+  }
+
+  .left-column,
+  .right-column {
+    flex: 1 0 100%;
+  }
+
+  .tent-section {
+    flex-direction: row;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .tent-image {
+    max-width: 200px;
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: var(--spacing-02) var(--spacing-05);
+  }
+
+  .logo {
+    font-size: 3.5rem;
+    text-align: center;
+  }
+
+  .tent-section {
+    flex-direction: column; /* 手機版中帳篷圖片上下排列 */
+    align-items: center;
+  }
+
+  .tent-image {
+    max-width: 320px;
+  }
+
+  .countdown-container,
+  .weather-box {
+    padding: var(--spacing-05);
+  }
+
+  .time-value {
+    font-size: 32px;
+  }
+
+  .weather-temp {
+    font-size: 28px;
+  }
+
+  /* 手機版中恢復垂直排列的輸入區域 */
+  .add-section {
+    flex-direction: column;
+  }
+
+  .custom-select,
+  #new-item-name,
+  #new-item-quantity,
+  #new-item-person,
+  .add-section button {
+    width: 100%;
+    min-width: auto;
+  }
+
+  .controls {
+    flex-direction: row; /* 保持儲存和載入按鈕並排 */
+    justify-content: space-between;
+  }
+
+  .control-btn {
+    width: 48%; /* 控制按鈕寬度 */
+  }
+}
+
+@media (max-width: 480px) {
+  .person-filter button {
+    padding: 5px 12px;
+    font-size: 14px;
+  }
+
+  .time-value {
+    font-size: 32px;
+  }
+
+  .time-label {
+    font-size: 12px;
+  }
+}

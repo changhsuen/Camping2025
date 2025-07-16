@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Camping</title>
+    <link rel="stylesheet" href="./css/token.css" />
+    <link rel="stylesheet" href="./css/style.css" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-geist/1.0.0/font-geist.min.css" rel="stylesheet" />
+    <link rel="icon" href="./icons/tent.png">
+  </head>
+  <body>
+    <div class="container">
+      <!-- 頂部 CAMPING 標題 -->
+      <header>
+        <h1 class="logo">CAMPING</h1>
+      </header>
+
+      <!-- 連結區塊 -->
+      <div class="links">
+        <a href="https://app.lightsplit.com/g/a1wBxYNPEgartgdoV8GY4Z" class="link" target="_blank" rel="noopener noreferrer">Line split</a>
+        <a href="https://maps.app.goo.gl/qcHmgWCcvEGAaVCQ6" class="link" target="_blank" rel="noopener noreferrer">新竹尖石 觀星賞月營地</a>
+        <a href="https://maps.app.goo.gl/C3UKe1q4bBQhnd2q6" class="link" target="_blank" rel="noopener noreferrer">科曼露營用品出租 新竹店</a>
+        <a href="#schedule-section" class="link">Schedule</a>
+        <a href="#list-section" class="link">Packing List</a>
+      </div>
+
+      <!-- 帳篷圖區塊，放在頂部獨立一行 -->
+      <section class="tent-section">
+        <img src="./images/Tent-1.png" alt="Tent with people" class="tent-image" />
+        <img src="./images/Tent-2.png" alt="Tent with people" class="tent-image" />
+      </section>
+      
+
+      <!-- 下方內容區塊，分為左右兩欄 -->
+      <div class="content-layout">
+        <!-- 左側區塊 - 倒數計時和天氣 -->
+        <div class="left-column">
+          <!-- 倒數計時和天氣區塊 -->
+           
+          <div class="info-blocks">
+            <!-- 倒數計時區塊 -->
+            <section class="countdown-section">
+              <div class="countdown-container">
+                <h2 class="title">March 15th, 2025</h2>
+                <div class="countdown">
+                  <div class="time-segment">
+                    <div id="days" class="time-value">03</div>
+                    <div class="time-label">Days</div>
+                  </div>
+                  <div class="time-segment">
+                    <div id="hours" class="time-value">13</div>
+                    <div class="time-label">Hours</div>
+                  </div>
+                  <div class="time-segment">
+                    <div id="minutes" class="time-value">30</div>
+                    <div class="time-label">Mins</div>
+                  </div>
+                  <div class="time-segment">
+                    <div id="seconds" class="time-value">58</div>
+                    <div class="time-label">Secs</div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- 天氣區塊 -->
+            <section class="weather-section">
+              <div class="weather-container">
+                <div class="weather-box">
+                  <div class="weather-date">3/15</div>
+                  <div class="weather-info">
+                    <div class="weather-temp">
+                      <div class="high-temp">23°</div>
+                      <div class="low-temp">17°</div>
+                    </div>
+                    <div class="weather-humidity">
+                      <div class="weather-icon">
+                        <img src="./images/rainy 1.png" alt="Rain" />
+                      </div>
+                      <p>60%</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="weather-box">
+                  <div class="weather-date">3/16</div>
+                  <div class="weather-info">
+                    <div class="weather-temp">
+                      <div class="high-temp">17°</div>
+                      <div class="low-temp">9°</div>
+                    </div>
+                    <div class="weather-humidity">
+                      <div class="weather-icon">
+                        <img src="./images/rainy 1.png" alt="Rain" />
+                      </div>
+                      <p>70%</p>
+                    </div>
+                  </div>
+                </div>
+            </section>
+            <!-- 行程區塊 -->
+            <section class="schedule-section" id="schedule-section">
+              <h2 class="schedule-title">Schedule</h2>
+              <div class="content">
+                <div class="time">11:20</div>
+                <div class="do"><a href="https://maps.app.goo.gl/aJ8kGmq2xP3dgJm99" target="_blank" rel="noopener noreferrer">國寶寵物</a> 集合</div>
+              </div>
+              <div class="content">
+                <div class="time">12:30</div>
+                <div class="do"><a href="https://maps.app.goo.gl/FEBRPeFebtfzTc789">全聯 關西北平店</a> 買食材</div>
+              </div>
+              <div class="content">
+                <div class="time">13:00</div>
+                <div class="do">到營地</div>
+              </div>
+        
+
+            </section>
+          </div>
+        </div>
+
+        <!-- 右側區塊 - 清單 -->
+        <div class="right-column">
+          <!-- 清單區塊 -->
+          <section class="list-section" id="list-section">
+            <div class="list">
+              <h2 class="list-title">Packing List</h2>
+              <div class="progress-container">
+                <p id="progress-text">0/15 Packed</p>
+                <div class="progress-bar">
+                  <div class="progress" id="progress"></div>
+                </div>
+              </div>
+
+              <div class="person-filter" id="person-filter">
+                <button class="active" data-person="all">All</button>
+                <button data-person="阿曹">阿曹</button>
+                <button data-person="77">77</button>
+                <button data-person="ikea">ikea</button>
+                <button data-person="康">康</button>
+                <button data-person="思霈">思霈</button>
+                <button data-person="昕樺">昕樺</button>
+              </div>
+
+              <div class="category">
+                <h2 class="category-title">Shared Gear</h2>
+                <ul class="item-list" id="public-items">
+                  <li class="item" data-person="阿曹,77">
+                    <div class="custom-checkbox">
+                      <input type="checkbox" id="stove" />
+                      <label for="stove" class="checkbox-label"></label>
+                    </div>
+                    <label for="stove" class="item-label">
+                      <span class="item-name">卡式爐</span>
+                      <span class="person-tags">
+                        <span class="person-tag">阿曹</span>
+                        <span class="person-tag">77</span>
+                      </span>
+                    </label>
+                    <button class="delete-btn">×</button>
+                  </li>
+                  <li class="item" data-person="阿曹,77">
+                    <div class="custom-checkbox">
+                      <input type="checkbox" id="cooking-utensils" />
+                      <label for="cooking-utensils" class="checkbox-label"></label>
+                    </div>
+                    <label for="cooking-utensils" class="item-label">
+                      <span class="item-name">鍋具、刀具、砧板</span>
+                      <span class="person-tags">
+                        <span class="person-tag">阿曹</span>
+                        <span class="person-tag">77</span>
+                      </span>
+                    </label>
+                    <button class="delete-btn">×</button>
+                  </li>
+                </ul>
+              </div>
+
+              <div class="category">
+                <h2 class="category-title">Food</h2>
+                <ul class="item-list" id="food-items">
+                  <li class="item" data-person="Tag,Tag">
+                    <div class="custom-checkbox">
+                      <input type="checkbox" id="food1" />
+                      <label for="food1" class="checkbox-label"></label>
+                    </div>
+                    <label for="food1" class="item-label">
+                      <span class="item-name">Item</span>
+                      <span class="person-tags">
+                        <span class="person-tag">Tag</span>
+                        <span class="person-tag">Tag</span>
+                      </span>
+                    </label>
+                    <button class="delete-btn">×</button>
+                  </li>
+                </ul>
+              </div>
+
+              <div class="category">
+                <h2 class="category-title">Personal Gear</h2>
+                <ul class="item-list" id="personal-items">
+                  <li class="item" data-person="Tag,Tag">
+                    <div class="custom-checkbox">
+                      <input type="checkbox" id="personal1" />
+                      <label for="personal1" class="checkbox-label"></label>
+                    </div>
+                    <label for="personal1" class="item-label">
+                      <span class="item-name">Item</span>
+                      <span class="person-tags">
+                        <span class="person-tag">Tag</span>
+                        <span class="person-tag">Tag</span>
+                      </span>
+                    </label>
+                    <button class="delete-btn">×</button>
+                  </li>
+                </ul>
+              </div>
+
+              <!-- 統一的輸入區 -->
+              <div class="add-section">
+                <div class="custom-select">
+                  <select id="category-select" class="category-select">
+                    <option value="Shared Gear">Shared Gear</option>
+                    <option value="Personal Gear">Personal Gear</option>
+                    <option value="Food">Food</option>
+                  </select>
+                  <div class="select-arrow"></div>
+                </div>
+                <input type="text" id="new-item-name" placeholder="新增項目名稱" />
+                <input type="text" id="new-item-quantity" placeholder="數量（可選）" />
+                <input type="text" id="new-item-person" placeholder="負責人（用逗號分隔）" />
+                <button id="add-unified-item">新增</button>
+              </div>
+              <!-- 控制按鈕 -->
+              <div class="controls">
+                <button onclick="saveList()" class="control-btn">儲存清單</button>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+    <script src="script.js"></script>
+    <script src="countdown.js"></script>
+  </body>
+</html>

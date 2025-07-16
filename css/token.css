@@ -1,0 +1,101 @@
+@import url("boxing.css");
+
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,100..700;1,100..700&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap");
+
+/* Geist Sans - 無襯線字體，用於一般文字 */
+@font-face {
+  font-family: "Geist Sans";
+  src: url("https://cdn.jsdelivr.net/npm/geist-font@latest/dist/font/GeistSans/GeistSans-Regular.woff2") format("woff2");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Geist Sans";
+  src: url("https://cdn.jsdelivr.net/npm/geist-font@latest/dist/font/GeistSans/GeistSans-Bold.woff2") format("woff2");
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Geist Mono - 等寬字體，用於代碼顯示 */
+@font-face {
+  font-family: "Geist Mono";
+  src: url("https://cdn.jsdelivr.net/npm/geist-font@latest/dist/font/GeistMono/GeistMono-Regular.woff2") format("woff2");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Geist Mono";
+  src: url("https://cdn.jsdelivr.net/npm/geist-font@latest/dist/font/GeistMono/GeistMono-Bold.woff2") format("woff2");
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  /* Theme - 根據設計圖更新 */
+  --background: #778473;
+
+  /* 文字顏色 */
+  --text-primary: #000000;
+  --text-secondary: #3c423a;
+  --text-on-color: #ffffff;
+  --text-placeholder: #3c423a;
+
+  /* 背景層級 */
+  --layer-01: #818d7d;
+
+  /* 按鈕顏色 */
+  --button-primary: #3a4038;
+  --button-primary-hover: #4a5048;
+
+  /* 邊框顏色 */
+  --border-subtle: #646e60;
+  --border-interactive: #3a4038;
+  --border-secondary: #000000;
+
+  /* 圖標顏色 */
+  --icon-primary: #3a4038;
+  --icon-on-color: #ffffff;
+
+  /* 輸入欄位 */
+  --field: #747f71;
+
+  /* Typography */
+  --font-tc: "Geist Sans", sans-serif;
+  --font-en: "Geist Sans", serif;
+  --font-mono: "Geist Mono", serif;
+
+  /* Spacing */
+  --spacing-01: 0.125rem; /* 2px */
+  --spacing-02: 0.25rem; /* 4px */
+  --spacing-03: 0.5rem; /* 8px */
+  --spacing-04: 0.75rem; /* 12px */
+  --spacing-05: 1rem; /* 16px */
+  --spacing-06: 1.5rem; /* 24px */
+  --spacing-07: 2rem; /* 32px */
+  --spacing-08: 2.5rem; /* 40px */
+  --spacing-09: 3rem; /* 48px */
+  --spacing-10: 4rem; /* 64px */
+  --spacing-11: 5rem; /* 80px */
+  --spacing-12: 6rem; /* 96px */
+
+  /* radius */
+  --radius-01: 0.5rem;
+  --radius-02: 1rem;
+
+  /* Breakpoints */
+  --screen-sm: 640px; /* @media (min-width: 640px) */
+  --screen-md: 768px; /* @media (min-width: 768px) */
+  --screen-lg: 1024px; /* @media (min-width: 1024px) */
+  --screen-xl: 1280px; /* @media (min-width: 1280px) */
+  --screen-2xl: 1536px; /* @media (min-width: 1536px) */
+
+  /* Transitions */
+  --theme-transition: background-color 0.5s cubic-bezier(0.4, 0, 0.2, 1), color 0.5s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
