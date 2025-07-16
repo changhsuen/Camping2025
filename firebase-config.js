@@ -1,4 +1,4 @@
-// firebase-config.js
+// firebase-config.js - 修復版
 // 使用現代的 Firebase v9+ 模組化 SDK
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
 import { getDatabase, ref, onValue, set, push, remove, off } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js";
@@ -15,20 +15,26 @@ const firebaseConfig = {
   measurementId: "G-B5F34BY5JX"
 };
 
-// 初始化 Firebase
-const app = initializeApp(firebaseConfig);
-const database = getDatabase(app);
+try {
+  // 初始化 Firebase
+  const app = initializeApp(firebaseConfig);
+  const database = getDatabase(app);
 
-// 導出函數供其他文件使用
-window.firebaseDB = database;
-window.firebaseRef = (path) => ref(database, path);
-window.firebaseOnValue = onValue;
-window.firebaseSet = set;
-window.firebasePush = push;
-window.firebaseRemove = remove;
-window.firebaseOff = off;
+  // 導出函數供其他文件使用
+  window.firebaseDB = database;
+  window.firebaseRef = (path) => ref(database, path);
+  window.firebaseOnValue = onValue;
+  window.firebaseSet = set;
+  window.firebasePush = push;
+  window.firebaseRemove = remove;
+  window.firebaseOff = off;
 
-// 觸發自定義事件通知 Firebase 已準備就緒
-window.dispatchEvent(new Event('firebaseReady'));
+  // 觸發自定義事件通知 Firebase 已準備就緒
+  window.dispatchEvent(new Event('firebaseReady'));
 
-console.log('Firebase initialized successfully!');
+  console.log('Firebase initialized successfully!');
+} catch (error) {
+  console.error('Error initializing Firebase:', error);
+  // 即使 Firebase 失敗，也要觸發事件讓應用可以使用本地儲存
+  window.dispatchEvent(new Event('firebaseReady'));
+}
