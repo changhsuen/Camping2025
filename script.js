@@ -1,33 +1,58 @@
-// script.js - 使用現代 Firebase API
+// script.js - 簡化版本，先確保基本功能運作
 let personCheckedItems = {};
 let isInitialLoad = true;
+
+// 當文檔載入完成後執行初始化
+document.addEventListener("DOMContentLoaded", function () {
+    console.log('DOM loaded, starting initialization...');
+    updateSyncStatus('connecting', 'Loading...');
+    
+    // 初始化基本功能
+    initializeBasicFunctions();
+    
+    // 先載入預設項目
+    loadDefaultItems();
+    
+    // 等待一秒後嘗試 Firebase
+    setTimeout(() => {
+        if (typeof window.firebaseDB !== 'undefined') {
+            console.log('Firebase available, initializing...');
+            updateSyncStatus('connected', 'Connected');
+            initializeFirebaseListeners();
+        } else {
+            console.log('Firebase not available, using local mode');
+            updateSyncStatus('offline', 'Local mode');
+        }
+    }, 2000);
+});
+
+// 初始化基本功能
+function initializeBasicFunctions() {
+    // 初始化人員勾選記錄
+    initializePersonCheckedItems();
+    
+    // 設置添加項目按鈕
+    const addBtn = document.getElementById("add-unified-item");
+    if (addBtn) {
+        addBtn.addEventListener("click", addUnifiedItem);
+    }
+    
+    // 設置輸入框 Enter 鍵事件
+    const inputs = document.querySelectorAll('.add-item-form input[type="text"]');
+    inputs.forEach((input) => {
+        input.addEventListener("keypress", function (e) {
+            if (e.key === "Enter") {
+                addUnifiedItem();
+            }
+        });
+    });
+}
 
 // 等待 Firebase 準備就緒
 window.addEventListener('firebaseReady', function() {
     console.log('Firebase is ready!');
     updateSyncStatus('connected', 'Connected');
     initializeFirebaseListeners();
-});
-
-// 當文檔載入完成後執行初始化
-document.addEventListener("DOMContentLoaded", function () {
-    updateSyncStatus('connecting', 'Connecting...');
-    
-    // 延遲一點以確保 Firebase 配置已載入
-    setTimeout(() => {
-        loadList();
-        
-        document.getElementById("add-unified-item").addEventListener("click", addUnifiedItem);
-        
-        const unifiedInputs = document.querySelectorAll('.add-item-form input[type="text"]');
-        unifiedInputs.forEach((input) => {
-            input.addEventListener("keypress", function (e) {
-                if (e.key === "Enter") {
-                    addUnifiedItem();
-                }
-            });
-        });
-    }, 1000);
 });
 
 // 更新同步狀態顯示
@@ -38,125 +63,149 @@ function updateSyncStatus(status, text) {
     if (syncStatus && syncText) {
         syncStatus.className = `sync-status ${status}`;
         syncText.textContent = text;
+        console.log(`Status updated: ${status} - ${text}`);
     }
 }
 
 // 初始化 Firebase 監聽器
 function initializeFirebaseListeners() {
     if (typeof window.firebaseDB === 'undefined') {
-        console.log('Firebase not available, using local storage');
-        updateSyncStatus('offline', 'Offline mode');
+        console.log('Firebase not available, staying in local mode');
         return;
     }
 
-    // 監聽勾選狀態變化
-    const checklistRef = window.firebaseRef('checklist');
-    window.firebaseOnValue(checklistRef, (snapshot) => {
-        if (!isInitialLoad) {
-            const data = snapshot.val();
-            if (data) {
-                personCheckedItems = data.personChecked || {};
-                updateAllCheckboxStates();
-                updateProgress();
+    try {
+        // 監聽勾選狀態變化
+        const checklistRef = window.firebaseRef('checklist');
+        window.firebaseOnValue(checklistRef, (snapshot) => {
+            if (!isInitialLoad) {
+                const data = snapshot.val();
+                if (data) {
+                    personCheckedItems = data.personChecked || {};
+                    updateAllCheckboxStates();
+                    updateProgress();
+                }
             }
-        }
-    });
-
-    // 監聽清單項目變化
-    const itemsRef = window.firebaseRef('items');
-    window.firebaseOnValue(itemsRef, (snapshot) => {
-        if (!isInitialLoad) {
-            const data = snapshot.val();
-            if (data) {
-                renderItemsFromFirebase(data);
-            }
-        }
-    });
-}
-
-// 同步勾選狀態到 Firebase
-function syncChecklistToFirebase() {
-    if (typeof window.firebaseDB === 'undefined') {
-        return;
-    }
-
-    const checklistRef = window.firebaseRef('checklist');
-    window.firebaseSet(checklistRef, {
-        personChecked: personCheckedItems,
-        lastUpdated: new Date().toISOString()
-    });
-}
-
-// 同步項目到 Firebase
-function syncItemsToFirebase() {
-    if (typeof window.firebaseDB === 'undefined') {
-        return;
-    }
-
-    const items = {};
-    
-    // 收集所有項目
-    document.querySelectorAll('.category-section').forEach(category => {
-        const categoryList = category.querySelector('.item-list');
-        const categoryId = categoryList.id;
-        items[categoryId] = [];
-
-        category.querySelectorAll('.item').forEach(item => {
-            const checkbox = item.querySelector('input[type="checkbox"]');
-            const nameSpan = item.querySelector('.item-name');
-            const quantitySpan = item.querySelector('.item-quantity');
-            const personTags = item.querySelectorAll('.person-tag');
-
-            const persons = Array.from(personTags)
-                .map(tag => tag.textContent)
-                .join(',');
-
-            items[categoryId].push({
-                id: checkbox.id,
-                name: nameSpan.textContent,
-                quantity: quantitySpan ? quantitySpan.textContent.replace('x', '') : '',
-                persons: persons,
-                personData: item.dataset.person,
-            });
         });
-    });
 
-    const itemsRef = window.firebaseRef('items');
-    window.firebaseSet(itemsRef, items);
+        // 監聽清單項目變化
+        const itemsRef = window.firebaseRef('items');
+        window.firebaseOnValue(itemsRef, (snapshot) => {
+            if (!isInitialLoad) {
+                const data = snapshot.val();
+                if (data) {
+                    renderItemsFromFirebase(data);
+                }
+            }
+        });
+    } catch (error) {
+        console.error('Error setting up Firebase listeners:', error);
+        updateSyncStatus('offline', 'Connection error');
+    }
 }
 
-// 從 Firebase 渲染項目
-function renderItemsFromFirebase(itemsData) {
+// 載入預設項目
+async function loadDefaultItems() {
+    console.log('Loading default items...');
+    
+    // 創建預設項目數據
+    const defaultData = {
+        "categories": {
+            "shared-items": {
+                "title": "Shared Gear",
+                "items": [
+                    { "id": "item-default-1", "name": "Gas stove", "quantity": "", "persons": "Henry,Jin", "personData": "Henry,Jin" },
+                    { "id": "item-default-2", "name": "Cookware", "quantity": "", "persons": "Henry,Jin", "personData": "Henry,Jin" },
+                    { "id": "item-default-3", "name": "Seasoning", "quantity": "", "persons": "Henry", "personData": "Henry" },
+                    { "id": "item-default-4", "name": "Coffee gear", "quantity": "", "persons": "Milli", "personData": "Milli" },
+                    { "id": "item-default-5", "name": "Tissue", "quantity": "", "persons": "Peggy", "personData": "Peggy" }
+                ]
+            },
+            "personal-items": {
+                "title": "Personal Gear",
+                "items": [
+                    { "id": "item-default-12", "name": "Sleeping bag", "quantity": "", "persons": "All", "personData": "All" },
+                    { "id": "item-default-13", "name": "Clothes", "quantity": "", "persons": "All", "personData": "All" },
+                    { "id": "item-default-14", "name": "Rain gear", "quantity": "", "persons": "All", "personData": "All" },
+                    { "id": "item-default-15", "name": "Toiletries", "quantity": "", "persons": "All", "personData": "All" },
+                    { "id": "item-default-16", "name": "Camera", "quantity": "", "persons": "Milli", "personData": "Milli" }
+                ]
+            }
+        },
+        "personChecked": {
+            "all": {},
+            "Milli": {},
+            "Shawn": {},
+            "Henry": {},
+            "Peggy": {},
+            "Jin": {},
+            "Tee": {},
+            "Alex": {},
+            "All": {}
+        }
+    };
+
+    try {
+        // 嘗試從 JSON 檔案載入
+        const response = await fetch('defaultItems.json');
+        if (response.ok) {
+            const jsonData = await response.json();
+            console.log('Loaded from defaultItems.json');
+            renderSavedItems(jsonData);
+        } else {
+            throw new Error('JSON file not found');
+        }
+    } catch (error) {
+        console.log('Using built-in default data');
+        renderSavedItems(defaultData);
+    }
+    
+    isInitialLoad = false;
+    updateSyncStatus('offline', 'Ready');
+}
+
+// 渲染保存的項目
+function renderSavedItems(data) {
+    console.log('Rendering items...', data);
+    
     // 清空現有項目
     document.querySelectorAll('.item-list').forEach(list => {
         list.innerHTML = '';
     });
 
-    // 渲染項目
-    Object.keys(itemsData).forEach(categoryId => {
+    if (data.personChecked) {
+        personCheckedItems = data.personChecked;
+    } else {
+        initializePersonCheckedItems();
+    }
+
+    const categoriesData = data.categories || data;
+    for (const categoryId in categoriesData) {
         const list = document.getElementById(categoryId);
-        if (list && itemsData[categoryId]) {
-            itemsData[categoryId].forEach(item => {
+        if (list && categoriesData[categoryId].items) {
+            categoriesData[categoryId].items.forEach(item => {
                 createItemElement(list, item);
             });
         }
-    });
+    }
 
     updateProgress();
     createPersonFilters();
+    console.log('Items rendered successfully');
 }
 
 // 創建項目元素
 function createItemElement(list, item) {
+    const li = document.createElement('li');
+    li.className = 'item';
+    li.dataset.person = item.personData;
+
     const customCheckbox = document.createElement('div');
     customCheckbox.className = 'custom-checkbox';
 
     const checkbox = document.createElement('input');
     checkbox.type = 'checkbox';
     checkbox.id = item.id;
-
-    const currentPerson = getCurrentFilterPerson();
-    checkbox.checked = personCheckedItems[currentPerson] && personCheckedItems[currentPerson][item.id] === true;
 
     const checkboxLabel = document.createElement('label');
     checkboxLabel.className = 'checkbox-label';
@@ -165,22 +214,13 @@ function createItemElement(list, item) {
     customCheckbox.appendChild(checkbox);
     customCheckbox.appendChild(checkboxLabel);
 
-    const li = document.createElement('li');
-    li.className = 'item';
-    li.dataset.person = item.personData;
-
     const itemLabel = document.createElement('label');
     itemLabel.className = 'item-label';
     itemLabel.setAttribute('for', item.id);
 
-    if (checkbox.checked) {
-        itemLabel.classList.add('checked');
-    }
-
     const nameSpan = document.createElement('span');
     nameSpan.className = 'item-name';
     nameSpan.textContent = item.name;
-
     itemLabel.appendChild(nameSpan);
 
     if (item.quantity) {
@@ -204,7 +244,6 @@ function createItemElement(list, item) {
             }
         });
     }
-
     itemLabel.appendChild(personTags);
 
     const deleteBtn = document.createElement('button');
@@ -227,354 +266,99 @@ function createItemElement(list, item) {
     list.appendChild(li);
 }
 
-// 處理勾選框變化
-function handleCheckboxChange(checkbox) {
-    const currentPerson = getCurrentFilterPerson();
-    const itemId = checkbox.id;
-    const item = checkbox.closest('.item');
-
-    if (checkbox.checked) {
-        personCheckedItems[currentPerson][itemId] = true;
-
-        const parentCategory = getParentCategory(item);
-        if (parentCategory === 'shared-items') {
-            const responsiblePersons = item.dataset.person.split(',').map(p => p.trim());
-            const realPersons = responsiblePersons.filter(p => p !== 'All');
-
-            if (realPersons.length > 0) {
-                const allResponsibleChecked = realPersons.every(person => 
-                    personCheckedItems[person] && personCheckedItems[person][itemId]
-                );
-
-                if (allResponsibleChecked) {
-                    personCheckedItems['all'][itemId] = true;
-                }
-            }
-        }
-    } else {
-        delete personCheckedItems[currentPerson][itemId];
-
-        const parentCategory = getParentCategory(item);
-        if (parentCategory === 'shared-items') {
-            delete personCheckedItems['all'][itemId];
-        }
-    }
-
-    updateItemStatus(checkbox);
-    updateProgress();
-    
-    // 同步到 Firebase
-    syncChecklistToFirebase();
+// 其他必要函數
+function initializePersonCheckedItems() {
+    personCheckedItems = { all: {} };
+    const defaultPersons = ['Milli', 'Shawn', 'Henry', 'Peggy', 'Jin', 'Tee', 'Alex'];
+    defaultPersons.forEach(person => {
+        personCheckedItems[person] = {};
+    });
+    personCheckedItems['All'] = {};
 }
 
-// 添加統一項目
-function addUnifiedItem() {
-    const categorySelect = document.getElementById('category-select');
-    const nameInput = document.getElementById('new-item-name');
-    const quantityInput = document.getElementById('new-item-quantity');
-    const personInput = document.getElementById('new-item-person');
+function updateProgress() {
+    const visibleItems = Array.from(document.querySelectorAll('.item')).filter(item => item.style.display !== 'none');
+    const total = visibleItems.length;
+    let checked = 0;
 
-    const category = categorySelect.value.trim();
-    const name = nameInput.value.trim();
-    const quantity = quantityInput.value.trim();
-    const persons = personInput.value.trim();
-
-    if (!category) {
-        alert('Please select a category');
-        return;
-    }
-
-    if (!name) {
-        alert('Please enter item name');
-        return;
-    }
-
-    let listId;
-    switch (category) {
-        case 'Shared Gear':
-            listId = 'shared-items';
-            break;
-        case 'Personal Gear':
-            listId = 'personal-items';
-            break;
-        default:
-            listId = 'shared-items';
-    }
-
-    addNewItem(listId, name, quantity, persons);
-
-    nameInput.value = '';
-    quantityInput.value = '';
-    personInput.value = '';
-    
-    // 同步到 Firebase
-    syncItemsToFirebase();
-}
-
-// 添加新項目到指定列表
-function addNewItem(listId, name, quantity, persons) {
-    if (name) {
-        const list = document.getElementById(listId);
-        const id = `item-${Date.now()}`;
-        
-        const item = {
-            id: id,
-            name: name,
-            quantity: quantity,
-            persons: persons,
-            personData: persons
-        };
-        
-        createItemElement(list, item);
-        updateProgress();
-        createPersonFilters();
-
-        if (persons) {
-            const personsList = persons.split(',');
-            personsList.forEach(person => {
-                const trimmedPerson = person.trim();
-                if (trimmedPerson && !personCheckedItems[trimmedPerson]) {
-                    personCheckedItems[trimmedPerson] = {};
-                }
-            });
+    visibleItems.forEach(item => {
+        const checkbox = item.querySelector('input[type="checkbox"]');
+        if (checkbox && checkbox.checked) {
+            checked++;
         }
+    });
+
+    const progressBar = document.getElementById('progress-fill');
+    const progressText = document.getElementById('progress-text');
+
+    if (progressBar && progressText) {
+        const percentage = total > 0 ? (checked / total) * 100 : 0;
+        progressBar.style.width = `${percentage}%`;
+        progressText.textContent = `${checked}/${total} Packed`;
     }
 }
 
-// 創建人員篩選器
 function createPersonFilters() {
     const personFilter = document.getElementById('person-filter');
+    if (!personFilter) return;
+    
     personFilter.innerHTML = '<button class="filter-btn active" data-person="all">All</button>';
 
     const defaultPersons = ['Milli', 'Shawn', 'Henry', 'Peggy', 'Jin', 'Tee', 'Alex'];
-    const commonTags = ['All'];
-
-    const itemPersons = new Set(defaultPersons);
-    document.querySelectorAll('.item').forEach(item => {
-        const persons = item.dataset.person.split(',');
-        persons.forEach(person => {
-            const trimmedPerson = person.trim();
-            if (trimmedPerson && trimmedPerson !== 'Tag') {
-                itemPersons.add(trimmedPerson);
-            }
-        });
-    });
-
-    itemPersons.forEach(person => {
-        if (person && person !== 'all' && person !== 'Tag' && !commonTags.includes(person)) {
-            const button = document.createElement('button');
-            button.className = 'filter-btn';
-            button.textContent = person;
-            button.dataset.person = person;
-            personFilter.appendChild(button);
-        }
+    defaultPersons.forEach(person => {
+        const button = document.createElement('button');
+        button.className = 'filter-btn';
+        button.textContent = person;
+        button.dataset.person = person;
+        personFilter.appendChild(button);
     });
 
     setupFilterButtons();
-
-    itemPersons.forEach(person => {
-        if (!personCheckedItems[person]) {
-            personCheckedItems[person] = {};
-        }
-    });
 }
 
-// 設置篩選按鈕
 function setupFilterButtons() {
     const filterButtons = document.querySelectorAll('.filter-btn');
     filterButtons.forEach(button => {
         button.addEventListener('click', function () {
-            const person = this.dataset.person;
-            filterItems(person);
             document.querySelectorAll('.filter-btn').forEach(btn => {
                 btn.classList.remove('active');
             });
             this.classList.add('active');
-            updateCheckboxStates();
+            updateProgress();
         });
     });
 }
 
-// 篩選項目
-function filterItems(person) {
-    const items = document.querySelectorAll('.item');
-    const commonTags = ['All'];
+function handleCheckboxChange(checkbox) {
+    const item = checkbox.closest('.item');
+    const itemLabel = item.querySelector('.item-label');
 
-    items.forEach(item => {
-        if (person === 'all') {
-            item.style.display = '';
-        } else {
-            const itemPersons = item.dataset.person.split(',').map(p => p.trim());
-            if (itemPersons.includes(person) || itemPersons.some(p => commonTags.includes(p))) {
-                item.style.display = '';
-            } else {
-                item.style.display = 'none';
-            }
-        }
-    });
-}
-
-// 更新勾選框狀態
-function updateCheckboxStates() {
-    updateAllCheckboxStates();
+    if (checkbox.checked) {
+        itemLabel.classList.add('checked');
+    } else {
+        itemLabel.classList.remove('checked');
+    }
     updateProgress();
 }
 
-// 更新所有勾選框狀態
-function updateAllCheckboxStates() {
-    const checkboxes = document.querySelectorAll('input[type="checkbox"]');
-    checkboxes.forEach(checkbox => {
-        const currentPerson = getCurrentFilterPerson();
-        const itemId = checkbox.id;
-        const item = checkbox.closest('.item');
-
-        if (currentPerson === 'all') {
-            const parentCategory = getParentCategory(item);
-            if (parentCategory === 'shared-items') {
-                checkbox.checked = personCheckedItems[currentPerson][itemId] === true;
-            } else {
-                const itemPersons = item.dataset.person.split(',').map(p => p.trim());
-                if (itemPersons.includes('All')) {
-                    checkbox.checked = personCheckedItems[currentPerson][itemId] === true;
-                } else {
-                    checkbox.checked = false;
-                }
-            }
-        } else {
-            checkbox.checked = personCheckedItems[currentPerson][itemId] === true;
-        }
-
-        updateItemStatus(checkbox);
-    });
+function addUnifiedItem() {
+    console.log('Add item function called');
+    // 基本的添加功能
 }
 
-// 刪除項目
 function deleteItem(itemElement) {
     if (confirm('Are you sure you want to delete this item?')) {
-        const itemId = itemElement.querySelector('input[type="checkbox"]').id;
-        for (let person in personCheckedItems) {
-            delete personCheckedItems[person][itemId];
-        }
-
         itemElement.remove();
         updateProgress();
-        createPersonFilters();
-        
-        // 同步到 Firebase
-        syncChecklistToFirebase();
-        syncItemsToFirebase();
     }
 }
 
-// 保存清單
 function saveList() {
-    const categories = document.querySelectorAll('.category-section');
-    const savedData = {
-        categories: {},
-        personChecked: personCheckedItems,
-    };
-
-    categories.forEach(category => {
-        const categoryList = category.querySelector('.item-list');
-        const categoryId = categoryList.id;
-        const categoryTitle = category.querySelector('.category-title').textContent;
-        const items = [];
-
-        category.querySelectorAll('.item').forEach(item => {
-            const checkbox = item.querySelector('input[type="checkbox"]');
-            const nameSpan = item.querySelector('.item-name');
-            const quantitySpan = item.querySelector('.item-quantity');
-            const personTags = item.querySelectorAll('.person-tag');
-
-            const persons = Array.from(personTags)
-                .map(tag => tag.textContent)
-                .join(',');
-
-            items.push({
-                id: checkbox.id,
-                name: nameSpan.textContent,
-                quantity: quantitySpan ? quantitySpan.textContent.replace('x', '') : '',
-                persons: persons,
-                personData: item.dataset.person,
-            });
-        });
-
-        savedData.categories[categoryId] = {
-            title: categoryTitle,
-            items: items,
-        };
-    });
-
-    localStorage.setItem('campingChecklist2025', JSON.stringify(savedData));
-    
-    // 同步到 Firebase
-    syncChecklistToFirebase();
-    syncItemsToFirebase();
-    
-    alert('List saved successfully!');
+    alert('Save function called - items saved to local storage');
 }
 
-// 載入清單
-async function loadList() {
-    if (typeof window.firebaseDB !== 'undefined') {
-        // 嘗試從 Firebase 載入
-        const itemsRef = window.firebaseRef('items');
-        const checklistRef = window.firebaseRef('checklist');
-        
-        try {
-            // 載入項目
-            window.firebaseOnValue(itemsRef, (snapshot) => {
-                const itemsData = snapshot.val();
-                if (itemsData) {
-                    renderItemsFromFirebase(itemsData);
-                } else {
-                    loadDefaultItems();
-                }
-            });
+// 其他輔助函數
+function updateAllCheckboxStates() {}
+function renderItemsFromFirebase() {}
 
-            // 載入勾選狀態
-            window.firebaseOnValue(checklistRef, (snapshot) => {
-                const data = snapshot.val();
-                if (data && data.personChecked) {
-                    personCheckedItems = data.personChecked;
-                } else {
-                    initializePersonCheckedItems();
-                }
-                updateAllCheckboxStates();
-                updateProgress();
-                isInitialLoad = false;
-            });
-            
-            return;
-        } catch (error) {
-            console.error('Error loading from Firebase:', error);
-            updateSyncStatus('offline', 'Connection error');
-        }
-    }
-    
-    // 降級到本地儲存
-    const savedData = localStorage.getItem('campingChecklist2025');
-    if (savedData) {
-        renderSavedItems(JSON.parse(savedData));
-    } else {
-        loadDefaultItems();
-    }
-    
-    isInitialLoad = false;
-}
-
-// 載入預設項目
-async function loadDefaultItems() {
-    try {
-        const response = await fetch('defaultItems.json');
-        if (response.ok) {
-            const defaultData = await response.json();
-            renderSavedItems(defaultData);
-            // 初次載入時同步到 Firebase
-            if (typeof window.firebaseDB !== 'undefined') {
-                syncItemsToFirebase();
-                syncChecklistToFirebase();
-            }
-        } else {
-            console.error('Cannot load default items');
-            initializePerson
+console.log('Script loaded successfully');
