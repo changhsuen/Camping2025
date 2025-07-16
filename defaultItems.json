@@ -1,48 +1,41 @@
 {
   "categories": {
-    "public-items": {
+    "shared-items": {
       "title": "Shared Gear",
       "items": [
-        { "id": "item-default-1", "name": "卡式爐", "quantity": "", "persons": "阿曹,77", "personData": "阿曹,77" },
-        { "id": "item-default-2", "name": "鍋具、刀具、砧板", "quantity": "", "persons": "阿曹,77", "personData": "阿曹,77" },
-        { "id": "item-default-3", "name": "手沖壺", "quantity": "", "persons": "77", "personData": "77" },
-        { "id": "item-default-4", "name": "咖啡豆、磨豆機", "quantity": "", "persons": "吉拉", "personData": "吉拉" },
-        { "id": "item-default-5", "name": "咖啡壺、濾杯", "quantity": "", "persons": "Ikea", "personData": "Ikea" },
-        { "id": "item-default-6", "name": "衛生紙", "quantity": "", "persons": "77", "personData": "77" },
-        { "id": "item-default-7", "name": "抹布", "quantity": "", "persons": "阿曹", "personData": "阿曹" },
-        { "id": "item-default-8", "name": "冰桶", "quantity": "", "persons": "77", "personData": "77" },
-        { "id": "item-default-9", "name": "鐵鏟", "quantity": "", "persons": "阿曹", "personData": "阿曹" },
-        { "id": "item-default-10", "name": "洗碗精", "quantity": "", "persons": "阿曹", "personData": "阿曹" },
-        { "id": "item-default-11", "name": "垃圾袋", "quantity": "", "persons": "阿曹", "personData": "阿曹" },
-        { "id": "item-default-12", "name": "延長線", "quantity": "", "persons": "康霖", "personData": "康霖" }
-      ]
-    },
-    "food-items": {
-      "title": "Food",
-      "items": [
-        { "id": "item-default-13", "name": "食材(當天買)", "quantity": "", "persons": "所有人", "personData": "所有人" },
-        { "id": "item-default-14", "name": "調味料(想煮飯的人)", "quantity": "", "persons": "所有人", "personData": "所有人" }
+        { "id": "item-default-1", "name": "Gas stove", "quantity": "", "persons": "Henry,Jin", "personData": "Henry,Jin" },
+        { "id": "item-default-2", "name": "Cookware", "quantity": "", "persons": "Henry,Jin", "personData": "Henry,Jin" },
+        { "id": "item-default-3", "name": "Seasoning", "quantity": "", "persons": "Henry", "personData": "Henry" },
+        { "id": "item-default-4", "name": "Coffee gear", "quantity": "", "persons": "Milli", "personData": "Milli" },
+        { "id": "item-default-5", "name": "Tissue", "quantity": "", "persons": "Peggy", "personData": "Peggy" },
+        { "id": "item-default-6", "name": "Rag", "quantity": "", "persons": "Peggy", "personData": "Peggy" },
+        { "id": "item-default-7", "name": "Ice bucket", "quantity": "", "persons": "Shawn", "personData": "Shawn" },
+        { "id": "item-default-8", "name": "Shovel", "quantity": "", "persons": "Shawn", "personData": "Shawn" },
+        { "id": "item-default-9", "name": "Dishwashing liquid", "quantity": "", "persons": "Tee", "personData": "Tee" },
+        { "id": "item-default-10", "name": "Trash bag", "quantity": "", "persons": "Tee", "personData": "Tee" },
+        { "id": "item-default-11", "name": "Extension cord", "quantity": "", "persons": "Alex", "personData": "Alex" }
       ]
     },
     "personal-items": {
       "title": "Personal Gear",
       "items": [
-        { "id": "item-default-15", "name": "睡袋", "quantity": "", "persons": "所有人", "personData": "所有人" },
-        { "id": "item-default-16", "name": "換洗衣物", "quantity": "", "persons": "所有人", "personData": "所有人" },
-        { "id": "item-default-17", "name": "雨具", "quantity": "", "persons": "所有人", "personData": "所有人" },
-        { "id": "item-default-18", "name": "盥洗用具", "quantity": "", "persons": "所有人", "personData": "所有人" }
+        { "id": "item-default-12", "name": "Sleeping bag", "quantity": "", "persons": "All", "personData": "All" },
+        { "id": "item-default-13", "name": "Clothes", "quantity": "", "persons": "All", "personData": "All" },
+        { "id": "item-default-14", "name": "Rain gear", "quantity": "", "persons": "All", "personData": "All" },
+        { "id": "item-default-15", "name": "Toiletries", "quantity": "", "persons": "All", "personData": "All" },
+        { "id": "item-default-16", "name": "Camera", "quantity": "", "persons": "Milli", "personData": "Milli" }
       ]
     }
   },
   "personChecked": {
     "all": {},
-    "77": {},
-    "阿曹": {},
-    "Ikea": {},
-    "吉拉": {},
-    "康霖": {},
-    "思霈": {},
-    "昕樺": {},
-    "所有人": {}
+    "Milli": {},
+    "Shawn": {},
+    "Henry": {},
+    "Peggy": {},
+    "Jin": {},
+    "Tee": {},
+    "Alex": {},
+    "All": {}
   }
 }
