@@ -695,13 +695,82 @@ function syncItemsToFirebase() {
 
 function deleteItem(itemElement) {
     if (confirm('Are you sure you want to delete this item?')) {
+        // 從所有人的勾選記錄中刪除該項目
+        const itemId = itemElement.querySelector('input[type="checkbox"]')?.id;
+        if (itemId) {
+            for (let person in personCheckedItems) {
+                delete personCheckedItems[person][itemId];
+            }
+        }
+        
         itemElement.remove();
         updateProgress();
+        createPersonFilters();
+        
+        // 同步到 Firebase（如果可用）
+        if (typeof window.firebaseDB !== 'undefined') {
+            syncChecklistToFirebase();
+            syncItemsToFirebase();
+        }
+        
+        console.log('Item deleted successfully');
     }
 }
 
 function saveList() {
-    alert('Save function called - items saved to local storage');
+    // 保存到本地儲存
+    const categories = document.querySelectorAll('.category-section');
+    const savedData = {
+        categories: {},
+        personChecked: personCheckedItems,
+        lastSaved: new Date().toISOString()
+    };
+
+    categories.forEach(category => {
+        const categoryList = category.querySelector('.item-list');
+        if (!categoryList) return;
+        
+        const categoryId = categoryList.id;
+        const categoryTitle = category.querySelector('.category-title')?.textContent || 'Unknown';
+        const items = [];
+
+        category.querySelectorAll('.item').forEach(item => {
+            const checkbox = item.querySelector('input[type="checkbox"]');
+            const nameSpan = item.querySelector('.item-name');
+            const quantitySpan = item.querySelector('.item-quantity');
+            const personTags = item.querySelectorAll('.person-tag');
+
+            if (!checkbox || !nameSpan) return;
+
+            const persons = Array.from(personTags)
+                .map(tag => tag.textContent)
+                .join(',');
+
+            items.push({
+                id: checkbox.id,
+                name: nameSpan.textContent,
+                quantity: quantitySpan ? quantitySpan.textContent.replace('x', '') : '',
+                persons: persons,
+                personData: item.dataset.person,
+            });
+        });
+
+        savedData.categories[categoryId] = {
+            title: categoryTitle,
+            items: items,
+        };
+    });
+
+    localStorage.setItem('campingChecklist2025', JSON.stringify(savedData));
+    
+    // 同步到 Firebase（如果可用）
+    if (typeof window.firebaseDB !== 'undefined') {
+        syncChecklistToFirebase();
+        syncItemsToFirebase();
+    }
+    
+    alert('List saved successfully!');
+    console.log('List saved to local storage and Firebase');
 }
 
 // 其他輔助函數
