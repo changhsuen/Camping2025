@@ -13,9 +13,9 @@ body {
 }
 
 .container {
+    padding: 20px 24px;
     max-width: 414px;
     margin: 0 auto;
-    background: white;
     min-height: 100vh;
     overflow-x: hidden;
 }
