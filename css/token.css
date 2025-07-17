@@ -1,17 +1,54 @@
 @import url('https://fonts.googleapis.com/css2?family=Work+Sans:ital,wght@0,100..900;1,100..900&display=swap');
 
 :root {
+  /* Colors */
+  --white: #ffffff;
+  --black: #000000;
+  --grey10: #f4f4f4;
+  --grey20: #e0e0e0;
+  --grey30: #c6c6c6;
+  --grey40: #a8a8a8;
+  --grey50: #8d8d8d;
+  --grey60: #6f6f6f;
+  --grey70: #525252;
+  --grey80: #424242;
+  --grey90: #262626;
+  --grey100: #161616;
+
+  --green10: #d2d9d2;
+  --green20: #c2cac2;
+  --green30: #b2bab1;
+  --green40: #a1aba0;
+  --green50: #929b8f;
+  --green60: #808a7d;
+  --green70: #6e796a;
+  --green80: #5c6757;
+  --green90: #4a5443;
+  --green100: #37402f;
+  
+
+  --hover-grey10: #e8e8e8;
+  --hover-grey20: #d1d1d1;
+  --hover-grey30: #b5b5b5;
+  --hover-grey40: #999999;
+  --hover-grey50: #7a7a7a;
+  --hover-grey60: #5e5e5e;
+  --hover-grey70: #636363;
+  --hover-grey80: #474747;
+  --hover-grey90: #333333;
+  --hover-grey100: #292929;
+
   /* Theme */
-  --background: #f5f5f5;
+  --background: var(--grey10);
 
   /* 文字顏色 */
-  --text-primary: #1f2937;
-  --text-secondary: #6b7280;
-  --text-on-color: #ffffff;
-  --text-placeholder: #9ca3af;
+  --text-primary: var(--grey100);
+  --text-secondary: var(--grey70);
+  --text-on-color: var(--white);
+  --text-placeholder: var(--grey50);
 
   /* 背景層級 */
-  --layer-01: #ffffff;
+  --layer-01: var(--grey20);
 
   /* 按鈕顏色 */
   --button-primary: #374151;
