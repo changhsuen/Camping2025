@@ -1,19 +1,18 @@
-// script.js - 簡化版本，先確保基本功能運作
+// script.js - 完全重新整理版，避免函數重複定義
 let personCheckedItems = {};
 let isInitialLoad = true;
 
-// 當文檔載入完成後執行初始化
+// ============================================
+// 初始化函數
+// ============================================
+
 document.addEventListener("DOMContentLoaded", function () {
     console.log('DOM loaded, starting initialization...');
     updateSyncStatus('connecting', 'Loading...');
     
-    // 初始化基本功能
     initializeBasicFunctions();
-    
-    // 先載入預設項目
     loadDefaultItems();
     
-    // 等待一秒後嘗試 Firebase
     setTimeout(() => {
         if (typeof window.firebaseDB !== 'undefined') {
             console.log('Firebase available, initializing...');
@@ -26,19 +25,21 @@ document.addEventListener("DOMContentLoaded", function () {
     }, 2000);
 });
 
-// 初始化基本功能
 function initializeBasicFunctions() {
-    // 初始化人員勾選記錄
+    console.log('Initializing basic functions...');
+    
     initializePersonCheckedItems();
     
-    // 設置添加項目按鈕
     const addBtn = document.getElementById("add-unified-item");
     if (addBtn) {
+        console.log('Add button found, setting up event listener');
         addBtn.addEventListener("click", addUnifiedItem);
+    } else {
+        console.error('Add button not found!');
     }
     
-    // 設置輸入框 Enter 鍵事件
     const inputs = document.querySelectorAll('.add-item-form input[type="text"]');
+    console.log(`Found ${inputs.length} input fields`);
     inputs.forEach((input) => {
         input.addEventListener("keypress", function (e) {
             if (e.key === "Enter") {
@@ -48,26 +49,25 @@ function initializeBasicFunctions() {
     });
 }
 
-// 等待 Firebase 準備就緒
+function initializePersonCheckedItems() {
+    personCheckedItems = { all: {} };
+    const defaultPersons = ['Milli', 'Shawn', 'Henry', 'Peggy', 'Jin', 'Tee', 'Alex'];
+    defaultPersons.forEach(person => {
+        personCheckedItems[person] = {};
+    });
+    personCheckedItems['All'] = {};
+}
+
+// ============================================
+// Firebase 相關函數
+// ============================================
+
 window.addEventListener('firebaseReady', function() {
     console.log('Firebase is ready!');
     updateSyncStatus('connected', 'Connected');
     initializeFirebaseListeners();
 });
 
-// 更新同步狀態顯示
-function updateSyncStatus(status, text) {
-    const syncStatus = document.getElementById('sync-status');
-    const syncText = document.getElementById('sync-text');
-    
-    if (syncStatus && syncText) {
-        syncStatus.className = `sync-status ${status}`;
-        syncText.textContent = text;
-        console.log(`Status updated: ${status} - ${text}`);
-    }
-}
-
-// 初始化 Firebase 監聽器
 function initializeFirebaseListeners() {
     if (typeof window.firebaseDB === 'undefined') {
         console.log('Firebase not available, staying in local mode');
@@ -75,7 +75,6 @@ function initializeFirebaseListeners() {
     }
 
     try {
-        // 監聽勾選狀態變化
         const checklistRef = window.firebaseRef('checklist');
         window.firebaseOnValue(checklistRef, (snapshot) => {
             if (!isInitialLoad) {
@@ -88,7 +87,6 @@ function initializeFirebaseListeners() {
             }
         });
 
-        // 監聽清單項目變化
         const itemsRef = window.firebaseRef('items');
         window.firebaseOnValue(itemsRef, (snapshot) => {
             if (!isInitialLoad) {
@@ -104,11 +102,79 @@ function initializeFirebaseListeners() {
     }
 }
 
-// 載入預設項目
+function syncChecklistToFirebase() {
+    if (typeof window.firebaseDB === 'undefined') {
+        return;
+    }
+
+    try {
+        const checklistRef = window.firebaseRef('checklist');
+        window.firebaseSet(checklistRef, {
+            personChecked: personCheckedItems,
+            lastUpdated: new Date().toISOString()
+        });
+        console.log('Synced to Firebase');
+    } catch (error) {
+        console.error('Error syncing to Firebase:', error);
+    }
+}
+
+function syncItemsToFirebase() {
+    if (typeof window.firebaseDB === 'undefined') {
+        return;
+    }
+
+    const items = {};
+    
+    document.querySelectorAll('.category-section').forEach(category => {
+        const categoryList = category.querySelector('.item-list');
+        if (!categoryList) return;
+        
+        const categoryId = categoryList.id;
+        items[categoryId] = [];
+
+        category.querySelectorAll('.item').forEach(item => {
+            const checkbox = item.querySelector('input[type="checkbox"]');
+            const nameSpan = item.querySelector('.item-name');
+            const quantitySpan = item.querySelector('.item-quantity');
+            const personTags = item.querySelectorAll('.person-tag');
+
+            if (!checkbox || !nameSpan) return;
+
+            const persons = Array.from(personTags)
+                .map(tag => tag.textContent)
+                .join(',');
+
+            items[categoryId].push({
+                id: checkbox.id,
+                name: nameSpan.textContent,
+                quantity: quantitySpan ? quantitySpan.textContent.replace('x', '') : '',
+                persons: persons,
+                personData: item.dataset.person,
+            });
+        });
+    });
+
+    try {
+        const itemsRef = window.firebaseRef('items');
+        window.firebaseSet(itemsRef, items);
+        console.log('Items synced to Firebase');
+    } catch (error) {
+        console.error('Error syncing items to Firebase:', error);
+    }
+}
+
+function renderItemsFromFirebase(data) {
+    renderSavedItems({ categories: data });
+}
+
+// ============================================
+// 資料載入函數
+// ============================================
+
 async function loadDefaultItems() {
     console.log('Loading default items...');
     
-    // 創建預設項目數據
     const defaultData = {
         "categories": {
             "shared-items": {
@@ -118,7 +184,13 @@ async function loadDefaultItems() {
                     { "id": "item-default-2", "name": "Cookware", "quantity": "", "persons": "Henry,Jin", "personData": "Henry,Jin" },
                     { "id": "item-default-3", "name": "Seasoning", "quantity": "", "persons": "Henry", "personData": "Henry" },
                     { "id": "item-default-4", "name": "Coffee gear", "quantity": "", "persons": "Milli", "personData": "Milli" },
-                    { "id": "item-default-5", "name": "Tissue", "quantity": "", "persons": "Peggy", "personData": "Peggy" }
+                    { "id": "item-default-5", "name": "Tissue", "quantity": "", "persons": "Peggy", "personData": "Peggy" },
+                    { "id": "item-default-6", "name": "Rag", "quantity": "", "persons": "Peggy", "personData": "Peggy" },
+                    { "id": "item-default-7", "name": "Ice bucket", "quantity": "", "persons": "Shawn", "personData": "Shawn" },
+                    { "id": "item-default-8", "name": "Shovel", "quantity": "", "persons": "Shawn", "personData": "Shawn" },
+                    { "id": "item-default-9", "name": "Dishwashing liquid", "quantity": "", "persons": "Tee", "personData": "Tee" },
+                    { "id": "item-default-10", "name": "Trash bag", "quantity": "", "persons": "Tee", "personData": "Tee" },
+                    { "id": "item-default-11", "name": "Extension cord", "quantity": "", "persons": "Alex", "personData": "Alex" }
                 ]
             },
             "personal-items": {
@@ -146,7 +218,6 @@ async function loadDefaultItems() {
     };
 
     try {
-        // 嘗試從 JSON 檔案載入
         const response = await fetch('defaultItems.json');
         if (response.ok) {
             const jsonData = await response.json();
@@ -156,7 +227,7 @@ async function loadDefaultItems() {
             throw new Error('JSON file not found');
         }
     } catch (error) {
-        console.log('Using built-in default data');
+        console.log('JSON file not found, using built-in default data');
         renderSavedItems(defaultData);
     }
     
@@ -164,11 +235,9 @@ async function loadDefaultItems() {
     updateSyncStatus('offline', 'Ready');
 }
 
-// 渲染保存的項目
 function renderSavedItems(data) {
     console.log('Rendering items...', data);
     
-    // 清空現有項目
     document.querySelectorAll('.item-list').forEach(list => {
         list.innerHTML = '';
     });
@@ -183,9 +252,12 @@ function renderSavedItems(data) {
     for (const categoryId in categoriesData) {
         const list = document.getElementById(categoryId);
         if (list && categoriesData[categoryId].items) {
+            console.log(`Rendering ${categoriesData[categoryId].items.length} items for ${categoryId}`);
             categoriesData[categoryId].items.forEach(item => {
                 createItemElement(list, item);
             });
+        } else {
+            console.log(`No list found for ${categoryId} or no items`);
         }
     }
 
@@ -194,8 +266,13 @@ function renderSavedItems(data) {
     console.log('Items rendered successfully');
 }
 
-// 創建項目元素
+// ============================================
+// UI 元素創建函數
+// ============================================
+
 function createItemElement(list, item) {
+    console.log('Creating item element:', item.name);
+    
     const li = document.createElement('li');
     li.className = 'item';
     li.dataset.person = item.personData;
@@ -266,49 +343,15 @@ function createItemElement(list, item) {
     list.appendChild(li);
 }
 
-// 其他必要函數
-function initializePersonCheckedItems() {
-    personCheckedItems = { all: {} };
-    const defaultPersons = ['Milli', 'Shawn', 'Henry', 'Peggy', 'Jin', 'Tee', 'Alex'];
-    defaultPersons.forEach(person => {
-        personCheckedItems[person] = {};
-    });
-    personCheckedItems['All'] = {};
-}
-
-function updateProgress() {
-    const visibleItems = Array.from(document.querySelectorAll('.item')).filter(item => item.style.display !== 'none');
-    const total = visibleItems.length;
-    let checked = 0;
-
-    visibleItems.forEach(item => {
-        const checkbox = item.querySelector('input[type="checkbox"]');
-        if (checkbox && checkbox.checked) {
-            checked++;
-        }
-    });
-
-    const progressBar = document.getElementById('progress-fill');
-    const progressText = document.getElementById('progress-text');
-
-    if (progressBar && progressText) {
-        const percentage = total > 0 ? (checked / total) * 100 : 0;
-        progressBar.style.width = `${percentage}%`;
-        progressText.textContent = `${checked}/${total} Packed`;
-    }
-}
-
 function createPersonFilters() {
     const personFilter = document.getElementById('person-filter');
     if (!personFilter) return;
     
-    // 保持當前選中的人員
     const currentActive = document.querySelector('.filter-btn.active');
     const currentPerson = currentActive ? currentActive.dataset.person : 'all';
     
     personFilter.innerHTML = '<button class="filter-btn" data-person="all">All</button>';
 
-    // 收集所有出現在項目中的人員
     const allPersons = new Set(['Milli', 'Shawn', 'Henry', 'Peggy', 'Jin', 'Tee', 'Alex']);
     
     document.querySelectorAll('.item').forEach(item => {
@@ -321,7 +364,6 @@ function createPersonFilters() {
         });
     });
 
-    // 為每個人創建篩選按鈕
     allPersons.forEach(person => {
         if (person && person !== 'all') {
             const button = document.createElement('button');
@@ -332,7 +374,6 @@ function createPersonFilters() {
         }
     });
 
-    // 恢復之前選中的狀態
     const buttonToActivate = personFilter.querySelector(`[data-person="${currentPerson}"]`);
     if (buttonToActivate) {
         buttonToActivate.classList.add('active');
@@ -340,10 +381,8 @@ function createPersonFilters() {
         personFilter.querySelector('[data-person="all"]').classList.add('active');
     }
 
-    // 重新設置按鈕事件
     setupFilterButtons();
 
-    // 確保每個人的勾選記錄已初始化
     allPersons.forEach(person => {
         if (!personCheckedItems[person]) {
             personCheckedItems[person] = {};
@@ -351,99 +390,42 @@ function createPersonFilters() {
     });
 }
 
+// ============================================
+// 事件處理函數
+// ============================================
+
 function setupFilterButtons() {
     const filterButtons = document.querySelectorAll('.filter-btn');
     filterButtons.forEach(button => {
         button.addEventListener('click', function () {
             const person = this.dataset.person;
             
-            // 更新按鈕狀態
             document.querySelectorAll('.filter-btn').forEach(btn => {
                 btn.classList.remove('active');
             });
             this.classList.add('active');
             
-            // 執行篩選
             filterItems(person);
-            
-            // 更新勾選框狀態以顯示該人員的勾選情況
             updateCheckboxStates();
-            
             updateProgress();
         });
     });
 }
 
-// 篩選項目函數
-function filterItems(person) {
-    const items = document.querySelectorAll('.item');
-    
-    items.forEach(item => {
-        if (person === 'all') {
-            // 如果選擇 "All"，顯示所有項目
-            item.style.display = '';
-        } else {
-            // 獲取項目的負責人列表
-            const itemPersons = item.dataset.person.split(',').map(p => p.trim());
-            
-            // 檢查是否包含選擇的人員或 "All" 標籤
-            if (itemPersons.includes(person) || itemPersons.includes('All')) {
-                item.style.display = '';
-            } else {
-                item.style.display = 'none';
-            }
-        }
-    });
-    
-    console.log(`Filtered for: ${person}`);
-}
-
-// 獲取當前篩選的人員
-function getCurrentFilterPerson() {
-    const activeButton = document.querySelector('.filter-btn.active');
-    return activeButton ? activeButton.dataset.person : 'all';
-}
-
-// 更新所有勾選框狀態（當切換篩選時）
-function updateCheckboxStates() {
-    const currentPerson = getCurrentFilterPerson();
-    const checkboxes = document.querySelectorAll('input[type="checkbox"]');
-
-    checkboxes.forEach(checkbox => {
-        const itemId = checkbox.id;
-        const item = checkbox.closest('.item');
-        const itemLabel = item.querySelector('.item-label');
-
-        // 檢查該人員是否勾選了此項目
-        const isChecked = personCheckedItems[currentPerson] && personCheckedItems[currentPerson][itemId] === true;
-        
-        checkbox.checked = isChecked;
-        
-        if (isChecked) {
-            itemLabel.classList.add('checked');
-        } else {
-            itemLabel.classList.remove('checked');
-        }
-    });
-}
-
 function handleCheckboxChange(checkbox) {
     const currentPerson = getCurrentFilterPerson();
     const itemId = checkbox.id;
     const item = checkbox.closest('.item');
     const itemLabel = item.querySelector('.item-label');
 
-    // 更新視覺狀態
     if (checkbox.checked) {
         itemLabel.classList.add('checked');
-        // 記錄該人員勾選此項目
         if (!personCheckedItems[currentPerson]) {
             personCheckedItems[currentPerson] = {};
         }
         personCheckedItems[currentPerson][itemId] = true;
     } else {
         itemLabel.classList.remove('checked');
-        // 移除該人員對此項目的勾選記錄
         if (personCheckedItems[currentPerson]) {
             delete personCheckedItems[currentPerson][itemId];
         }
@@ -451,104 +433,8 @@ function handleCheckboxChange(checkbox) {
     
     updateProgress();
     
-    // 同步到 Firebase（如果可用）
     if (typeof window.firebaseDB !== 'undefined') {
         syncChecklistToFirebase();
-    }
-}
-
-// 同步勾選狀態到 Firebase
-function syncChecklistToFirebase() {
-    if (typeof window.firebaseDB === 'undefined') {
-        return;
-    }
-
-    try {
-        const checklistRef = window.firebaseRef('checklist');
-        window.firebaseSet(checklistRef, {
-            personChecked: personCheckedItems,
-            lastUpdated: new Date().toISOString()
-        });
-        console.log('Synced to Firebase');
-    } catch (error) {
-        console.error('Error syncing to Firebase:', error);
-    }
-}
-
-function handleCheckboxChange(checkbox) {
-    const currentPerson = getCurrentFilterPerson();
-    const itemId = checkbox.id;
-    const item = checkbox.closest('.item');
-    const itemLabel = item.querySelector('.item-label');
-
-    // 更新視覺狀態
-    if (checkbox.checked) {
-        itemLabel.classList.add('checked');
-        // 記錄該人員勾選此項目
-        if (!personCheckedItems[currentPerson]) {
-            personCheckedItems[currentPerson] = {};
-        }
-        personCheckedItems[currentPerson][itemId] = true;
-    } else {
-        itemLabel.classList.remove('checked');
-        // 移除該人員對此項目的勾選記錄
-        if (personCheckedItems[currentPerson]) {
-            delete personCheckedItems[currentPerson][itemId];
-        }
-    }
-    
-    updateProgress();
-    
-    // 同步到 Firebase（如果可用）
-    if (typeof window.firebaseDB !== 'undefined') {
-        syncChecklistToFirebase();
-    }
-}
-
-// 獲取當前篩選的人員
-function getCurrentFilterPerson() {
-    const activeButton = document.querySelector('.filter-btn.active');
-    return activeButton ? activeButton.dataset.person : 'all';
-}
-
-// 更新所有勾選框狀態（當切換篩選時）
-function updateCheckboxStates() {
-    const currentPerson = getCurrentFilterPerson();
-    const checkboxes = document.querySelectorAll('input[type="checkbox"]');
-
-    checkboxes.forEach(checkbox => {
-        const itemId = checkbox.id;
-        const item = checkbox.closest('.item');
-        const itemLabel = item.querySelector('.item-label');
-
-        // 檢查該人員是否勾選了此項目
-        const isChecked = personCheckedItems[currentPerson] && personCheckedItems[currentPerson][itemId] === true;
-        
-        checkbox.checked = isChecked;
-        
-        if (isChecked) {
-            itemLabel.classList.add('checked');
-        } else {
-            itemLabel.classList.remove('checked');
-        }
-    });
-}
-
-// 同步勾選狀態到 Firebase
-function syncChecklistToFirebase() {
-    if (typeof window.firebaseDB === 'undefined') {
-        return;
-    }
-
-    try {
-        const checklistRef = window.firebaseRef('checklist');
-        window.firebaseSet(checklistRef, {
-            personChecked: personCheckedItems,
-            lastUpdated: new Date().toISOString()
-        });
-        console.log('Synced to Firebase');
-    } catch (error) {
-        console.error('Error syncing to Firebase:', error);
     }
 }
 
@@ -560,12 +446,18 @@ function addUnifiedItem() {
     const quantityInput = document.getElementById('new-item-quantity');
     const personInput = document.getElementById('new-item-person');
 
+    if (!categorySelect || !nameInput) {
+        console.error('Required input elements not found');
+        return;
+    }
+
     const category = categorySelect.value.trim();
     const name = nameInput.value.trim();
-    const quantity = quantityInput.value.trim();
-    const persons = personInput.value.trim();
+    const quantity = quantityInput ? quantityInput.value.trim() : '';
+    const persons = personInput ? personInput.value.trim() : '';
 
-    // 檢查輸入是否有效
+    console.log('Form values:', { category, name, quantity, persons });
+
     if (!category) {
         alert('Please select a category');
         return;
@@ -576,7 +468,6 @@ function addUnifiedItem() {
         return;
     }
 
-    // 確定要添加到哪個列表
     let listId;
     switch (category) {
         case 'Shared Gear':
@@ -589,20 +480,21 @@ function addUnifiedItem() {
             listId = 'shared-items';
     }
 
-    // 添加新項目
+    console.log(`Adding to list: ${listId}`);
     addNewItem(listId, name, quantity, persons);
 
-    // 清空輸入框
     nameInput.value = '';
-    quantityInput.value = '';
-    personInput.value = '';
+    if (quantityInput) quantityInput.value = '';
+    if (personInput) personInput.value = '';
     
-    console.log(`Added new item: ${name} to ${listId}`);
+    console.log(`Successfully added: ${name}`);
 }
 
-// 添加新項目到指定列表
 function addNewItem(listId, name, quantity, persons) {
-    if (!name) return;
+    if (!name) {
+        console.error('No name provided for new item');
+        return;
+    }
     
     const list = document.getElementById(listId);
     if (!list) {
@@ -620,14 +512,12 @@ function addNewItem(listId, name, quantity, persons) {
         personData: persons || 'All'
     };
     
-    // 創建項目元素
-    createItemElement(list, item);
+    console.log('Creating new item:', item);
     
-    // 更新進度和篩選器
+    createItemElement(list, item);
     updateProgress();
     createPersonFilters();
 
-    // 確保人員勾選記錄已初始化
     if (persons) {
         const personsList = persons.split(',');
         personsList.forEach(person => {
@@ -638,64 +528,15 @@ function addNewItem(listId, name, quantity, persons) {
         });
     }
     
-    // 同步到 Firebase（如果可用）
     if (typeof window.firebaseDB !== 'undefined') {
         syncItemsToFirebase();
     }
     
-    console.log(`Successfully added item: ${name}`);
-}
-
-// 同步項目到 Firebase
-function syncItemsToFirebase() {
-    if (typeof window.firebaseDB === 'undefined') {
-        return;
-    }
-
-    const items = {};
-    
-    // 收集所有項目
-    document.querySelectorAll('.category-section').forEach(category => {
-        const categoryList = category.querySelector('.item-list');
-        if (!categoryList) return;
-        
-        const categoryId = categoryList.id;
-        items[categoryId] = [];
-
-        category.querySelectorAll('.item').forEach(item => {
-            const checkbox = item.querySelector('input[type="checkbox"]');
-            const nameSpan = item.querySelector('.item-name');
-            const quantitySpan = item.querySelector('.item-quantity');
-            const personTags = item.querySelectorAll('.person-tag');
-
-            if (!checkbox || !nameSpan) return;
-
-            const persons = Array.from(personTags)
-                .map(tag => tag.textContent)
-                .join(',');
-
-            items[categoryId].push({
-                id: checkbox.id,
-                name: nameSpan.textContent,
-                quantity: quantitySpan ? quantitySpan.textContent.replace('x', '') : '',
-                persons: persons,
-                personData: item.dataset.person,
-            });
-        });
-    });
-
-    try {
-        const itemsRef = window.firebaseRef('items');
-        window.firebaseSet(itemsRef, items);
-        console.log('Items synced to Firebase');
-    } catch (error) {
-        console.error('Error syncing items to Firebase:', error);
-    }
+    console.log(`Successfully created item: ${name} in ${listId}`);
 }
 
 function deleteItem(itemElement) {
     if (confirm('Are you sure you want to delete this item?')) {
-        // 從所有人的勾選記錄中刪除該項目
         const itemId = itemElement.querySelector('input[type="checkbox"]')?.id;
         if (itemId) {
             for (let person in personCheckedItems) {
@@ -707,7 +548,6 @@ function deleteItem(itemElement) {
         updateProgress();
         createPersonFilters();
         
-        // 同步到 Firebase（如果可用）
         if (typeof window.firebaseDB !== 'undefined') {
             syncChecklistToFirebase();
             syncItemsToFirebase();
@@ -718,7 +558,6 @@ function deleteItem(itemElement) {
 }
 
 function saveList() {
-    // 保存到本地儲存
     const categories = document.querySelectorAll('.category-section');
     const savedData = {
         categories: {},
@@ -763,7 +602,6 @@ function saveList() {
 
     localStorage.setItem('campingChecklist2025', JSON.stringify(savedData));
     
-    // 同步到 Firebase（如果可用）
     if (typeof window.firebaseDB !== 'undefined') {
         syncChecklistToFirebase();
         syncItemsToFirebase();
@@ -773,8 +611,93 @@ function saveList() {
     console.log('List saved to local storage and Firebase');
 }
 
-// 其他輔助函數
-function updateAllCheckboxStates() {}
-function renderItemsFromFirebase() {}
+// ============================================
+// 輔助函數
+// ============================================
+
+function updateSyncStatus(status, text) {
+    const syncStatus = document.getElementById('sync-status');
+    const syncText = document.getElementById('sync-text');
+    
+    if (syncStatus && syncText) {
+        syncStatus.className = `sync-status ${status}`;
+        syncText.textContent = text;
+        console.log(`Status updated: ${status} - ${text}`);
+    } else {
+        console.log('Sync status elements not found');
+    }
+}
+
+function updateProgress() {
+    const visibleItems = Array.from(document.querySelectorAll('.item')).filter(item => item.style.display !== 'none');
+    const total = visibleItems.length;
+    let checked = 0;
+
+    visibleItems.forEach(item => {
+        const checkbox = item.querySelector('input[type="checkbox"]');
+        if (checkbox && checkbox.checked) {
+            checked++;
+        }
+    });
+
+    const progressBar = document.getElementById('progress-fill');
+    const progressText = document.getElementById('progress-text');
+
+    if (progressBar && progressText) {
+        const percentage = total > 0 ? (checked / total) * 100 : 0;
+        progressBar.style.width = `${percentage}%`;
+        progressText.textContent = `${checked}/${total} Packed`;
+    }
+}
+
+function filterItems(person) {
+    const items = document.querySelectorAll('.item');
+    
+    items.forEach(item => {
+        if (person === 'all') {
+            item.style.display = '';
+        } else {
+            const itemPersons = item.dataset.person.split(',').map(p => p.trim());
+            
+            if (itemPersons.includes(person) || itemPersons.includes('All')) {
+                item.style.display = '';
+            } else {
+                item.style.display = 'none';
+            }
+        }
+    });
+    
+    console.log(`Filtered for: ${person}`);
+}
+
+function getCurrentFilterPerson() {
+    const activeButton = document.querySelector('.filter-btn.active');
+    return activeButton ? activeButton.dataset.person : 'all';
+}
+
+function updateCheckboxStates() {
+    const currentPerson = getCurrentFilterPerson();
+    const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+
+    checkboxes.forEach(checkbox => {
+        const itemId = checkbox.id;
+        const item = checkbox.closest('.item');
+        const itemLabel = item.querySelector('.item-label');
+
+        const isChecked = personCheckedItems[currentPerson] && personCheckedItems[currentPerson][itemId] === true;
+        
+        checkbox.checked = isChecked;
+        
+        if (isChecked) {
+            itemLabel.classList.add('checked');
+        } else {
+            itemLabel.classList.remove('checked');
+        }
+    });
+}
+
+function updateAllCheckboxStates() {
+    updateCheckboxStates();
+}
 
 console.log('Script loaded successfully');
