@@ -1,6 +1,7 @@
-// script.js - 完全重新整理版，避免函數重複定義
+// script.js - 完整修正版，解決 Firebase 同步問題
 let personCheckedItems = {};
 let isInitialLoad = true;
+let hasLoadedDefaultItems = false;
 
 // ============================================
 // 初始化函數
@@ -8,19 +9,20 @@ let isInitialLoad = true;
 
 document.addEventListener("DOMContentLoaded", function () {
     console.log('DOM loaded, starting initialization...');
-    updateSyncStatus('connecting', 'Loading...');
+    updateSyncStatus('connecting', '載入中...');
     
     initializeBasicFunctions();
     loadDefaultItems();
     
+    // 延遲檢查 Firebase 狀態
     setTimeout(() => {
         if (typeof window.firebaseDB !== 'undefined') {
             console.log('Firebase available, initializing...');
-            updateSyncStatus('connected', 'Connected');
+            updateSyncStatus('connected', '已連接');
             initializeFirebaseListeners();
         } else {
             console.log('Firebase not available, using local mode');
-            updateSyncStatus('offline', 'Local mode');
+            updateSyncStatus('offline', '本地模式');
         }
     }, 2000);
 });
@@ -64,8 +66,10 @@ function initializePersonCheckedItems() {
 
 window.addEventListener('firebaseReady', function() {
     console.log('Firebase is ready!');
-    updateSyncStatus('connected', 'Connected');
-    initializeFirebaseListeners();
+    updateSyncStatus('connected', '已連接');
+    if (hasLoadedDefaultItems) {
+        initializeFirebaseListeners();
+    }
 });
 
 function initializeFirebaseListeners() {
@@ -77,29 +81,81 @@ function initializeFirebaseListeners() {
     try {
         const checklistRef = window.firebaseRef('checklist');
         window.firebaseOnValue(checklistRef, (snapshot) => {
-            if (!isInitialLoad) {
-                const data = snapshot.val();
-                if (data) {
-                    personCheckedItems = data.personChecked || {};
-                    updateAllCheckboxStates();
-                    updateProgress();
+            const data = snapshot.val();
+            if (data && data.personChecked) {
+                console.log('Syncing checklist from Firebase');
+                personCheckedItems = data.personChecked;
+                updateAllCheckboxStates();
+                updateProgress();
+            } else {
+                console.log('No checklist data in Firebase, keeping local state');
+                // 如果 Firebase 沒有資料，將本地狀態同步到 Firebase
+                if (Object.keys(personCheckedItems).length > 1) { // 不只有 all
+                    syncChecklistToFirebase();
                 }
             }
         });
 
         const itemsRef = window.firebaseRef('items');
         window.firebaseOnValue(itemsRef, (snapshot) => {
-            if (!isInitialLoad) {
-                const data = snapshot.val();
-                if (data) {
-                    renderItemsFromFirebase(data);
+            const data = snapshot.val();
+            if (data && Object.keys(data).length > 0) {
+                console.log('Loading items from Firebase');
+                renderItemsFromFirebase(data);
+            } else {
+                console.log('No items in Firebase, syncing current items');
+                // 如果 Firebase 沒有項目資料，將當前項目同步到 Firebase
+                const currentItems = getCurrentItemsData();
+                if (currentItems && Object.keys(currentItems).length > 0) {
+                    syncItemsToFirebase();
                 }
             }
         });
+        
+        updateSyncStatus('connected', '已同步');
     } catch (error) {
         console.error('Error setting up Firebase listeners:', error);
-        updateSyncStatus('offline', 'Connection error');
+        updateSyncStatus('offline', '連接錯誤');
     }
+}
+
+function getCurrentItemsData() {
+    const items = {};
+    
+    document.querySelectorAll('.category-section').forEach(category => {
+        const categoryList = category.querySelector('.item-list');
+        if (!categoryList) return;
+        
+        const categoryId = categoryList.id;
+        const itemElements = category.querySelectorAll('.item');
+        
+        if (itemElements.length > 0) {
+            items[categoryId] = [];
+
+            itemElements.forEach(item => {
+                const checkbox = item.querySelector('input[type="checkbox"]');
+                const nameSpan = item.querySelector('.item-name');
+                const quantitySpan = item.querySelector('.item-quantity');
+                const personTags = item.querySelectorAll('.person-tag');
+
+                if (!checkbox || !nameSpan) return;
+
+                const persons = Array.from(personTags)
+                    .map(tag => tag.textContent)
+                    .join(',');
+
+                items[categoryId].push({
+                    id: checkbox.id,
+                    name: nameSpan.textContent,
+                    quantity: quantitySpan ? quantitySpan.textContent.replace('x', '') : '',
+                    persons: persons,
+                    personData: item.dataset.person,
+                });
+            });
+        }
+    });
+    
+    return items;
 }
 
 function syncChecklistToFirebase() {
@@ -113,9 +169,9 @@ function syncChecklistToFirebase() {
             personChecked: personCheckedItems,
             lastUpdated: new Date().toISOString()
         });
-        console.log('Synced to Firebase');
+        console.log('Synced checklist to Firebase');
     } catch (error) {
-        console.error('Error syncing to Firebase:', error);
+        console.error('Error syncing checklist to Firebase:', error);
     }
 }
 
@@ -124,36 +180,7 @@ function syncItemsToFirebase() {
         return;
     }
 
-    const items = {};
-    
-    document.querySelectorAll('.category-section').forEach(category => {
-        const categoryList = category.querySelector('.item-list');
-        if (!categoryList) return;
-        
-        const categoryId = categoryList.id;
-        items[categoryId] = [];
-
-        category.querySelectorAll('.item').forEach(item => {
-            const checkbox = item.querySelector('input[type="checkbox"]');
-            const nameSpan = item.querySelector('.item-name');
-            const quantitySpan = item.querySelector('.item-quantity');
-            const personTags = item.querySelectorAll('.person-tag');
-
-            if (!checkbox || !nameSpan) return;
-
-            const persons = Array.from(personTags)
-                .map(tag => tag.textContent)
-                .join(',');
-
-            items[categoryId].push({
-                id: checkbox.id,
-                name: nameSpan.textContent,
-                quantity: quantitySpan ? quantitySpan.textContent.replace('x', '') : '',
-                persons: persons,
-                personData: item.dataset.person,
-            });
-        });
-    });
+    const items = getCurrentItemsData();
 
     try {
         const itemsRef = window.firebaseRef('items');
@@ -165,7 +192,27 @@ function syncItemsToFirebase() {
 }
 
 function renderItemsFromFirebase(data) {
-    renderSavedItems({ categories: data });
+    console.log('Rendering items from Firebase...', data);
+    
+    // 清空現有項目
+    document.querySelectorAll('.item-list').forEach(list => {
+        list.innerHTML = '';
+    });
+
+    // 渲染 Firebase 資料
+    for (const categoryId in data) {
+        const list = document.getElementById(categoryId);
+        if (list && data[categoryId] && Array.isArray(data[categoryId])) {
+            console.log(`Rendering ${data[categoryId].length} items for ${categoryId}`);
+            data[categoryId].forEach(item => {
+                createItemElement(list, item);
+            });
+        }
+    }
+
+    updateProgress();
+    createPersonFilters();
+    console.log('Items from Firebase rendered successfully');
 }
 
 // ============================================
@@ -231,8 +278,9 @@ async function loadDefaultItems() {
         renderSavedItems(defaultData);
     }
     
+    hasLoadedDefaultItems = true;
     isInitialLoad = false;
-    updateSyncStatus('offline', 'Ready');
+    updateSyncStatus('offline', '準備就緒');
 }
 
 function renderSavedItems(data) {
@@ -621,10 +669,18 @@ function updateSyncStatus(status, text) {
     
     if (syncStatus && syncText) {
         syncStatus.className = `sync-status ${status}`;
-        syncText.textContent = text;
-        console.log(`Status updated: ${status} - ${text}`);
-    } else {
-        console.log('Sync status elements not found');
+        
+        // 更清楚的狀態描述
+        const statusMessages = {
+            'connecting': '正在連接...',
+            'connected': '已同步',
+            'offline': '本地模式',
+            'syncing': '同步中...',
+            'error': '同步失敗'
+        };
+        
+        syncText.textContent = statusMessages[status] || text;
+        console.log(`Status updated: ${status} - ${statusMessages[status] || text}`);
     }
 }
 
