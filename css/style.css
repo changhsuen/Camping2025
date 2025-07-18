@@ -340,6 +340,73 @@ header {
   background-size: 16px;
 }
 
+/* Status Indicators - NEW */
+.status-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-right: 12px;
+}
+
+.status-indicator {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.status-indicator.status-none {
+  background-color: #ef4444;
+}
+
+.status-indicator.status-partial {
+  background-color: #f59e0b;
+}
+
+.status-indicator.status-complete {
+  background-color: #10b981;
+}
+
+.status-progress {
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-weight: 500;
+  min-width: 24px;
+}
+
+/* Legend for All page - NEW */
+.status-legend {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 12px;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.legend-dot.status-none {
+  background-color: #ef4444;
+}
+
+.legend-dot.status-partial {
+  background-color: #f59e0b;
+}
+
+.legend-dot.status-complete {
+  background-color: #10b981;
+}
+
 .item-label {
   flex: 1;
   display: flex;
@@ -541,6 +608,11 @@ header {
   .form-select {
     min-width: auto;
   }
+
+  .status-legend {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
 }
 
 @media (max-width: 360px) {
@@ -559,5 +631,9 @@ header {
 
   .countdown-number {
     font-size: 24px;
+  }
+
+  .status-legend {
+    font-size: 11px;
   }
 }
