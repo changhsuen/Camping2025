@@ -1,4 +1,4 @@
-// script.js - 完整修正版，解決 Firebase 同步問題
+// script.js - 完整修正版，加入狀態指示器功能
 let personCheckedItems = {};
 let isInitialLoad = true;
 let hasLoadedDefaultItems = false;
@@ -61,6 +61,69 @@ function initializePersonCheckedItems() {
 }
 
 // ============================================
+// 狀態指示器相關函數
+// ============================================
+
+function getStatusClass(itemId, responsiblePersons) {
+    const checkedCount = responsiblePersons.filter(person => 
+        personCheckedItems[person] && personCheckedItems[person][itemId]
+    ).length;
+    
+    if (checkedCount === 0) return 'status-none';
+    if (checkedCount === responsiblePersons.length) return 'status-complete';
+    return 'status-partial';
+}
+
+function createStatusIndicator(itemId, responsiblePersons) {
+    const statusIndicator = document.createElement('div');
+    statusIndicator.className = 'status-indicator';
+    
+    const statusClass = getStatusClass(itemId, responsiblePersons);
+    statusIndicator.classList.add(statusClass);
+    
+    // 添加進度文字
+    const checkedCount = responsiblePersons.filter(person => 
+        personCheckedItems[person] && personCheckedItems[person][itemId]
+    ).length;
+    
+    const progressText = document.createElement('span');
+    progressText.className = 'status-progress';
+    progressText.textContent = `${checkedCount}/${responsiblePersons.length}`;
+    
+    const container = document.createElement('div');
+    container.className = 'status-container';
+    container.appendChild(statusIndicator);
+    container.appendChild(progressText);
+    
+    return container;
+}
+
+function updateStatusIndicators() {
+    const items = document.querySelectorAll('.item');
+    items.forEach(item => {
+        const statusContainer = item.querySelector('.status-container');
+        if (statusContainer) {
+            const itemId = item.querySelector('input[type="checkbox"]').id;
+            const responsiblePersons = item.dataset.person.split(',').map(p => p.trim());
+            
+            const statusIndicator = statusContainer.querySelector('.status-indicator');
+            const progressText = statusContainer.querySelector('.status-progress');
+            
+            // 更新狀態顏色
+            statusIndicator.className = 'status-indicator';
+            const statusClass = getStatusClass(itemId, responsiblePersons);
+            statusIndicator.classList.add(statusClass);
+            
+            // 更新進度文字
+            const checkedCount = responsiblePersons.filter(person => 
+                personCheckedItems[person] && personCheckedItems[person][itemId]
+            ).length;
+            progressText.textContent = `${checkedCount}/${responsiblePersons.length}`;
+        }
+    });
+}
+
+// ============================================
 // Firebase 相關函數
 // ============================================
 
@@ -86,6 +149,7 @@ function initializeFirebaseListeners() {
                 console.log('Syncing checklist from Firebase');
                 personCheckedItems = data.personChecked;
                 updateAllCheckboxStates();
+                updateStatusIndicators();
                 updateProgress();
             } else {
                 console.log('No checklist data in Firebase, keeping local state');
@@ -138,18 +202,21 @@ function getCurrentItemsData() {
                 const quantitySpan = item.querySelector('.item-quantity');
                 const personTags = item.querySelectorAll('.person-tag');
 
-                if (!checkbox || !nameSpan) return;
+                if (!nameSpan) return;
 
                 const persons = Array.from(personTags)
                     .map(tag => tag.textContent)
                     .join(',');
 
+                // 確保有 ID，如果沒有則生成一個
+                const itemId = checkbox ? checkbox.id : `temp-${Date.now()}-${Math.random()}`;
+
                 items[categoryId].push({
-                    id: checkbox.id,
+                    id: itemId,
                     name: nameSpan.textContent,
                     quantity: quantitySpan ? quantitySpan.textContent.replace('x', '') : '',
-                    persons: persons,
-                    personData: item.dataset.person,
+                    persons: persons || 'All',
+                    personData: item.dataset.person || 'All',
                 });
             });
         }
@@ -212,6 +279,7 @@ function renderItemsFromFirebase(data) {
 
     updateProgress();
     createPersonFilters();
+    updateStatusIndicators();
     console.log('Items from Firebase rendered successfully');
 }
 
@@ -311,6 +379,7 @@ function renderSavedItems(data) {
 
     updateProgress();
     createPersonFilters();
+    updateStatusIndicators();
     console.log('Items rendered successfully');
 }
 
@@ -325,23 +394,42 @@ function createItemElement(list, item) {
     li.className = 'item';
     li.dataset.person = item.personData;
 
-    const customCheckbox = document.createElement('div');
-    customCheckbox.className = 'custom-checkbox';
+    const currentPerson = getCurrentFilterPerson();
+    const isAllPage = currentPerson === 'all';
+    
+    if (isAllPage) {
+        // All 頁面：使用狀態指示器
+        const responsiblePersons = item.persons.split(',').map(p => p.trim());
+        const statusContainer = createStatusIndicator(item.id, responsiblePersons);
+        li.appendChild(statusContainer);
+    } else {
+        // 個人頁面：使用正常的 checkbox
+        const customCheckbox = document.createElement('div');
+        customCheckbox.className = 'custom-checkbox';
 
-    const checkbox = document.createElement('input');
-    checkbox.type = 'checkbox';
-    checkbox.id = item.id;
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.id = item.id;
 
-    const checkboxLabel = document.createElement('label');
-    checkboxLabel.className = 'checkbox-label';
-    checkboxLabel.setAttribute('for', item.id);
+        const checkboxLabel = document.createElement('label');
+        checkboxLabel.className = 'checkbox-label';
+        checkboxLabel.setAttribute('for', item.id);
 
-    customCheckbox.appendChild(checkbox);
-    customCheckbox.appendChild(checkboxLabel);
+        customCheckbox.appendChild(checkbox);
+        customCheckbox.appendChild(checkboxLabel);
+
+        checkbox.addEventListener('change', function () {
+            handleCheckboxChange(this);
+        });
+
+        li.appendChild(customCheckbox);
+    }
 
     const itemLabel = document.createElement('label');
     itemLabel.className = 'item-label';
-    itemLabel.setAttribute('for', item.id);
+    if (!isAllPage) {
+        itemLabel.setAttribute('for', item.id);
+    }
 
     const nameSpan = document.createElement('span');
     nameSpan.className = 'item-name';
@@ -381,11 +469,6 @@ function createItemElement(list, item) {
         deleteItem(li);
     });
 
-    checkbox.addEventListener('change', function () {
-        handleCheckboxChange(this);
-    });
-
-    li.appendChild(customCheckbox);
     li.appendChild(itemLabel);
     li.appendChild(deleteBtn);
     list.appendChild(li);
@@ -453,11 +536,80 @@ function setupFilterButtons() {
             });
             this.classList.add('active');
             
+            // 重新渲染項目以切換顯示模式
+            rerenderItemsForCurrentView();
+            
             filterItems(person);
             updateCheckboxStates();
             updateProgress();
         });
     });
+}
+
+function renderItemsFromData(data) {
+    document.querySelectorAll('.item-list').forEach(list => {
+        list.innerHTML = '';
+    });
+
+    for (const categoryId in data) {
+        const list = document.getElementById(categoryId);
+        if (list && data[categoryId] && Array.isArray(data[categoryId])) {
+            data[categoryId].forEach(item => {
+                createItemElement(list, item);
+            });
+        }
+    }
+}
+
+function rerenderItemsForCurrentView() {
+    // 獲取當前所有項目的數據
+    const allItems = [];
+    document.querySelectorAll('.item').forEach(item => {
+        const checkbox = item.querySelector('input[type="checkbox"]');
+        const nameSpan = item.querySelector('.item-name');
+        const quantitySpan = item.querySelector('.item-quantity');
+        const personTags = item.querySelectorAll('.person-tag');
+
+        if (nameSpan) {
+            const persons = Array.from(personTags)
+                .map(tag => tag.textContent)
+                .join(',');
+
+            const itemId = checkbox ? checkbox.id : `temp-${Date.now()}-${Math.random()}`;
+
+            allItems.push({
+                id: itemId,
+                name: nameSpan.textContent,
+                quantity: quantitySpan ? quantitySpan.textContent.replace('x', '') : '',
+                persons: persons || 'All',
+                personData: item.dataset.person || 'All',
+                categoryId: item.closest('.item-list').id
+            });
+        }
+    });
+
+    // 清空所有列表
+    document.querySelectorAll('.item-list').forEach(list => {
+        list.innerHTML = '';
+    });
+
+    // 按類別重新渲染
+    const itemsByCategory = {};
+    allItems.forEach(item => {
+        if (!itemsByCategory[item.categoryId]) {
+            itemsByCategory[item.categoryId] = [];
+        }
+        itemsByCategory[item.categoryId].push(item);
+    });
+
+    for (const categoryId in itemsByCategory) {
+        const list = document.getElementById(categoryId);
+        if (list) {
+            itemsByCategory[categoryId].forEach(item => {
+                createItemElement(list, item);
+            });
+        }
+    }
 }
 
 function handleCheckboxChange(checkbox) {
@@ -480,6 +632,7 @@ function handleCheckboxChange(checkbox) {
     }
     
     updateProgress();
+    updateStatusIndicators();
     
     if (typeof window.firebaseDB !== 'undefined') {
         syncChecklistToFirebase();
@@ -565,6 +718,7 @@ function addNewItem(listId, name, quantity, persons) {
     createItemElement(list, item);
     updateProgress();
     createPersonFilters();
+    updateStatusIndicators();
 
     if (persons) {
         const personsList = persons.split(',');
@@ -595,6 +749,7 @@ function deleteItem(itemElement) {
         itemElement.remove();
         updateProgress();
         createPersonFilters();
+        updateStatusIndicators();
         
         if (typeof window.firebaseDB !== 'undefined') {
             syncChecklistToFirebase();
@@ -627,18 +782,21 @@ function saveList() {
             const quantitySpan = item.querySelector('.item-quantity');
             const personTags = item.querySelectorAll('.person-tag');
 
-            if (!checkbox || !nameSpan) return;
+            if (!nameSpan) return;
 
             const persons = Array.from(personTags)
                 .map(tag => tag.textContent)
                 .join(',');
 
+            // 確保有 ID，如果沒有則生成一個
+            const itemId = checkbox ? checkbox.id : `item-${Date.now()}-${Math.random()}`;
+
             items.push({
-                id: checkbox.id,
+                id: itemId,
                 name: nameSpan.textContent,
                 quantity: quantitySpan ? quantitySpan.textContent.replace('x', '') : '',
-                persons: persons,
-                personData: item.dataset.person,
+                persons: persons || 'All',
+                personData: item.dataset.person || 'All',
             });
         });
 
