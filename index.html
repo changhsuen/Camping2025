@@ -111,6 +111,22 @@
           <button class="filter-btn" data-person="Alex">Alex</button>
         </div>
 
+        <!-- Status Legend for All page -->
+        <div class="status-legend" id="status-legend" style="display: none;">
+          <div class="legend-item">
+            <div class="legend-dot status-none"></div>
+            <span>None ready</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-dot status-partial"></div>
+            <span>Partial ready</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-dot status-complete"></div>
+            <span>All ready</span>
+          </div>
+        </div>
+
         <div class="category-section">
           <h3 class="category-title">Shared Gear</h3>
           <ul class="item-list" id="shared-items"></ul>
@@ -148,6 +164,31 @@
     <script type="module" src="firebase-config.js"></script>
     <script type="module" src="script.js"></script>
     <script src="countdown.js"></script>
+
+    <script>
+      // 控制狀態說明的顯示
+      document.addEventListener('DOMContentLoaded', function() {
+        const statusLegend = document.getElementById('status-legend');
+        const filterButtons = document.querySelectorAll('.filter-btn');
+        
+        function toggleStatusLegend() {
+          const activeButton = document.querySelector('.filter-btn.active');
+          if (activeButton && activeButton.dataset.person === 'all') {
+            statusLegend.style.display = 'flex';
+          } else {
+            statusLegend.style.display = 'none';
+          }
+        }
+        
+        filterButtons.forEach(button => {
+          button.addEventListener('click', function() {
+            setTimeout(toggleStatusLegend, 100);
+          });
+        });
+        
+        toggleStatusLegend();
+      });
+    </script>
 
     <style>
       /* 同步狀態樣式 */
