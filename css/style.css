@@ -340,7 +340,7 @@ header {
   background-size: 16px;
 }
 
-/* Status Indicators - 使用 SVG Icons */
+/* Status Indicators - 使用你的 SVG Icons */
 .status-container {
   display: flex;
   align-items: center;
@@ -360,13 +360,20 @@ header {
 .status-indicator svg {
   width: 16px;
   height: 16px;
+  color: var(--icon-primary);
 }
 
-.status-progress {
-  font-size: 12px;
+/* 不同狀態的顏色 */
+.status-indicator.status-none svg {
   color: var(--text-secondary);
-  font-weight: 500;
-  min-width: 24px;
+}
+
+.status-indicator.status-partial svg {
+  color: var(--icon-primary);
+}
+
+.status-indicator.status-complete svg {
+  color: var(--icon-primary);
 }
 
 .item-label {
