@@ -340,7 +340,7 @@ header {
   background-size: 16px;
 }
 
-/* Status Indicators - NEW */
+/* Status Indicators - 使用 SVG Icons */
 .status-container {
   display: flex;
   align-items: center;
@@ -349,22 +349,17 @@ header {
 }
 
 .status-indicator {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
+  width: 16px;
+  height: 16px;
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.status-indicator.status-none {
-  background-color: #ef4444;
-}
-
-.status-indicator.status-partial {
-  background-color: #f59e0b;
-}
-
-.status-indicator.status-complete {
-  background-color: #10b981;
+.status-indicator svg {
+  width: 16px;
+  height: 16px;
 }
 
 .status-progress {
@@ -372,39 +367,6 @@ header {
   color: var(--text-secondary);
   font-weight: 500;
   min-width: 24px;
-}
-
-/* Legend for All page - NEW */
-.status-legend {
-  display: flex;
-  gap: 16px;
-  margin-bottom: 12px;
-  font-size: 12px;
-  color: var(--text-secondary);
-}
-
-.legend-item {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.legend-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-}
-
-.legend-dot.status-none {
-  background-color: #ef4444;
-}
-
-.legend-dot.status-partial {
-  background-color: #f59e0b;
-}
-
-.legend-dot.status-complete {
-  background-color: #10b981;
 }
 
 .item-label {
@@ -550,47 +512,6 @@ header {
   background: var(--button-primary-hover);
 }
 
-/* Sync Status */
-.sync-status {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: 16px;
-  padding: 8px 12px;
-  background: #f0f9ff;
-  border: 1px solid #e0f2fe;
-  border-radius: 8px;
-  font-size: 12px;
-  color: #0369a1;
-}
-
-.sync-indicator {
-  font-size: 8px;
-  animation: pulse 2s infinite;
-}
-
-.sync-status.connected .sync-indicator {
-  color: #10b981;
-}
-
-.sync-status.connecting .sync-indicator {
-  color: #f59e0b;
-}
-
-.sync-status.offline .sync-indicator {
-  color: #ef4444;
-}
-
-@keyframes pulse {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.5;
-  }
-}
-
 /* Responsive Design */
 @media (max-width: 480px) {
   .container {
@@ -607,11 +528,6 @@ header {
 
   .form-select {
     min-width: auto;
-  }
-
-  .status-legend {
-    flex-wrap: wrap;
-    gap: 12px;
   }
 }
 
@@ -631,9 +547,5 @@ header {
 
   .countdown-number {
     font-size: 24px;
-  }
-
-  .status-legend {
-    font-size: 11px;
   }
 }
