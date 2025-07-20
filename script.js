@@ -1,4 +1,4 @@
-// script.js - 完整修正版，加入狀態指示器功能
+// script.js - 完整版本，使用自訂 SVG 狀態指示器
 let personCheckedItems = {};
 let isInitialLoad = true;
 let hasLoadedDefaultItems = false;
@@ -9,7 +9,6 @@ let hasLoadedDefaultItems = false;
 
 document.addEventListener("DOMContentLoaded", function () {
     console.log('DOM loaded, starting initialization...');
-    updateSyncStatus('connecting', '載入中...');
     
     initializeBasicFunctions();
     loadDefaultItems();
@@ -18,11 +17,9 @@ document.addEventListener("DOMContentLoaded", function () {
     setTimeout(() => {
         if (typeof window.firebaseDB !== 'undefined') {
             console.log('Firebase available, initializing...');
-            updateSyncStatus('connected', '已連接');
             initializeFirebaseListeners();
         } else {
             console.log('Firebase not available, using local mode');
-            updateSyncStatus('offline', '本地模式');
         }
     }, 2000);
 });
@@ -64,6 +61,30 @@ function initializePersonCheckedItems() {
 // 狀態指示器相關函數
 // ============================================
 
+// 使用你的 SVG icons - 16px 大小，使用 icon-primary 顏色
+const statusIcons = {
+    'status-none': `
+        <svg width="16" height="16" viewBox="0 0 32 32" fill="var(--icon-primary)" xmlns="http://www.w3.org/2000/svg">
+            <path d="M15.86,2s0,0-.01,0c0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0-.01,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0-.01,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0-.01,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0-.01,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0-.01,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0-.01,0-.02,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0-.01,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0-.01,0-.02,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0-.01,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0-.01,0h0s0,0,0,0c0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0-.01,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0-.01,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0-.01,0-.02,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0-.01,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0-.01,0-.02,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0-.01,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0-.01,0-.02,0,0,0,0,0,0,0,0,0-.01,0-.02,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0-.01,0-.02,0,0,0,0,0,0,0,0,0-.01,0-.02,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0-.01,0,0,0,0,0,0,0,0,0,0,0-.01,0,0,0,0,0,0,0,0,0-.01,0-.02,0,0,0,0,0,0,0,0,0,0,0-.01,0,0,0,0,0,0,0,0,0,0,0-.01,0,0,0,0,0,0,0,0,0,0,0-.01,0,0,0,0,0,0,0,0,0-.01,0-.02,0,0,0,0,0,0,0,0,0-.01,0-.02,0,0,0,0,0,0,0,0,0,0,0-.01,0,0,0,0,0,0,0,0,0-.01,0-.02,0,0,0,0,0,0,0,0,0-.01,0-.02,0h0s0,0-.01,0c0,0,0,0,0,0,0,0-.01,0-.02,0,0,0,0,0,0,0,0,0-.01,0-.02,0h0s-.02,0-.03,0c0,0,0,0,0,0,0,0-.01,0-.02,0h0s-.04,0-.06,0c0,0,0,0,0,0-1.04.07-2.04.25-3,.53l.56,1.92c1.09-.32,2.23-.48,3.38-.48v-2h0ZM8.29,4.22c-.29.18-.56.38-.83.58l-.14.15-.28.3-.41.45l1.51,1.31c.75-.87,1.62-1.62,2.58-2.24l-1.08-1.68ZM3.12,10.19c-.09.21-.18.41-.27.62-.29.82-.51,1.68-.64,2.56l1.98.28c.16-1.13.48-2.24.96-3.28l-1.82-.83ZM3.98,17.72l-1.98.28c.03.17.05.35.08.52.21.83.49,1.62.84,2.38l1.82-.83c-.48-1.04-.8-2.14-.96-3.27ZM6.8,23.86l-1.51,1.31c.25.28.51.56.78.82.31.24.62.46.95.67l1.08-1.68c-.96-.62-1.83-1.37-2.59-2.24ZM12.49,27.52l-.56,1.92c.79.23,1.61.39,2.45.48V30c-1.15,0-2.28-.16-3.37-.48ZM2,16c0,7.73,6.27,14,14,14V2c-7.73,0-14,6.27-14,14Z"/>
+        </svg>
+    `,
+    'status-partial': `
+        <svg width="16" height="16" viewBox="0 0 32 32" fill="var(--icon-primary)" xmlns="http://www.w3.org/2000/svg">
+            <path d="M19.39,27.51l.56,1.92c.42-.12.82-.26,1.22-.42.51-.23,1-.49,1.47-.77l-1.08-1.68c-.96.62-2.01,1.1-3.1,1.42Z"/>
+            <path d="M23.55,4.21c-1.11-.71-2.33-1.27-3.63-1.65l-.56,1.92c1.1.32,2.14.8,3.11,1.41l1.08-1.68Z"/>
+            <path d="M25.08,23.85l1.51,1.31c.67-.77,1.25-1.62,1.74-2.52l-1.82-.83c-.47,1.04-1.1,2.01-1.85,2.88Z"/>
+            <path d="M30,15.96v-.02c-.02-.42-.06-.83-.12-1.24l-1.98.28c.08.57.12,1.15.12,1.73s-.04,1.14-.12,1.7l1.98.28c.03-.28.05-.57.06-.86v-.02s0,0,0,0Z"/>
+            <path d="M28.73,10.16c-.56-1.22-1.29-2.35-2.16-3.35l-1.51,1.31c.75.87,1.38,1.83,1.85,2.87l1.82-.83Z"/>
+            <path d="M2,16c0,7.73,6.27,14,14,14V2c-7.73,0-14,6.27-14,14Z"/>
+        </svg>
+    `,
+    'status-complete': `
+        <svg width="16" height="16" viewBox="0 0 32 32" fill="var(--icon-primary)" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="16" cy="16" r="14"/>
+        </svg>
+    `
+};
+
 function getStatusClass(itemId, responsiblePersons) {
     const checkedCount = responsiblePersons.filter(person => 
         personCheckedItems[person] && personCheckedItems[person][itemId]
@@ -79,7 +100,9 @@ function createStatusIndicator(itemId, responsiblePersons) {
     statusIndicator.className = 'status-indicator';
     
     const statusClass = getStatusClass(itemId, responsiblePersons);
-    statusIndicator.classList.add(statusClass);
+    
+    // 使用對應的 SVG icon
+    statusIndicator.innerHTML = statusIcons[statusClass];
     
     // 添加進度文字
     const checkedCount = responsiblePersons.filter(person => 
@@ -103,16 +126,16 @@ function updateStatusIndicators() {
     items.forEach(item => {
         const statusContainer = item.querySelector('.status-container');
         if (statusContainer) {
-            const itemId = item.querySelector('input[type="checkbox"]').id;
+            const itemId = item.querySelector('input[type="checkbox"]')?.id || 
+                          item.querySelector('.item-name')?.textContent.replace(/\s+/g, '-').toLowerCase();
             const responsiblePersons = item.dataset.person.split(',').map(p => p.trim());
             
             const statusIndicator = statusContainer.querySelector('.status-indicator');
             const progressText = statusContainer.querySelector('.status-progress');
             
-            // 更新狀態顏色
-            statusIndicator.className = 'status-indicator';
+            // 更新狀態 SVG
             const statusClass = getStatusClass(itemId, responsiblePersons);
-            statusIndicator.classList.add(statusClass);
+            statusIndicator.innerHTML = statusIcons[statusClass];
             
             // 更新進度文字
             const checkedCount = responsiblePersons.filter(person => 
@@ -129,7 +152,6 @@ function updateStatusIndicators() {
 
 window.addEventListener('firebaseReady', function() {
     console.log('Firebase is ready!');
-    updateSyncStatus('connected', '已連接');
     if (hasLoadedDefaultItems) {
         initializeFirebaseListeners();
     }
@@ -179,7 +201,6 @@ function initializeFirebaseListeners() {
         updateSyncStatus('connected', '已同步');
     } catch (error) {
         console.error('Error setting up Firebase listeners:', error);
-        updateSyncStatus('offline', '連接錯誤');
     }
 }
 
@@ -348,7 +369,6 @@ async function loadDefaultItems() {
     
     hasLoadedDefaultItems = true;
     isInitialLoad = false;
-    updateSyncStatus('offline', '準備就緒');
 }
 
 function renderSavedItems(data) {
@@ -398,10 +418,13 @@ function createItemElement(list, item) {
     const isAllPage = currentPerson === 'all';
     
     if (isAllPage) {
-        // All 頁面：使用狀態指示器
+        // All 頁面：使用狀態指示器，設置為不可點擊
         const responsiblePersons = item.persons.split(',').map(p => p.trim());
         const statusContainer = createStatusIndicator(item.id, responsiblePersons);
         li.appendChild(statusContainer);
+        
+        // 設置 All 頁面的游標樣式
+        li.style.cursor = 'default';
     } else {
         // 個人頁面：使用正常的 checkbox
         const customCheckbox = document.createElement('div');
@@ -427,8 +450,13 @@ function createItemElement(list, item) {
 
     const itemLabel = document.createElement('label');
     itemLabel.className = 'item-label';
+    
+    // All 頁面不需要 for 屬性，因為不可點擊
     if (!isAllPage) {
         itemLabel.setAttribute('for', item.id);
+        itemLabel.style.cursor = 'pointer';
+    } else {
+        itemLabel.style.cursor = 'default';
     }
 
     const nameSpan = document.createElement('span');
@@ -822,24 +850,8 @@ function saveList() {
 // ============================================
 
 function updateSyncStatus(status, text) {
-    const syncStatus = document.getElementById('sync-status');
-    const syncText = document.getElementById('sync-text');
-    
-    if (syncStatus && syncText) {
-        syncStatus.className = `sync-status ${status}`;
-        
-        // 更清楚的狀態描述
-        const statusMessages = {
-            'connecting': '正在連接...',
-            'connected': '已同步',
-            'offline': '本地模式',
-            'syncing': '同步中...',
-            'error': '同步失敗'
-        };
-        
-        syncText.textContent = statusMessages[status] || text;
-        console.log(`Status updated: ${status} - ${statusMessages[status] || text}`);
-    }
+    // Sync status 功能已移除
+    console.log(`Status: ${status} - ${text}`);
 }
 
 function updateProgress() {
