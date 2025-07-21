@@ -1,4 +1,4 @@
-// script.js - 基於可工作版本，只修改 All 頁面顯示狀態指示器
+// script.js - 完整修復版本
 let personCheckedItems = {};
 let isInitialLoad = true;
 let hasLoadedDefaultItems = false;
@@ -58,7 +58,7 @@ function initializePersonCheckedItems() {
 }
 
 // ============================================
-// 狀態指示器相關函數（新增）
+// 狀態指示器相關函數
 // ============================================
 function getStatusClass(itemId, responsiblePersons) {
   const checkedCount = responsiblePersons.filter(person => 
@@ -130,7 +130,7 @@ function initializeFirebaseListeners() {
         console.log("Syncing checklist from Firebase");
         personCheckedItems = data.personChecked;
         updateAllCheckboxStates();
-        updateStatusIndicators(); // 更新狀態指示器
+        updateStatusIndicators();
         updateProgress();
       } else {
         console.log("No checklist data in Firebase, keeping local state");
@@ -178,18 +178,20 @@ function getCurrentItemsData() {
         const quantitySpan = item.querySelector(".item-quantity");
         const personTags = item.querySelectorAll(".person-tag");
 
-        if (!checkbox || !nameSpan) return;
+        if (!nameSpan) return;
 
         const persons = Array.from(personTags)
           .map((tag) => tag.textContent)
           .join(",");
 
+        const itemId = checkbox ? checkbox.id : `temp-${Date.now()}-${Math.random()}`;
+
         items[categoryId].push({
-          id: checkbox.id,
+          id: itemId,
           name: nameSpan.textContent,
           quantity: quantitySpan ? quantitySpan.textContent.replace("x", "") : "",
-          persons: persons,
-          personData: item.dataset.person,
+          persons: persons || 'All',
+          personData: item.dataset.person || 'All',
         });
       });
     }
@@ -250,7 +252,7 @@ function renderItemsFromFirebase(data) {
 
   updateProgress();
   createPersonFilters();
-  updateStatusIndicators(); // 更新狀態指示器
+  updateStatusIndicators();
   console.log("Items from Firebase rendered successfully");
 }
 
@@ -336,12 +338,12 @@ function renderSavedItems(data) {
 
   updateProgress();
   createPersonFilters();
-  updateStatusIndicators(); // 更新狀態指示器
+  updateStatusIndicators();
   console.log("Items rendered successfully");
 }
 
 // ============================================
-// UI 元素創建函數 - 修改版本，All頁面顯示狀態指示器
+// UI 元素創建函數
 // ============================================
 
 function createItemElement(list, item) {
@@ -416,4 +418,431 @@ function createItemElement(list, item) {
       }
     });
   }
-  item
+  itemLabel.appendChild(personTags);
+
+  const deleteBtn = document.createElement("button");
+  deleteBtn.className = "delete-btn";
+  deleteBtn.innerHTML = "×";
+  deleteBtn.title = "Delete item";
+  deleteBtn.addEventListener("click", function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+    deleteItem(li);
+  });
+
+  li.appendChild(itemLabel);
+  li.appendChild(deleteBtn);
+  list.appendChild(li);
+}
+
+function createPersonFilters() {
+  const personFilter = document.getElementById('person-filter');
+  if (!personFilter) return;
+  
+  const currentActive = document.querySelector('.filter-btn.active');
+  const currentPerson = currentActive ? currentActive.dataset.person : 'all';
+  
+  personFilter.innerHTML = '<button class="filter-btn" data-person="all">All</button>';
+
+  const allPersons = new Set(['Milli', 'Shawn', 'Henry', 'Peggy', 'Jin', 'Tee', 'Alex']);
+  
+  document.querySelectorAll('.item').forEach(item => {
+    const persons = item.dataset.person.split(',');
+    persons.forEach(person => {
+      const trimmedPerson = person.trim();
+      if (trimmedPerson && trimmedPerson !== 'All' && trimmedPerson !== 'Tag') {
+        allPersons.add(trimmedPerson);
+      }
+    });
+  });
+
+  allPersons.forEach(person => {
+    if (person && person !== 'all') {
+      const button = document.createElement('button');
+      button.className = 'filter-btn';
+      button.textContent = person;
+      button.dataset.person = person;
+      personFilter.appendChild(button);
+    }
+  });
+
+  const buttonToActivate = personFilter.querySelector(`[data-person="${currentPerson}"]`);
+  if (buttonToActivate) {
+    buttonToActivate.classList.add('active');
+  } else {
+    personFilter.querySelector('[data-person="all"]').classList.add('active');
+  }
+
+  setupFilterButtons();
+
+  allPersons.forEach(person => {
+    if (!personCheckedItems[person]) {
+      personCheckedItems[person] = {};
+    }
+  });
+}
+
+// ============================================
+// 事件處理函數
+// ============================================
+
+function setupFilterButtons() {
+  const filterButtons = document.querySelectorAll('.filter-btn');
+  filterButtons.forEach(button => {
+    button.addEventListener('click', function () {
+      const person = this.dataset.person;
+      
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      this.classList.add('active');
+      
+      // 重新渲染項目以切換顯示模式
+      rerenderItemsForCurrentView();
+      
+      filterItems(person);
+      updateCheckboxStates();
+      updateProgress();
+    });
+  });
+}
+
+function rerenderItemsForCurrentView() {
+  // 獲取當前所有項目的數據
+  const allItems = [];
+  document.querySelectorAll('.item').forEach(item => {
+    const checkbox = item.querySelector('input[type="checkbox"]');
+    const nameSpan = item.querySelector('.item-name');
+    const quantitySpan = item.querySelector('.item-quantity');
+    const personTags = item.querySelectorAll('.person-tag');
+
+    if (nameSpan) {
+      const persons = Array.from(personTags)
+        .map(tag => tag.textContent)
+        .join(',');
+
+      const itemId = checkbox ? checkbox.id : `temp-${Date.now()}-${Math.random()}`;
+
+      allItems.push({
+        id: itemId,
+        name: nameSpan.textContent,
+        quantity: quantitySpan ? quantitySpan.textContent.replace('x', '') : '',
+        persons: persons || 'All',
+        personData: item.dataset.person || 'All',
+        categoryId: item.closest('.item-list').id
+      });
+    }
+  });
+
+  // 清空所有列表
+  document.querySelectorAll('.item-list').forEach(list => {
+    list.innerHTML = '';
+  });
+
+  // 按類別重新渲染
+  const itemsByCategory = {};
+  allItems.forEach(item => {
+    if (!itemsByCategory[item.categoryId]) {
+      itemsByCategory[item.categoryId] = [];
+    }
+    itemsByCategory[item.categoryId].push(item);
+  });
+
+  for (const categoryId in itemsByCategory) {
+    const list = document.getElementById(categoryId);
+    if (list) {
+      itemsByCategory[categoryId].forEach(item => {
+        createItemElement(list, item);
+      });
+    }
+  }
+}
+
+function handleCheckboxChange(checkbox) {
+  const currentPerson = getCurrentFilterPerson();
+  const itemId = checkbox.id;
+  const item = checkbox.closest('.item');
+  const itemLabel = item.querySelector('.item-label');
+
+  if (checkbox.checked) {
+    itemLabel.classList.add('checked');
+    if (!personCheckedItems[currentPerson]) {
+      personCheckedItems[currentPerson] = {};
+    }
+    personCheckedItems[currentPerson][itemId] = true;
+  } else {
+    itemLabel.classList.remove('checked');
+    if (personCheckedItems[currentPerson]) {
+      delete personCheckedItems[currentPerson][itemId];
+    }
+  }
+  
+  updateProgress();
+  updateStatusIndicators();
+  
+  if (typeof window.firebaseDB !== 'undefined') {
+    syncChecklistToFirebase();
+  }
+}
+
+function addUnifiedItem() {
+  console.log("Add item function called");
+  
+  const categorySelect = document.getElementById('category-select');
+  const nameInput = document.getElementById('new-item-name');
+  const quantityInput = document.getElementById('new-item-quantity');
+  const personInput = document.getElementById('new-item-person');
+
+  if (!categorySelect || !nameInput) {
+    console.error('Required input elements not found');
+    return;
+  }
+
+  const category = categorySelect.value.trim();
+  const name = nameInput.value.trim();
+  const quantity = quantityInput ? quantityInput.value.trim() : '';
+  const persons = personInput ? personInput.value.trim() : '';
+
+  console.log('Form values:', { category, name, quantity, persons });
+
+  if (!category) {
+    alert('Please select a category');
+    return;
+  }
+
+  if (!name) {
+    alert('Please enter item name');
+    return;
+  }
+
+  let listId;
+  switch (category) {
+    case 'Shared Gear':
+      listId = 'shared-items';
+      break;
+    case 'Personal Gear':
+      listId = 'personal-items';
+      break;
+    default:
+      listId = 'shared-items';
+  }
+
+  console.log(`Adding to list: ${listId}`);
+  addNewItem(listId, name, quantity, persons);
+
+  nameInput.value = '';
+  if (quantityInput) quantityInput.value = '';
+  if (personInput) personInput.value = '';
+  
+  console.log(`Successfully added: ${name}`);
+}
+
+function addNewItem(listId, name, quantity, persons) {
+  if (!name) {
+    console.error('No name provided for new item');
+    return;
+  }
+  
+  const list = document.getElementById(listId);
+  if (!list) {
+    console.error(`List with id ${listId} not found`);
+    return;
+  }
+  
+  const id = `item-${Date.now()}`;
+  
+  const item = {
+    id: id,
+    name: name,
+    quantity: quantity,
+    persons: persons || 'All',
+    personData: persons || 'All'
+  };
+  
+  console.log('Creating new item:', item);
+  
+  createItemElement(list, item);
+  updateProgress();
+  createPersonFilters();
+  updateStatusIndicators();
+
+  if (persons) {
+    const personsList = persons.split(',');
+    personsList.forEach(person => {
+      const trimmedPerson = person.trim();
+      if (trimmedPerson && !personCheckedItems[trimmedPerson]) {
+        personCheckedItems[trimmedPerson] = {};
+      }
+    });
+  }
+  
+  if (typeof window.firebaseDB !== 'undefined') {
+    syncItemsToFirebase();
+  }
+  
+  console.log(`Successfully created item: ${name} in ${listId}`);
+}
+
+function deleteItem(itemElement) {
+  if (confirm('Are you sure you want to delete this item?')) {
+    const itemId = itemElement.querySelector('input[type="checkbox"]')?.id;
+    if (itemId) {
+      for (let person in personCheckedItems) {
+        delete personCheckedItems[person][itemId];
+      }
+    }
+    
+    itemElement.remove();
+    updateProgress();
+    createPersonFilters();
+    updateStatusIndicators();
+    
+    if (typeof window.firebaseDB !== 'undefined') {
+      syncChecklistToFirebase();
+      syncItemsToFirebase();
+    }
+    
+    console.log('Item deleted successfully');
+  }
+}
+
+// ============================================
+// 全域函數 (供 HTML 呼叫)
+// ============================================
+
+function saveList() {
+  const categories = document.querySelectorAll('.category-section');
+  const savedData = {
+    categories: {},
+    personChecked: personCheckedItems,
+    lastSaved: new Date().toISOString()
+  };
+
+  categories.forEach(category => {
+    const categoryList = category.querySelector('.item-list');
+    if (!categoryList) return;
+    
+    const categoryId = categoryList.id;
+    const categoryTitle = category.querySelector('.category-title')?.textContent || 'Unknown';
+    const items = [];
+
+    category.querySelectorAll('.item').forEach(item => {
+      const checkbox = item.querySelector('input[type="checkbox"]');
+      const nameSpan = item.querySelector('.item-name');
+      const quantitySpan = item.querySelector('.item-quantity');
+      const personTags = item.querySelectorAll('.person-tag');
+
+      if (!nameSpan) return;
+
+      const persons = Array.from(personTags)
+        .map(tag => tag.textContent)
+        .join(',');
+
+      const itemId = checkbox ? checkbox.id : `item-${Date.now()}-${Math.random()}`;
+
+      items.push({
+        id: itemId,
+        name: nameSpan.textContent,
+        quantity: quantitySpan ? quantitySpan.textContent.replace('x', '') : '',
+        persons: persons || 'All',
+        personData: item.dataset.person || 'All',
+      });
+    });
+
+    savedData.categories[categoryId] = {
+      title: categoryTitle,
+      items: items,
+    };
+  });
+
+  localStorage.setItem('campingChecklist2025', JSON.stringify(savedData));
+  
+  if (typeof window.firebaseDB !== 'undefined') {
+    syncChecklistToFirebase();
+    syncItemsToFirebase();
+  }
+  
+  alert('List saved successfully!');
+  console.log('List saved to local storage and Firebase');
+}
+
+// 將 saveList 函數設為全域，供 HTML 呼叫
+window.saveList = saveList;
+
+// ============================================
+// 輔助函數
+// ============================================
+
+function updateProgress() {
+  const visibleItems = Array.from(document.querySelectorAll('.item')).filter(item => item.style.display !== 'none');
+  const total = visibleItems.length;
+  let checked = 0;
+
+  visibleItems.forEach(item => {
+    const checkbox = item.querySelector('input[type="checkbox"]');
+    if (checkbox && checkbox.checked) {
+      checked++;
+    }
+  });
+
+  const progressBar = document.getElementById('progress-fill');
+  const progressText = document.getElementById('progress-text');
+
+  if (progressBar && progressText) {
+    const percentage = total > 0 ? (checked / total) * 100 : 0;
+    progressBar.style.width = `${percentage}%`;
+    progressText.textContent = `${checked}/${total} Packed`;
+  }
+}
+
+function filterItems(person) {
+  const items = document.querySelectorAll('.item');
+  
+  items.forEach(item => {
+    if (person === 'all') {
+      item.style.display = '';
+    } else {
+      const itemPersons = item.dataset.person.split(',').map(p => p.trim());
+      
+      if (itemPersons.includes(person) || itemPersons.includes('All')) {
+        item.style.display = '';
+      } else {
+        item.style.display = 'none';
+      }
+    }
+  });
+  
+  console.log(`Filtered for: ${person}`);
+}
+
+function getCurrentFilterPerson() {
+  const activeButton = document.querySelector('.filter-btn.active');
+  return activeButton ? activeButton.dataset.person : 'all';
+}
+
+function updateCheckboxStates() {
+  const currentPerson = getCurrentFilterPerson();
+  const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+
+  checkboxes.forEach(checkbox => {
+    const itemId = checkbox.id;
+    const item = checkbox.closest('.item');
+    const itemLabel = item.querySelector('.item-label');
+
+    const isChecked = personCheckedItems[currentPerson] && personCheckedItems[currentPerson][itemId] === true;
+    
+    checkbox.checked = isChecked;
+    
+    if (isChecked) {
+      itemLabel.classList.add('checked');
+    } else {
+      itemLabel.classList.remove('checked');
+    }
+  });
+}
+
+function updateAllCheckboxStates() {
+  updateCheckboxStates();
+}
+
+console.log('Script loaded successfully');
