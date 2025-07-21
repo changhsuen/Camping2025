@@ -340,7 +340,7 @@ header {
   background-size: 16px;
 }
 
-/* Status Indicators - 使用你的 SVG Icons */
+/* Status Indicators - 使用 CSS Mask + Color Token */
 .status-container {
   display: flex;
   align-items: center;
@@ -357,23 +357,34 @@ header {
   justify-content: center;
 }
 
-.status-indicator svg {
+.status-icon {
   width: 16px;
   height: 16px;
-  color: var(--icon-primary);
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
 }
 
-/* 不同狀態的顏色 */
-.status-indicator.status-none svg {
-  color: var(--text-secondary);
+/* 不同狀態的背景色和 mask 圖片 */
+.status-none .status-icon {
+  background-color: var(--icon-secondary);
+  -webkit-mask-image: url('icons/Not started.svg');
+  mask-image: url('icons/Not started.svg');
 }
 
-.status-indicator.status-partial svg {
-  color: var(--icon-primary);
+.status-partial .status-icon {
+  background-color: var(--icon-primary);
+  -webkit-mask-image: url('icons/Incomplete.svg');
+  mask-image: url('icons/Incomplete.svg');
 }
 
-.status-indicator.status-complete svg {
-  color: var(--icon-primary);
+.status-complete .status-icon {
+  background-color: var(--icon-primary);
+  -webkit-mask-image: url('icons/Complete.svg');
+  mask-image: url('icons/Complete.svg');
 }
 
 .item-label {
