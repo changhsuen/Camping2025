@@ -60,19 +60,56 @@ function initializePersonCheckedItems() {
 // ============================================
 // 狀態指示器相關函數
 // ============================================
+function getStatusClass(itemId, responsiblePersons) {
+    const checkedCount = responsiblePersons.filter(person => 
+        personCheckedItems[person] && personCheckedItems[person][itemId]
+    ).length;
+    
+    if (checkedCount === 0) return 'status-none';
+    if (checkedCount === responsiblePersons.length) return 'status-complete';
+    return 'status-partial';
+}
 
-// 直接載入 SVG 內容作為內聯 SVG，這樣可以用 CSS 控制顏色
-const statusIconsSVG = {
-    'status-none': `<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
-        <path d="M16 2C8.27 2 2 8.27 2 16s6.27 14 14 14 14-6.27 14-14S23.73 2 16 2zm0 2c6.63 0 12 5.37 12 12s-5.37 12-12 12S4 22.63 4 16 9.37 4 16 4z" fill="currentColor"/>
-    </svg>`,
-    'status-partial': `<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
-        <path d="M2,16c0,7.73,6.27,14,14,14V2c-7.73,0-14,6.27-14,14Z" fill="currentColor"/>
-    </svg>`,
-    'status-complete': `<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="16" cy="16" r="14" fill="currentColor"/>
-    </svg>`
-};
+function createStatusIndicator(itemId, responsiblePersons) {
+    const statusContainer = document.createElement('div');
+    statusContainer.className = 'status-container';
+    
+    const statusIndicator = document.createElement('div');
+    statusIndicator.className = 'status-indicator';
+    
+    // 創建一個 div 作為 mask 載體
+    const statusIcon = document.createElement('div');
+    statusIcon.className = 'status-icon';
+    
+    statusIndicator.appendChild(statusIcon);
+    
+    const statusClass = getStatusClass(itemId, responsiblePersons);
+    statusIndicator.classList.add(statusClass);
+    
+    statusContainer.appendChild(statusIndicator);
+    return statusContainer;
+}
+
+function updateStatusIndicators() {
+    const items = document.querySelectorAll('.item');
+    items.forEach(item => {
+        const statusContainer = item.querySelector('.status-container');
+        if (statusContainer) {
+            const itemId = item.querySelector('input[type="checkbox"]')?.id || 
+                          item.querySelector('.item-name')?.textContent.replace(/\s+/g, '-').toLowerCase();
+            const responsiblePersons = item.dataset.person.split(',').map(p => p.trim());
+            
+            const statusClass = getStatusClass(itemId, responsiblePersons);
+            const statusIndicator = statusContainer.querySelector('.status-indicator');
+            
+            // 移除舊的狀態 class
+            statusIndicator.classList.remove('status-none', 'status-partial', 'status-complete');
+            // 加入新的狀態 class
+            statusIndicator.classList.add(statusClass);
+        }
+    });
+}
+
 
 function getStatusClass(itemId, responsiblePersons) {
     const checkedCount = responsiblePersons.filter(person => 
