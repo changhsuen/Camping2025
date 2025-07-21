@@ -287,13 +287,13 @@ header {
   list-style: none;
 }
 
-/* Items */
+/* Items - 修正版本 */
 .item {
   display: flex;
   align-items: center;
-  justify-content: center;
   height: 48px;
   border-bottom: 1px solid var(--border-subtle);
+  /* 移除了 justify-content: center，這是導致問題的主因 */
 }
 
 .item:last-child {
@@ -304,19 +304,26 @@ header {
   display: none;
 }
 
+/* Custom Checkbox - 修正版本 */
 .custom-checkbox {
   position: relative;
-  display: inline-block;
+  display: flex; /* 改為 flex */
+  align-items: center;
+  justify-content: center;
   width: 16px;
   height: 16px;
   margin-right: 12px;
+  flex-shrink: 0; /* 防止被壓縮 */
+  z-index: 10; /* 確保在最上層 */
 }
 
 .custom-checkbox input[type="checkbox"] {
-  opacity: 0;
-  width: 0;
-  height: 0;
   position: absolute;
+  width: 16px;
+  height: 16px;
+  opacity: 0;
+  cursor: pointer;
+  z-index: 11; /* 確保 checkbox 在最上層 */
 }
 
 .checkbox-label {
@@ -330,6 +337,7 @@ header {
   border-radius: 2px;
   cursor: pointer;
   transition: all 0.2s;
+  pointer-events: none; /* 讓點擊事件穿透到 checkbox */
 }
 
 .custom-checkbox input[type="checkbox"]:checked + .checkbox-label {
@@ -340,12 +348,13 @@ header {
   background-size: 16px;
 }
 
-/* Status Indicators - 簡單圓點設計 */
+/* Status Indicators - 修正版本 */
 .status-container {
   display: flex;
   align-items: center;
   gap: 8px;
   margin-right: 12px;
+  flex-shrink: 0;
 }
 
 .status-indicator {
@@ -369,20 +378,28 @@ header {
   background-color: var(--status-green);
 }
 
+/* Item Label - 修正版本 */
 .item-label {
   flex: 1;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  cursor: pointer;
   padding: 0;
   margin: 0;
+  min-width: 0; /* 允許內容縮小 */
+}
+
+/* 確保在個人頁面 label 可以觸發 checkbox */
+.item-label[for] {
+  cursor: pointer;
 }
 
 .item-name {
   font-size: 14px;
   color: #1f2937;
   flex: 1;
+  min-width: 0;
+  margin-right: 8px;
 }
 
 .checked .item-name {
@@ -394,11 +411,13 @@ header {
   margin-left: 5px;
   font-weight: bold;
   color: #6b7280;
+  flex-shrink: 0;
 }
 
 .person-tags {
   display: flex;
   gap: var(--spacing-02);
+  flex-shrink: 0;
 }
 
 .person-tag {
@@ -408,6 +427,7 @@ header {
   padding: 2px 8px;
   border-radius: 10px;
   font-size: 12px;
+  white-space: nowrap;
 }
 
 .delete-btn {
@@ -422,6 +442,8 @@ header {
   margin-left: var(--spacing-02);
   cursor: pointer;
   transition: all 0.2s;
+  flex-shrink: 0;
+  z-index: 5; /* 確保刪除按鈕可以點擊 */
 }
 
 .delete-btn:hover {
