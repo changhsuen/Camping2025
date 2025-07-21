@@ -111,22 +111,6 @@
           <button class="filter-btn" data-person="Alex">Alex</button>
         </div>
 
-        <!-- Status Legend for All page -->
-        <div class="status-legend" id="status-legend" style="display: none;">
-          <div class="legend-item">
-            <div class="legend-dot status-none"></div>
-            <span>None ready</span>
-          </div>
-          <div class="legend-item">
-            <div class="legend-dot status-partial"></div>
-            <span>Partial ready</span>
-          </div>
-          <div class="legend-item">
-            <div class="legend-dot status-complete"></div>
-            <span>All ready</span>
-          </div>
-        </div>
-
         <div class="category-section">
           <h3 class="category-title">Shared Gear</h3>
           <ul class="item-list" id="shared-items"></ul>
@@ -150,11 +134,6 @@
             <input type="text" class="form-input" id="new-item-person" placeholder="Name, Name, Name" />
             <button class="add-btn" id="add-unified-item">Add Item</button>
           </div>
-          <!-- 同步狀態顯示 -->
-          <div class="sync-status" id="sync-status">
-            <span class="sync-indicator">●</span>
-            <span id="sync-text">Initializing...</span>
-          </div>
           <button class="save-btn" onclick="saveList()">Save List</button>
         </div>
       </div>
@@ -164,73 +143,5 @@
     <script type="module" src="firebase-config.js"></script>
     <script type="module" src="script.js"></script>
     <script src="countdown.js"></script>
-
-    <script>
-      // 控制狀態說明的顯示
-      document.addEventListener('DOMContentLoaded', function() {
-        const statusLegend = document.getElementById('status-legend');
-        const filterButtons = document.querySelectorAll('.filter-btn');
-        
-        function toggleStatusLegend() {
-          const activeButton = document.querySelector('.filter-btn.active');
-          if (activeButton && activeButton.dataset.person === 'all') {
-            statusLegend.style.display = 'flex';
-          } else {
-            statusLegend.style.display = 'none';
-          }
-        }
-        
-        filterButtons.forEach(button => {
-          button.addEventListener('click', function() {
-            setTimeout(toggleStatusLegend, 100);
-          });
-        });
-        
-        toggleStatusLegend();
-      });
-    </script>
-
-    <style>
-      /* 同步狀態樣式 */
-      .sync-status {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        margin-top: 16px;
-        padding: 8px 12px;
-        background: #f0f9ff;
-        border: 1px solid #e0f2fe;
-        border-radius: 8px;
-        font-size: 12px;
-        color: #0369a1;
-      }
-
-      .sync-indicator {
-        font-size: 8px;
-        animation: pulse 2s infinite;
-      }
-
-      .sync-status.connected .sync-indicator {
-        color: #10b981;
-      }
-
-      .sync-status.connecting .sync-indicator {
-        color: #f59e0b;
-      }
-
-      .sync-status.offline .sync-indicator {
-        color: #ef4444;
-      }
-
-      @keyframes pulse {
-        0%,
-        100% {
-          opacity: 1;
-        }
-        50% {
-          opacity: 0.5;
-        }
-      }
-    </style>
   </body>
 </html>
