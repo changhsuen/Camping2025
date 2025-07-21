@@ -1,4 +1,4 @@
-// script.js - 修復 Firebase 和保存功能
+// script.js - 修正 checkbox 選取問題
 let personCheckedItems = {};
 let isInitialLoad = true;
 let hasLoadedDefaultItems = false;
@@ -58,11 +58,9 @@ function initializePersonCheckedItems() {
 }
 
 // ============================================
-// Firebase Key 清理函數 - 修復 Firebase 錯誤
+// Firebase Key 清理函數
 // ============================================
 function sanitizeFirebaseKey(key) {
-    // Firebase 不允許這些字符: . $ # [ ] / 
-    // 將不允許的字符替換成下劃線
     return key.toString().replace(/[.$#[\]/]/g, '_');
 }
 
@@ -99,7 +97,7 @@ function sanitizeItemsForFirebase(items) {
 }
 
 // ============================================
-// 狀態指示器相關函數
+// 狀態指示器相關函數 - 修正版本
 // ============================================
 function getStatusClass(itemId, responsiblePersons) {
     const checkedCount = responsiblePersons.filter(person => 
@@ -118,6 +116,7 @@ function createStatusIndicator(itemId, responsiblePersons) {
     const statusIndicator = document.createElement('div');
     statusIndicator.className = 'status-indicator';
     
+    // 根據狀態設置正確的 class
     const statusClass = getStatusClass(itemId, responsiblePersons);
     statusContainer.classList.add(statusClass);
     statusContainer.appendChild(statusIndicator);
@@ -140,6 +139,7 @@ function updateStatusIndicators() {
             
             const newStatusClass = getStatusClass(itemId, responsiblePersons);
             
+            // 清除舊的狀態 class 並添加新的
             statusContainer.classList.remove('status-none', 'status-partial', 'status-complete');
             statusContainer.classList.add(newStatusClass);
         }
@@ -196,7 +196,6 @@ function syncChecklistToFirebase() {
     }
 
     try {
-        // 清理數據以符合 Firebase 要求
         const sanitizedData = sanitizePersonCheckedForFirebase(personCheckedItems);
         
         const checklistRef = window.firebaseRef('checklist');
@@ -207,7 +206,6 @@ function syncChecklistToFirebase() {
         console.log('Successfully synced checklist to Firebase');
     } catch (error) {
         console.error('Error syncing checklist to Firebase:', error);
-        // 即使 Firebase 失敗，也要保存到本地
         localStorage.setItem('campingChecklist2025_backup', JSON.stringify({
             personChecked: personCheckedItems,
             lastUpdated: new Date().toISOString()
@@ -381,7 +379,7 @@ function renderSavedItems(data) {
 }
 
 // ============================================
-// UI 元素創建函數
+// UI 元素創建函數 - 修正版本
 // ============================================
 
 function createItemElement(list, item) {
@@ -393,13 +391,13 @@ function createItemElement(list, item) {
     const isAllPage = currentPerson === 'all';
     
     if (isAllPage) {
-        // All 頁面：使用圓點狀態指示器
+        // All 頁面：顯示圓點狀態指示器
         const responsiblePersons = (item.persons || item.personData || 'All').split(',').map(p => p.trim());
         const statusContainer = createStatusIndicator(item.id, responsiblePersons);
         li.appendChild(statusContainer);
         li.style.cursor = 'default';
     } else {
-        // 個人頁面：使用 checkbox
+        // 個人頁面：顯示可點擊的 checkbox
         const customCheckbox = document.createElement('div');
         customCheckbox.className = 'custom-checkbox';
 
@@ -414,16 +412,20 @@ function createItemElement(list, item) {
         customCheckbox.appendChild(checkbox);
         customCheckbox.appendChild(checkboxLabel);
 
+        // 重要：添加 change 事件監聽器
         checkbox.addEventListener('change', function () {
+            console.log('Checkbox changed:', this.id, this.checked);
             handleCheckboxChange(this);
         });
 
         li.appendChild(customCheckbox);
     }
 
+    // 創建項目標籤
     const itemLabel = document.createElement('label');
     itemLabel.className = 'item-label';
     
+    // 只有在非 All 頁面才設置 for 屬性和 pointer cursor
     if (!isAllPage) {
         itemLabel.setAttribute('for', item.id);
         itemLabel.style.cursor = 'pointer';
@@ -431,11 +433,13 @@ function createItemElement(list, item) {
         itemLabel.style.cursor = 'default';
     }
 
+    // 創建項目名稱
     const nameSpan = document.createElement('span');
     nameSpan.className = 'item-name';
     nameSpan.textContent = item.name;
     itemLabel.appendChild(nameSpan);
 
+    // 創建數量顯示
     if (item.quantity) {
         const quantitySpan = document.createElement('span');
         quantitySpan.className = 'item-quantity';
@@ -443,6 +447,7 @@ function createItemElement(list, item) {
         itemLabel.appendChild(quantitySpan);
     }
 
+    // 創建人員標籤
     const personTags = document.createElement('span');
     personTags.className = 'person-tags';
 
@@ -460,6 +465,7 @@ function createItemElement(list, item) {
     }
     itemLabel.appendChild(personTags);
 
+    // 創建刪除按鈕
     const deleteBtn = document.createElement('button');
     deleteBtn.className = 'delete-btn';
     deleteBtn.innerHTML = '×';
@@ -523,7 +529,7 @@ function createPersonFilters() {
 }
 
 // ============================================
-// 事件處理函數
+// 事件處理函數 - 修正版本
 // ============================================
 
 function setupFilterButtons() {
@@ -532,12 +538,16 @@ function setupFilterButtons() {
         button.addEventListener('click', function () {
             const person = this.dataset.person;
             
+            // 更新活動狀態
             document.querySelectorAll('.filter-btn').forEach(btn => {
                 btn.classList.remove('active');
             });
             this.classList.add('active');
             
+            // 重新渲染以切換顯示模式（All 頁面 vs 個人頁面）
             rerenderItemsForCurrentView();
+            
+            // 過濾項目和更新狀態
             filterItems(person);
             updateCheckboxStates();
             updateProgress();
@@ -546,6 +556,7 @@ function setupFilterButtons() {
 }
 
 function rerenderItemsForCurrentView() {
+    // 收集當前所有項目的資料
     const allItems = [];
     document.querySelectorAll('.item').forEach(item => {
         const checkbox = item.querySelector('input[type="checkbox"]');
@@ -571,6 +582,7 @@ function rerenderItemsForCurrentView() {
         }
     });
 
+    // 清空並重新創建項目
     document.querySelectorAll('.item-list').forEach(list => {
         list.innerHTML = '';
     });
@@ -598,6 +610,8 @@ function handleCheckboxChange(checkbox) {
     const itemId = checkbox.id;
     const item = checkbox.closest('.item');
     const itemLabel = item.querySelector('.item-label');
+
+    console.log(`處理 checkbox 變更: ${itemId}, 當前用戶: ${currentPerson}, 選中狀態: ${checkbox.checked}`);
 
     if (checkbox.checked) {
         itemLabel.classList.add('checked');
@@ -722,7 +736,7 @@ function deleteItem(itemElement) {
 }
 
 // ============================================
-// 保存功能 - 修復版本
+// 保存功能
 // ============================================
 function saveList() {
     console.log('保存功能被調用');
@@ -772,11 +786,9 @@ function saveList() {
             };
         });
 
-        // 保存到本地存儲
         localStorage.setItem('campingChecklist2025', JSON.stringify(savedData));
         console.log('數據已保存到本地存儲');
         
-        // 同步到 Firebase
         syncChecklistToFirebase();
         syncItemsToFirebase();
         
@@ -789,7 +801,6 @@ function saveList() {
     }
 }
 
-// 確保 saveList 函數可以全局訪問（因為 HTML 中使用 onclick）
 window.saveList = saveList;
 
 // ============================================
