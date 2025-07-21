@@ -497,7 +497,7 @@ header {
   font-weight: 500;
   cursor: pointer;
   transition: background 70ms cubic-bezier(0, 0, 0.38, 0.9);
-  margin-bottom: var(--spacing-05);
+  margin-bottom: var(--spacing-03);
 }
 
 .add-btn:hover {
