@@ -340,7 +340,7 @@ header {
   background-size: 16px;
 }
 
-/* Status Indicators - 使用 CSS Mask + Color Token */
+/* Status Indicators - 簡單圓點設計 */
 .status-container {
   display: flex;
   align-items: center;
@@ -349,42 +349,24 @@ header {
 }
 
 .status-indicator {
-  width: 16px;
-  height: 16px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
   flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  transition: all 0.2s ease;
 }
 
-.status-icon {
-  width: 16px;
-  height: 16px;
-  -webkit-mask-size: contain;
-  mask-size: contain;
-  -webkit-mask-repeat: no-repeat;
-  mask-repeat: no-repeat;
-  -webkit-mask-position: center;
-  mask-position: center;
+/* 不同狀態的顏色 */
+.status-none .status-indicator {
+  background-color: var(--status-red);
 }
 
-/* 不同狀態的背景色和 mask 圖片 */
-.status-none .status-icon {
-  background-color: var(--icon-secondary);
-  -webkit-mask-image: url('icons/Not started.svg');
-  mask-image: url('icons/Not started.svg');
+.status-partial .status-indicator {
+  background-color: var(--status-yellow);
 }
 
-.status-partial .status-icon {
-  background-color: var(--icon-primary);
-  -webkit-mask-image: url('icons/Incomplete.svg');
-  mask-image: url('icons/Incomplete.svg');
-}
-
-.status-complete .status-icon {
-  background-color: var(--icon-primary);
-  -webkit-mask-image: url('icons/Complete.svg');
-  mask-image: url('icons/Complete.svg');
+.status-complete .status-indicator {
+  background-color: var(--status-green);
 }
 
 .item-label {
