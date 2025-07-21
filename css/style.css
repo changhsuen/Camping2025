@@ -287,13 +287,13 @@ header {
   list-style: none;
 }
 
-/* Items - 修正版本 */
+/* Items - 最終修正版本 */
 .item {
   display: flex;
   align-items: center;
   height: 48px;
   border-bottom: 1px solid var(--border-subtle);
-  /* 移除了 justify-content: center，這是導致問題的主因 */
+  position: relative;
 }
 
 .item:last-child {
@@ -304,40 +304,44 @@ header {
   display: none;
 }
 
-/* Custom Checkbox - 修正版本 */
+/* Custom Checkbox - 最終修正版本 */
 .custom-checkbox {
   position: relative;
-  display: flex; /* 改為 flex */
+  width: 20px;
+  height: 20px;
+  margin-right: 12px;
+  flex-shrink: 0;
+  display: flex;
   align-items: center;
   justify-content: center;
-  width: 16px;
-  height: 16px;
-  margin-right: 12px;
-  flex-shrink: 0; /* 防止被壓縮 */
-  z-index: 10; /* 確保在最上層 */
 }
 
 .custom-checkbox input[type="checkbox"] {
   position: absolute;
-  width: 16px;
-  height: 16px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 20px;
+  height: 20px;
   opacity: 0;
   cursor: pointer;
-  z-index: 11; /* 確保 checkbox 在最上層 */
+  z-index: 2;
+  margin: 0;
 }
 
 .checkbox-label {
   position: absolute;
-  top: 0;
-  left: 0;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   width: 16px;
   height: 16px;
   background-color: transparent;
   border: 1px solid var(--green100);
   border-radius: 2px;
-  cursor: pointer;
   transition: all 0.2s;
-  pointer-events: none; /* 讓點擊事件穿透到 checkbox */
+  z-index: 1;
+  cursor: pointer;
 }
 
 .custom-checkbox input[type="checkbox"]:checked + .checkbox-label {
@@ -345,7 +349,7 @@ header {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M8 12.5L11 15.5L16 9.5' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
   background-position: center;
   background-repeat: no-repeat;
-  background-size: 16px;
+  background-size: 12px;
 }
 
 /* Status Indicators - 修正版本 */
@@ -378,7 +382,7 @@ header {
   background-color: var(--status-green);
 }
 
-/* Item Label - 修正版本 */
+/* Item Label - 最終修正版本 */
 .item-label {
   flex: 1;
   display: flex;
@@ -386,12 +390,12 @@ header {
   align-items: center;
   padding: 0;
   margin: 0;
-  min-width: 0; /* 允許內容縮小 */
+  min-width: 0;
+  cursor: pointer;
 }
 
-/* 確保在個人頁面 label 可以觸發 checkbox */
-.item-label[for] {
-  cursor: pointer;
+.item-label.readonly {
+  cursor: default;
 }
 
 .item-name {
@@ -443,7 +447,7 @@ header {
   cursor: pointer;
   transition: all 0.2s;
   flex-shrink: 0;
-  z-index: 5; /* 確保刪除按鈕可以點擊 */
+  z-index: 3;
 }
 
 .delete-btn:hover {
