@@ -1,4 +1,4 @@
-// script.js - 修復版本，解決函數未定義和項目載入問題
+// script.js - 修復版本，解決函數重複定義問題
 let personCheckedItems = {};
 let isInitialLoad = true;
 let hasLoadedDefaultItems = false;
@@ -106,53 +106,6 @@ function updateStatusIndicators() {
             statusIndicator.classList.remove('status-none', 'status-partial', 'status-complete');
             // 加入新的狀態 class
             statusIndicator.classList.add(statusClass);
-        }
-    });
-}
-
-
-function getStatusClass(itemId, responsiblePersons) {
-    const checkedCount = responsiblePersons.filter(person => 
-        personCheckedItems[person] && personCheckedItems[person][itemId]
-    ).length;
-    
-    if (checkedCount === 0) return 'status-none';
-    if (checkedCount === responsiblePersons.length) return 'status-complete';
-    return 'status-partial';
-}
-
-function createStatusIndicator(itemId, responsiblePersons) {
-    const statusIndicator = document.createElement('div');
-    statusIndicator.className = 'status-indicator';
-    
-    const statusClass = getStatusClass(itemId, responsiblePersons);
-    
-    // 使用內聯 SVG 並設置 class 來控制顏色
-    statusIndicator.innerHTML = statusIconsSVG[statusClass];
-    statusIndicator.classList.add(statusClass);
-    
-    const container = document.createElement('div');
-    container.className = 'status-container';
-    container.appendChild(statusIndicator);
-    
-    return container;
-}
-
-function updateStatusIndicators() {
-    const items = document.querySelectorAll('.item');
-    items.forEach(item => {
-        const statusContainer = item.querySelector('.status-container');
-        if (statusContainer) {
-            const itemId = item.querySelector('input[type="checkbox"]')?.id || 
-                          item.querySelector('.item-name')?.textContent.replace(/\s+/g, '-').toLowerCase();
-            const responsiblePersons = item.dataset.person.split(',').map(p => p.trim());
-            
-            const statusIndicator = statusContainer.querySelector('.status-indicator');
-            
-            // 更新狀態 SVG
-            const statusClass = getStatusClass(itemId, responsiblePersons);
-            statusIndicator.innerHTML = statusIconsSVG[statusClass];
-            statusIndicator.className = `status-indicator ${statusClass}`;
         }
     });
 }
