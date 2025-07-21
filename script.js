@@ -1,4 +1,4 @@
-// script.js - 修復版本，解決函數重複定義問題
+// script.js - 簡化版本，使用圓點狀態指示器
 let personCheckedItems = {};
 let isInitialLoad = true;
 let hasLoadedDefaultItems = false;
@@ -58,7 +58,7 @@ function initializePersonCheckedItems() {
 }
 
 // ============================================
-// 狀態指示器相關函數
+// 狀態指示器相關函數 - 簡化版本
 // ============================================
 function getStatusClass(itemId, responsiblePersons) {
     const checkedCount = responsiblePersons.filter(person => 
@@ -77,16 +77,10 @@ function createStatusIndicator(itemId, responsiblePersons) {
     const statusIndicator = document.createElement('div');
     statusIndicator.className = 'status-indicator';
     
-    // 創建一個 div 作為 mask 載體
-    const statusIcon = document.createElement('div');
-    statusIcon.className = 'status-icon';
-    
-    statusIndicator.appendChild(statusIcon);
-    
     const statusClass = getStatusClass(itemId, responsiblePersons);
-    statusIndicator.classList.add(statusClass);
-    
+    statusContainer.classList.add(statusClass);
     statusContainer.appendChild(statusIndicator);
+    
     return statusContainer;
 }
 
@@ -100,12 +94,11 @@ function updateStatusIndicators() {
             const responsiblePersons = item.dataset.person.split(',').map(p => p.trim());
             
             const statusClass = getStatusClass(itemId, responsiblePersons);
-            const statusIndicator = statusContainer.querySelector('.status-indicator');
             
             // 移除舊的狀態 class
-            statusIndicator.classList.remove('status-none', 'status-partial', 'status-complete');
+            statusContainer.classList.remove('status-none', 'status-partial', 'status-complete');
             // 加入新的狀態 class
-            statusIndicator.classList.add(statusClass);
+            statusContainer.classList.add(statusClass);
         }
     });
 }
@@ -139,8 +132,7 @@ function initializeFirebaseListeners() {
                 updateProgress();
             } else {
                 console.log('No checklist data in Firebase, keeping local state');
-                // 如果 Firebase 沒有資料，將本地狀態同步到 Firebase
-                if (Object.keys(personCheckedItems).length > 1) { // 不只有 all
+                if (Object.keys(personCheckedItems).length > 1) {
                     syncChecklistToFirebase();
                 }
             }
@@ -154,7 +146,6 @@ function initializeFirebaseListeners() {
                 renderItemsFromFirebase(data);
             } else {
                 console.log('No items in Firebase, syncing current items');
-                // 如果 Firebase 沒有項目資料，將當前項目同步到 Firebase
                 const currentItems = getCurrentItemsData();
                 if (currentItems && Object.keys(currentItems).length > 0) {
                     syncItemsToFirebase();
@@ -191,7 +182,6 @@ function getCurrentItemsData() {
                     .map(tag => tag.textContent)
                     .join(',');
 
-                // 確保有 ID，如果沒有則生成一個
                 const itemId = checkbox ? checkbox.id : `temp-${Date.now()}-${Math.random()}`;
 
                 items[categoryId].push({
@@ -244,12 +234,10 @@ function syncItemsToFirebase() {
 function renderItemsFromFirebase(data) {
     console.log('Rendering items from Firebase...', data);
     
-    // 清空現有項目
     document.querySelectorAll('.item-list').forEach(list => {
         list.innerHTML = '';
     });
 
-    // 渲染 Firebase 資料
     for (const categoryId in data) {
         const list = document.getElementById(categoryId);
         if (list && data[categoryId] && Array.isArray(data[categoryId])) {
@@ -367,15 +355,14 @@ function createItemElement(list, item) {
     const isAllPage = currentPerson === 'all';
     
     if (isAllPage) {
-        // All 頁面：使用狀態指示器，設置為不可點擊
+        // All 頁面：使用圓點狀態指示器
         const responsiblePersons = item.persons.split(',').map(p => p.trim());
         const statusContainer = createStatusIndicator(item.id, responsiblePersons);
         li.appendChild(statusContainer);
         
-        // 設置 All 頁面的游標樣式
         li.style.cursor = 'default';
     } else {
-        // 個人頁面：使用正常的 checkbox
+        // 個人頁面：使用 checkbox
         const customCheckbox = document.createElement('div');
         customCheckbox.className = 'custom-checkbox';
 
@@ -400,7 +387,6 @@ function createItemElement(list, item) {
     const itemLabel = document.createElement('label');
     itemLabel.className = 'item-label';
     
-    // All 頁面不需要 for 屬性，因為不可點擊
     if (!isAllPage) {
         itemLabel.setAttribute('for', item.id);
         itemLabel.style.cursor = 'pointer';
@@ -750,7 +736,6 @@ function saveList() {
                 .map(tag => tag.textContent)
                 .join(',');
 
-            // 確保有 ID，如果沒有則生成一個
             const itemId = checkbox ? checkbox.id : `item-${Date.now()}-${Math.random()}`;
 
             items.push({
