@@ -1,558 +1,578 @@
 /* Reset and base styles */
 * {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
 body {
-  font-family: var(--font-en);
-  background-color: var(--white);
-  color: var(--text-primary);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background-color: #f5f5f5;
+    color: #333;
+    line-height: 1.6;
 }
 
 .container {
-  max-width: 414px;
-  margin: 0 auto;
-  padding: var(--spacing-03);
-  min-height: 100vh;
-  overflow-x: hidden;
-  background-color: var(--background);
+    max-width: 414px;
+    margin: 0 auto;
+    background: white;
+    min-height: 100vh;
+    overflow-x: hidden;
 }
 
 /* Header */
-header {
-  margin-bottom: var(--spacing-05);
-  padding: var(--spacing-05) var(--spacing-05);
+.header {
+    padding: 20px 24px;
+    background: white;
 }
 
 .title {
-  font-size: 32px;
-  font-weight: 700;
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    color: #1f2937;
 }
 
 .year {
-  font-size: 32px;
-  color: var(--text-secondary);
-  font-weight: 700;
+    font-size: 18px;
+    color: #666;
+    font-weight: 400;
 }
 
 /* Quick Links */
 .quick-links {
-  background-color: var(--layer-01);
-  padding: var(--spacing-03);
-  border-radius: 20px;
-  margin-bottom: var(--spacing-03);
-  display: flex;
-  gap: var(--spacing-03);
-  flex-wrap: wrap;
+    display: flex;
+    gap: 12px;
+    padding: 0 24px 20px;
+    flex-wrap: wrap;
 }
 
 .link-btn {
-  background: #e5e7eb;
-  color: var(--text-primary);
-  height: 40px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 8px 16px;
-  border-radius: 20px;
-  text-decoration: underline;
-  font-size: 14px;
-  font-weight: 500;
-  transition: all 0.2s;
+    background: #e5e7eb;
+    color: #374151;
+    padding: 8px 16px;
+    border-radius: 20px;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s;
 }
 
 .link-btn:hover {
-  background: #d1d5db;
+    background: #d1d5db;
 }
 
 /* Countdown Card */
 .countdown-card {
-  background: var(--layer-03);
-  color: var(--text-primary);
-  padding: var(--spacing-05);
-  border-radius: 20px;
-  text-align: center;
-  margin-bottom: var(--spacing-03);
+    background: linear-gradient(135deg, #8B7355 0%, #A0926B 100%);
+    color: white;
+    margin: 0 24px 20px;
+    padding: 24px;
+    border-radius: 16px;
+    text-align: center;
 }
 
 .countdown-date {
-  font-size: 16px;
-  margin-bottom: var(--spacing-03);
+    font-size: 16px;
+    margin-bottom: 16px;
+    opacity: 0.9;
 }
 
 .countdown-display {
-  display: flex;
-  justify-content: space-between;
-  gap: 16px;
+    display: flex;
+    justify-content: center;
+    gap: 20px;
 }
 
 .countdown-item {
-  text-align: center;
-  width: 80px;
+    text-align: center;
 }
 
 .countdown-number {
-  font-size: 40px;
-  font-weight: 500;
-  line-height: 1;
-  margin-bottom: var(--spacing-03);
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 4px;
 }
 
 .countdown-label {
-  font-size: 14px;
-  color: var(--text-secondary);
+    font-size: 12px;
+    opacity: 0.8;
 }
 
 /* Schedule Section */
 .schedule-section {
-  margin-bottom: var(--spacing-03);
+    margin: 0 24px 20px;
 }
+
 .section-title {
-  font-size: 18px;
-  font-weight: 500;
-  margin-bottom: 16px;
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    color: #1f2937;
 }
 
 .schedule-card {
-  background: var(--layer-02);
-  color: var(--text-primary);
-  padding: var(--spacing-05);
-  border-radius: 20px;
+    background: #374151;
+    color: white;
+    padding: 20px;
+    border-radius: 12px;
 }
 
 .schedule-item {
-  display: flex;
-  align-items: center;
-  margin-bottom: var(--spacing-03);
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px;
 }
 
 .schedule-item:last-child {
-  margin-bottom: 0;
+    margin-bottom: 0;
 }
 
 .schedule-time {
-  width: 48px;
-  font-size: 14px;
+    font-weight: 600;
+    width: 50px;
+    font-size: 14px;
 }
 
 .schedule-activity {
-  font-size: 14px;
-  margin-left: 16px;
+    font-size: 14px;
+    margin-left: 16px;
 }
 
 /* Weather Section */
 .weather-section {
-  display: flex;
-  gap: var(--spacing-03);
-  margin-bottom: var(--spacing-03);
+    display: flex;
+    gap: 12px;
+    margin: 0 24px 20px;
 }
 
 .weather-card {
-  flex: 1;
-  background: var(--layer-04);
-  padding: 16px;
-  border-radius: 20px;
+    flex: 1;
+    background: #f3f4f6;
+    padding: 16px;
+    border-radius: 12px;
+    text-align: center;
 }
 
 .weather-date {
-  font-size: 16px;
-  font-weight: 500;
-  margin-bottom: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 8px;
 }
 
-.iconandtemp {
-  display: flex;
-  justify-content: space-between;
-}
-
-.rain {
-  display: flexbox;
-}
-
-.weather-humidity {
-  font-size: 14px;
-  color: var(--text-secondary);
-  text-align: center;
+.weather-icon {
+    font-size: 24px;
+    margin-bottom: 8px;
 }
 
 .weather-temps {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  text-align: end;
-  gap: 8px;
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 4px;
 }
 
 .temp-high {
-  font-size: 24px;
-  font-weight: 500;
+    font-size: 16px;
+    font-weight: 600;
 }
 
 .temp-low {
-  font-size: 24px;
-  color: var(--text-secondary);
+    font-size: 16px;
+    color: #6b7280;
+}
+
+.weather-humidity {
+    font-size: 12px;
+    color: #6b7280;
 }
 
 /* Packing Section */
 .packing-section {
-  background-color: var(--layer-01);
-  border-radius: 20px;
-  padding: var(--spacing-05);
-}
-
-.packing-section h2 {
-  color: var(--text-primary);
+    margin: 0 24px 20px;
 }
 
 .progress-info {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
 }
 
 .progress-text {
-  font-size: 14px;
-  color: var(--text-secondary);
-  margin-bottom: var(--spacing-03);
+    font-size: 14px;
+    color: #6b7280;
 }
 
 .progress-bar {
-  height: 8px;
-  background: var(--green20);
-  border-radius: 4px;
-  overflow: hidden;
-  margin-bottom: 20px;
+    height: 4px;
+    background: #e5e7eb;
+    border-radius: 2px;
+    overflow: hidden;
+    margin-bottom: 20px;
 }
 
 .progress-fill {
-  height: 100%;
-  background: var(--green100);
-  border-radius: 4px;
-  width: 0%;
-  transition: width 0.3s ease;
+    height: 100%;
+    background: #10b981;
+    width: 0%;
+    transition: width 0.3s ease;
 }
 
 /* Filter Buttons */
 .filter-buttons {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--spacing-02);
-  margin-bottom: var(--spacing-05);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 20px;
 }
 
 .filter-btn {
-  display: flex;
-  align-items: center;
-  height: 32px;
-  padding: 0 12px;
-  border-radius: 20px;
-  border: 1px solid var(--button-primary);
-  background: transparent;
-  color: var(--button-primary);
-  font-size: 14px;
-  cursor: pointer;
-  transition: all 70ms cubic-bezier(0, 0, 0.38, 0.9);
+    padding: 8px 16px;
+    border-radius: 20px;
+    border: 1px solid #d1d5db;
+    background: white;
+    color: #374151;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
 }
 
 .filter-btn.active {
-  background: #374151;
-  color: white;
-  border-color: #374151;
+    background: #374151;
+    color: white;
+    border-color: #374151;
 }
 
 .filter-btn:hover {
-  background: #f3f4f6;
+    background: #f3f4f6;
 }
 
 .filter-btn.active:hover {
-  background: #4b5563;
+    background: #4b5563;
 }
 
 /* Category Section */
 .category-section {
-  margin-bottom: 24px;
+    margin-bottom: 24px;
 }
 
 .category-title {
-  font-size: 16px;
-  font-weight: 600;
-  margin-bottom: 12px;
-  color: #1f2937;
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: #1f2937;
 }
 
 .item-list {
-  list-style: none;
+    list-style: none;
 }
 
 /* Items */
 .item {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 48px;
-  border-bottom: 1px solid var(--border-subtle);
+    display: flex;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #f3f4f6;
 }
 
 .item:last-child {
-  border-bottom: none;
+    border-bottom: none;
 }
 
 .item.hidden {
-  display: none;
+    display: none;
 }
 
 .custom-checkbox {
-  position: relative;
-  display: inline-block;
-  width: 16px;
-  height: 16px;
-  margin-right: 12px;
+    position: relative;
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    margin-right: 12px;
 }
 
 .custom-checkbox input[type="checkbox"] {
-  opacity: 0;
-  width: 0;
-  height: 0;
-  position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+    position: absolute;
 }
 
 .checkbox-label {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 16px;
-  height: 16px;
-  background-color: transparent;
-  border: 1px solid var(--green100);
-  border-radius: 2px;
-  cursor: pointer;
-  transition: all 0.2s;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 20px;
+    height: 20px;
+    background-color: transparent;
+    border: 2px solid #d1d5db;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
 }
 
 .custom-checkbox input[type="checkbox"]:checked + .checkbox-label {
-  background-color: var(--green100);
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M8 12.5L11 15.5L16 9.5' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: 16px;
-}
-
-/* Status Indicators - 使用你的 SVG Icons */
-.status-container {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-right: 12px;
-}
-
-.status-indicator {
-  width: 16px;
-  height: 16px;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.status-indicator svg {
-  width: 16px;
-  height: 16px;
-  color: var(--icon-primary);
-}
-
-/* 不同狀態的顏色 */
-.status-indicator.status-none svg {
-  color: var(--text-secondary);
-}
-
-.status-indicator.status-partial svg {
-  color: var(--icon-primary);
-}
-
-.status-indicator.status-complete svg {
-  color: var(--icon-primary);
+    background-color: #10b981;
+    border-color: #10b981;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M8 12.5L11 15.5L16 9.5' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 12px;
 }
 
 .item-label {
-  flex: 1;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  cursor: pointer;
-  padding: 0;
-  margin: 0;
+    flex: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    padding: 0;
+    margin: 0;
 }
 
 .item-name {
-  font-size: 14px;
-  color: #1f2937;
-  flex: 1;
+    font-size: 14px;
+    color: #1f2937;
+    flex: 1;
 }
 
 .checked .item-name {
-  text-decoration: line-through;
-  color: var(--text-secondary);
+    text-decoration: line-through;
+    color: #9ca3af;
 }
 
 .item-quantity {
-  margin-left: 5px;
-  font-weight: bold;
-  color: #6b7280;
+    margin-left: 5px;
+    font-weight: bold;
+    color: #6b7280;
 }
 
 .person-tags {
-  display: flex;
-  gap: var(--spacing-02);
+    display: flex;
+    gap: 6px;
 }
 
 .person-tag {
-  height: 18px;
-  background: #f3f4f6;
-  color: #6b7280;
-  padding: 2px 8px;
-  border-radius: 10px;
-  font-size: 12px;
+    background: #f3f4f6;
+    color: #6b7280;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 12px;
 }
 
 .delete-btn {
-  width: 24px;
-  height: 24px;
-  background: transparent;
-  border-radius: 50%;
-  border: none;
-  color: var(--icon-secondary);
-  font-size: 18px;
-  padding: 0;
-  margin-left: var(--spacing-02);
-  cursor: pointer;
-  transition: all 0.2s;
+    width: 24px;
+    height: 24px;
+    background: transparent;
+    border-radius: 50%;
+    border: none;
+    color: #9ca3af;
+    font-size: 18px;
+    padding: 0;
+    margin-left: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
 }
 
 .delete-btn:hover {
-  background-color: var(--background-hover);
-  color: var(--icon-primary);
+    background-color: #f3f4f6;
+    color: #ef4444;
 }
 
 /* Add Item Section */
 .add-item-section {
-  border-radius: 12px;
-  margin-top: 16px;
+    background: #f9fafb;
+    padding: 16px;
+    border-radius: 12px;
+    margin-top: 16px;
 }
 
 .add-item-form {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-03);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
 }
 
 .form-row {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-03);
+    display: flex;
+    gap: 8px;
 }
 
 .form-input {
-  height: 40px;
-  padding: 8px 16px;
-  border: none;
-  border-radius: 20px;
-  font-size: 14px;
-  background: var(--field);
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 14px;
+    background: white;
 }
 
 .form-input:focus {
-  outline: 1px solid var(--button-primary);
-  border: 1px solid var(--button-primary);
+    outline: none;
+    border-color: #10b981;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
 }
 
 .form-select {
-  height: 40px;
-  padding: var(--spacing-03) var(--spacing-07) var(--spacing-03) var(--spacing-05);
-  border: none;
-  border-radius: 20px;
-  font-size: 14px;
-  background: var(--field);
-  cursor: pointer;
+    padding: 8px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 14px;
+    background: white;
+    cursor: pointer;
+    min-width: 120px;
 }
 
 .form-select:focus {
-  outline: none;
-  border-color: #10b981;
+    outline: none;
+    border-color: #10b981;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
 }
 
 .add-btn {
-  background: transparent;
-  height: 40px;
-  color: var(--button-primary);
-  padding: 0 16px;
-  border: solid 1px var(--button-primary);
-  border-radius: 20px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background 70ms cubic-bezier(0, 0, 0.38, 0.9);
+    background: #10b981;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
 }
 
 .add-btn:hover {
-  background: var(--button-primary);
-  color: var(--text-on-color);
+    background: #059669;
 }
 
 /* Save Button */
 .save-btn {
-  background: var(--button-primary);
-  color: var(--text-on-color);
-  height: 40px;
-  border: none;
-  border-radius: 20px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  width: calc(100%);
-  transition: background 70ms cubic-bezier(0, 0, 0.38, 0.9);
+    background: #3b82f6;
+    color: white;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    margin: 20px 24px;
+    width: calc(100% - 48px);
+    transition: background 0.2s;
 }
 
 .save-btn:hover {
-  background: var(--button-primary-hover);
+    background: #2563eb;
+}
+
+/* Sync Status - 更新的樣式 */
+.sync-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 16px;
+    padding: 8px 12px;
+    background: #f0f9ff;
+    border: 1px solid #e0f2fe;
+    border-radius: 8px;
+    font-size: 12px;
+    color: #0369a1;
+}
+
+.sync-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.sync-status.connected .sync-indicator {
+    background-color: var(--status-green);
+}
+
+.sync-status.connecting .sync-indicator {
+    background-color: var(--status-yellow);
+    animation: pulse 1.5s infinite;
+}
+
+.sync-status.offline .sync-indicator {
+    background-color: var(--status-red);
+}
+
+@keyframes pulse {
+    0%, 100% { 
+        opacity: 1; 
+        transform: scale(1);
+    }
+    50% { 
+        opacity: 0.6; 
+        transform: scale(1.1);
+    }
 }
 
 /* Responsive Design */
 @media (max-width: 480px) {
-  .container {
-    max-width: 100%;
-  }
-
-  .save-btn {
-    width: calc(100%);
-  }
-
-  .form-row {
-    flex-direction: column;
-  }
-
-  .form-select {
-    min-width: auto;
-  }
+    .container {
+        max-width: 100%;
+    }
+    
+    .header {
+        padding: 16px 20px;
+    }
+    
+    .quick-links {
+        padding: 0 20px 16px;
+    }
+    
+    .countdown-card {
+        margin: 0 20px 16px;
+        padding: 20px;
+    }
+    
+    .schedule-section,
+    .weather-section,
+    .packing-section {
+        margin: 0 20px 16px;
+    }
+    
+    .save-btn {
+        margin: 16px 20px;
+        width: calc(100% - 40px);
+    }
+    
+    .countdown-display {
+        gap: 16px;
+    }
+    
+    .countdown-number {
+        font-size: 28px;
+    }
+    
+    .form-row {
+        flex-direction: column;
+    }
+    
+    .form-select {
+        min-width: auto;
+    }
 }
 
 @media (max-width: 360px) {
-  .filter-buttons {
-    gap: 6px;
-  }
-
-  .filter-btn {
-    padding: 6px 12px;
-    font-size: 12px;
-  }
-
-  .countdown-display {
-    gap: 12px;
-  }
-
-  .countdown-number {
-    font-size: 24px;
-  }
+    .filter-buttons {
+        gap: 6px;
+    }
+    
+    .filter-btn {
+        padding: 6px 12px;
+        font-size: 12px;
+    }
+    
+    .countdown-display {
+        gap: 12px;
+    }
+    
+    .countdown-number {
+        font-size: 24px;
+    }
 }
