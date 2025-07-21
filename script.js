@@ -1,4 +1,4 @@
-// script.js - 簡化版本，使用圓點狀態指示器
+// script.js - 修復狀態圓點顯示問題
 let personCheckedItems = {};
 let isInitialLoad = true;
 let hasLoadedDefaultItems = false;
@@ -58,12 +58,14 @@ function initializePersonCheckedItems() {
 }
 
 // ============================================
-// 狀態指示器相關函數 - 簡化版本
+// 狀態指示器相關函數 - 修復版本
 // ============================================
 function getStatusClass(itemId, responsiblePersons) {
     const checkedCount = responsiblePersons.filter(person => 
         personCheckedItems[person] && personCheckedItems[person][itemId]
     ).length;
+    
+    console.log(`Status for ${itemId}: ${checkedCount}/${responsiblePersons.length} checked by:`, responsiblePersons);
     
     if (checkedCount === 0) return 'status-none';
     if (checkedCount === responsiblePersons.length) return 'status-complete';
@@ -77,28 +79,40 @@ function createStatusIndicator(itemId, responsiblePersons) {
     const statusIndicator = document.createElement('div');
     statusIndicator.className = 'status-indicator';
     
+    // 獲取初始狀態
     const statusClass = getStatusClass(itemId, responsiblePersons);
     statusContainer.classList.add(statusClass);
     statusContainer.appendChild(statusIndicator);
+    
+    console.log(`Created status indicator for ${itemId} with class: ${statusClass}`);
     
     return statusContainer;
 }
 
 function updateStatusIndicators() {
+    console.log('Updating status indicators...');
     const items = document.querySelectorAll('.item');
-    items.forEach(item => {
+    
+    items.forEach((item, index) => {
         const statusContainer = item.querySelector('.status-container');
         if (statusContainer) {
+            // 獲取項目資訊
             const itemId = item.querySelector('input[type="checkbox"]')?.id || 
-                          item.querySelector('.item-name')?.textContent.replace(/\s+/g, '-').toLowerCase();
-            const responsiblePersons = item.dataset.person.split(',').map(p => p.trim());
+                          item.querySelector('.item-name')?.textContent.replace(/\s+/g, '-').toLowerCase() || 
+                          `item-${index}`;
             
-            const statusClass = getStatusClass(itemId, responsiblePersons);
+            const responsiblePersons = item.dataset.person ? 
+                item.dataset.person.split(',').map(p => p.trim()) : ['All'];
             
-            // 移除舊的狀態 class
+            // 計算新的狀態
+            const newStatusClass = getStatusClass(itemId, responsiblePersons);
+            
+            // 移除舊的狀態 classes
             statusContainer.classList.remove('status-none', 'status-partial', 'status-complete');
             // 加入新的狀態 class
-            statusContainer.classList.add(statusClass);
+            statusContainer.classList.add(newStatusClass);
+            
+            console.log(`Updated ${itemId} to ${newStatusClass}`);
         }
     });
 }
@@ -336,7 +350,10 @@ function renderSavedItems(data) {
 
     updateProgress();
     createPersonFilters();
-    updateStatusIndicators();
+    // 確保狀態指示器在所有內容載入後更新
+    setTimeout(() => {
+        updateStatusIndicators();
+    }, 100);
     console.log('Items rendered successfully');
 }
 
@@ -349,14 +366,14 @@ function createItemElement(list, item) {
     
     const li = document.createElement('li');
     li.className = 'item';
-    li.dataset.person = item.personData;
+    li.dataset.person = item.personData || item.persons || 'All';
 
     const currentPerson = getCurrentFilterPerson();
     const isAllPage = currentPerson === 'all';
     
     if (isAllPage) {
         // All 頁面：使用圓點狀態指示器
-        const responsiblePersons = item.persons.split(',').map(p => p.trim());
+        const responsiblePersons = (item.persons || item.personData || 'All').split(',').map(p => p.trim());
         const statusContainer = createStatusIndicator(item.id, responsiblePersons);
         li.appendChild(statusContainer);
         
@@ -409,8 +426,9 @@ function createItemElement(list, item) {
     const personTags = document.createElement('span');
     personTags.className = 'person-tags';
 
-    if (item.persons) {
-        const personsList = item.persons.split(',');
+    const personsToShow = item.persons || item.personData || 'All';
+    if (personsToShow) {
+        const personsList = personsToShow.split(',');
         personsList.forEach(person => {
             if (person.trim()) {
                 const personTag = document.createElement('span');
@@ -435,6 +453,8 @@ function createItemElement(list, item) {
     li.appendChild(itemLabel);
     li.appendChild(deleteBtn);
     list.appendChild(li);
+    
+    console.log(`Created item: ${item.name}, persons: ${personsToShow}, isAllPage: ${isAllPage}`);
 }
 
 function createPersonFilters() {
