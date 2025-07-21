@@ -26,6 +26,8 @@
   --green90: #4a5443;
   --green100: #37402f;
 
+ 
+
   --beige50: #b4a587;
 
   --hover-grey10: #e8e8e8;
@@ -72,6 +74,11 @@
 
   /* 輸入欄位 */
   --field: var(--white);
+
+  /*狀態 */
+  --status-red: #da1e28;
+  --status-orange: #f1c21b;
+  --status-green: #24A148;
 
   /* Typography - 使用系統字體 */
   --font-tc: "Work Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
