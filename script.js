@@ -1,4 +1,4 @@
-// script.js - 修正 checkbox 選取問題
+// script.js - 完整修正版本
 let personCheckedItems = {};
 let isInitialLoad = true;
 let hasLoadedDefaultItems = false;
@@ -97,7 +97,7 @@ function sanitizeItemsForFirebase(items) {
 }
 
 // ============================================
-// 狀態指示器相關函數 - 修正版本
+// 狀態指示器相關函數
 // ============================================
 function getStatusClass(itemId, responsiblePersons) {
     const checkedCount = responsiblePersons.filter(person => 
@@ -116,7 +116,6 @@ function createStatusIndicator(itemId, responsiblePersons) {
     const statusIndicator = document.createElement('div');
     statusIndicator.className = 'status-indicator';
     
-    // 根據狀態設置正確的 class
     const statusClass = getStatusClass(itemId, responsiblePersons);
     statusContainer.classList.add(statusClass);
     statusContainer.appendChild(statusIndicator);
@@ -139,7 +138,6 @@ function updateStatusIndicators() {
             
             const newStatusClass = getStatusClass(itemId, responsiblePersons);
             
-            // 清除舊的狀態 class 並添加新的
             statusContainer.classList.remove('status-none', 'status-partial', 'status-complete');
             statusContainer.classList.add(newStatusClass);
         }
@@ -379,10 +377,12 @@ function renderSavedItems(data) {
 }
 
 // ============================================
-// UI 元素創建函數 - 修正版本
+// UI 元素創建函數 - 最終修正版本
 // ============================================
 
 function createItemElement(list, item) {
+    console.log('Creating item element:', item.name);
+    
     const li = document.createElement('li');
     li.className = 'item';
     li.dataset.person = item.personData || item.persons || 'All';
@@ -395,7 +395,6 @@ function createItemElement(list, item) {
         const responsiblePersons = (item.persons || item.personData || 'All').split(',').map(p => p.trim());
         const statusContainer = createStatusIndicator(item.id, responsiblePersons);
         li.appendChild(statusContainer);
-        li.style.cursor = 'default';
     } else {
         // 個人頁面：顯示可點擊的 checkbox
         const customCheckbox = document.createElement('div');
@@ -404,6 +403,7 @@ function createItemElement(list, item) {
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
         checkbox.id = item.id;
+        checkbox.name = item.id;
 
         const checkboxLabel = document.createElement('label');
         checkboxLabel.className = 'checkbox-label';
@@ -413,9 +413,17 @@ function createItemElement(list, item) {
         customCheckbox.appendChild(checkboxLabel);
 
         // 重要：添加 change 事件監聽器
-        checkbox.addEventListener('change', function () {
+        checkbox.addEventListener('change', function (e) {
             console.log('Checkbox changed:', this.id, this.checked);
+            e.stopPropagation();
             handleCheckboxChange(this);
+        });
+
+        // 也為 checkbox 容器添加點擊事件
+        customCheckbox.addEventListener('click', function (e) {
+            e.stopPropagation();
+            checkbox.checked = !checkbox.checked;
+            checkbox.dispatchEvent(new Event('change'));
         });
 
         li.appendChild(customCheckbox);
@@ -425,12 +433,19 @@ function createItemElement(list, item) {
     const itemLabel = document.createElement('label');
     itemLabel.className = 'item-label';
     
-    // 只有在非 All 頁面才設置 for 屬性和 pointer cursor
-    if (!isAllPage) {
-        itemLabel.setAttribute('for', item.id);
-        itemLabel.style.cursor = 'pointer';
+    // 在 All 頁面設置為只讀模式
+    if (isAllPage) {
+        itemLabel.classList.add('readonly');
     } else {
-        itemLabel.style.cursor = 'default';
+        // 個人頁面：點擊 label 也能觸發 checkbox
+        itemLabel.addEventListener('click', function (e) {
+            e.preventDefault();
+            const checkbox = li.querySelector('input[type="checkbox"]');
+            if (checkbox) {
+                checkbox.checked = !checkbox.checked;
+                checkbox.dispatchEvent(new Event('change'));
+            }
+        });
     }
 
     // 創建項目名稱
@@ -479,6 +494,8 @@ function createItemElement(list, item) {
     li.appendChild(itemLabel);
     li.appendChild(deleteBtn);
     list.appendChild(li);
+
+    console.log('Item element created successfully:', item.name);
 }
 
 function createPersonFilters() {
@@ -529,7 +546,7 @@ function createPersonFilters() {
 }
 
 // ============================================
-// 事件處理函數 - 修正版本
+// 事件處理函數
 // ============================================
 
 function setupFilterButtons() {
@@ -538,16 +555,12 @@ function setupFilterButtons() {
         button.addEventListener('click', function () {
             const person = this.dataset.person;
             
-            // 更新活動狀態
             document.querySelectorAll('.filter-btn').forEach(btn => {
                 btn.classList.remove('active');
             });
             this.classList.add('active');
             
-            // 重新渲染以切換顯示模式（All 頁面 vs 個人頁面）
             rerenderItemsForCurrentView();
-            
-            // 過濾項目和更新狀態
             filterItems(person);
             updateCheckboxStates();
             updateProgress();
@@ -556,7 +569,6 @@ function setupFilterButtons() {
 }
 
 function rerenderItemsForCurrentView() {
-    // 收集當前所有項目的資料
     const allItems = [];
     document.querySelectorAll('.item').forEach(item => {
         const checkbox = item.querySelector('input[type="checkbox"]');
@@ -582,7 +594,6 @@ function rerenderItemsForCurrentView() {
         }
     });
 
-    // 清空並重新創建項目
     document.querySelectorAll('.item-list').forEach(list => {
         list.innerHTML = '';
     });
