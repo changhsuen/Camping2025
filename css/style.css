@@ -383,6 +383,11 @@ header {
   margin: 0;
 }
 
+/* All 頁面的項目標籤不可點擊 */
+.status-container ~ .item-label {
+  cursor: default;
+}
+
 .item-name {
   font-size: 14px;
   color: #1f2937;
