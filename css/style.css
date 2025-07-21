@@ -109,6 +109,7 @@ header {
 .schedule-section {
   margin-bottom: var(--spacing-03);
 }
+
 .section-title {
   font-size: 18px;
   font-weight: 500;
@@ -287,7 +288,7 @@ header {
   list-style: none;
 }
 
-/* Items - 修正版本，移除 justify-content: center */
+/* Items */
 .item {
   display: flex;
   align-items: center;
@@ -303,13 +304,14 @@ header {
   display: none;
 }
 
-/* Custom Checkbox - 保持原有可工作的樣式 */
+/* Custom Checkbox */
 .custom-checkbox {
   position: relative;
   display: inline-block;
   width: 16px;
   height: 16px;
   margin-right: 12px;
+  flex-shrink: 0;
 }
 
 .custom-checkbox input[type="checkbox"] {
@@ -340,7 +342,7 @@ header {
   background-size: 16px;
 }
 
-/* Status Indicators - 新增的圓點狀態指示器（用於 All 頁面） */
+/* Status Indicators */
 .status-container {
   display: flex;
   align-items: center;
@@ -357,20 +359,20 @@ header {
   transition: all 0.2s ease;
 }
 
-/* 不同狀態的顏色 */
+/* Status Colors */
 .status-none .status-indicator {
-  background-color: #da1e28; /* 紅色 - 未開始 */
+  background-color: var(--status-red);
 }
 
 .status-partial .status-indicator {
-  background-color: #f1c21b; /* 黃色 - 部分完成 */
+  background-color: var(--status-yellow);
 }
 
 .status-complete .status-indicator {
-  background-color: #24A148; /* 綠色 - 全部完成 */
+  background-color: var(--status-green);
 }
 
-/* Item Label - 保持原有樣式 */
+/* Item Label */
 .item-label {
   flex: 1;
   display: flex;
@@ -424,6 +426,7 @@ header {
   margin-left: var(--spacing-02);
   cursor: pointer;
   transition: all 0.2s;
+  flex-shrink: 0;
 }
 
 .delete-btn:hover {
