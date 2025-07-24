@@ -153,8 +153,12 @@ function updateStatusIndicators() {
       
       const newStatusClass = getStatusClass(itemId, responsiblePersons);
       
+      // 移除所有舊的狀態 class
       statusContainer.classList.remove('status-none', 'status-partial', 'status-complete');
+      // 添加新的狀態 class
       statusContainer.classList.add(newStatusClass);
+      
+      console.log(`Updated status indicator for ${itemId}: ${newStatusClass}`);
     }
   });
 }
@@ -364,7 +368,13 @@ function loadFromLocalStorage() {
       const parsed = JSON.parse(data);
       if (parsed.personCheckedItems) {
         personCheckedItems = parsed.personCheckedItems;
-        console.log("Loaded from localStorage:", personCheckedItems);
+        console.log("Loaded personCheckedItems from localStorage:", personCheckedItems);
+      }
+      
+      // 如果有保存的項目資料，也要載入
+      if (parsed.items && Object.keys(parsed.items).length > 0) {
+        console.log("Loading saved items from localStorage");
+        renderItemsFromLocalStorage(parsed.items);
         return true;
       }
     }
@@ -374,50 +384,74 @@ function loadFromLocalStorage() {
   return false;
 }
 
+function renderItemsFromLocalStorage(itemsData) {
+  console.log("Rendering items from localStorage...", itemsData);
+
+  document.querySelectorAll(".item-list").forEach((list) => {
+    list.innerHTML = "";
+  });
+
+  for (const categoryId in itemsData) {
+    const list = document.getElementById(categoryId);
+    if (list && itemsData[categoryId] && Array.isArray(itemsData[categoryId])) {
+      console.log(`Rendering ${itemsData[categoryId].length} items for ${categoryId}`);
+      itemsData[categoryId].forEach((item) => {
+        createItemElement(list, item);
+      });
+    }
+  }
+
+  updateProgress();
+  createPersonFilters();
+  updateStatusIndicators();
+  console.log("Items from localStorage rendered successfully");
+}
+
 function loadDefaultItems() {
   console.log("Loading default items...");
 
   // 先嘗試從 localStorage 載入
   const hasLocalData = loadFromLocalStorage();
   
-  const defaultData = {
-    categories: {
-      "shared-items": {
-        title: "Shared Gear",
-        items: [
-          { id: "item-default-1", name: "Gas stove", quantity: "", persons: "Henry,Jin", personData: "Henry,Jin" },
-          { id: "item-default-2", name: "Cookware", quantity: "", persons: "Henry,Jin", personData: "Henry,Jin" },
-          { id: "item-default-3", name: "Seasoning", quantity: "", persons: "Henry", personData: "Henry" },
-          { id: "item-default-4", name: "Coffee gear", quantity: "", persons: "Milli", personData: "Milli" },
-          { id: "item-default-5", name: "Tissue", quantity: "", persons: "Peggy", personData: "Peggy" },
-          { id: "item-default-6", name: "Rag", quantity: "", persons: "Peggy", personData: "Peggy" },
-          { id: "item-default-7", name: "Ice bucket", quantity: "", persons: "Shawn", personData: "Shawn" },
-          { id: "item-default-8", name: "Shovel", quantity: "", persons: "Shawn", personData: "Shawn" },
-          { id: "item-default-9", name: "Dishwashing liquid", quantity: "", persons: "Tee", personData: "Tee" },
-          { id: "item-default-10", name: "Trash bag", quantity: "", persons: "Tee", personData: "Tee" },
-          { id: "item-default-11", name: "Extension cord", quantity: "", persons: "Alex", personData: "Alex" },
-        ],
-      },
-      "personal-items": {
-        title: "Personal Gear",
-        items: [
-          { id: "item-default-12", name: "Sleeping bag", quantity: "", persons: "All", personData: "All" },
-          { id: "item-default-13", name: "Clothes", quantity: "", persons: "All", personData: "All" },
-          { id: "item-default-14", name: "Rain gear", quantity: "", persons: "All", personData: "All" },
-          { id: "item-default-15", name: "Toiletries", quantity: "", persons: "All", personData: "All" },
-          { id: "item-default-16", name: "Camera", quantity: "", persons: "Milli", personData: "Milli" },
-        ],
-      },
-    }
-  };
-
-  renderSavedItems(defaultData);
-  hasLoadedDefaultItems = true;
-  
-  // 如果沒有本地資料，初始化空的勾選狀態
+  // 如果沒有本地資料，才載入預設資料
   if (!hasLocalData) {
-    console.log("No local data, initializing empty state");
+    console.log("No local data found, loading default items");
+    
+    const defaultData = {
+      categories: {
+        "shared-items": {
+          title: "Shared Gear",
+          items: [
+            { id: "item-default-1", name: "Gas stove", quantity: "", persons: "Henry,Jin", personData: "Henry,Jin" },
+            { id: "item-default-2", name: "Cookware", quantity: "", persons: "Henry,Jin", personData: "Henry,Jin" },
+            { id: "item-default-3", name: "Seasoning", quantity: "", persons: "Henry", personData: "Henry" },
+            { id: "item-default-4", name: "Coffee gear", quantity: "", persons: "Milli", personData: "Milli" },
+            { id: "item-default-5", name: "Tissue", quantity: "", persons: "Peggy", personData: "Peggy" },
+            { id: "item-default-6", name: "Rag", quantity: "", persons: "Peggy", personData: "Peggy" },
+            { id: "item-default-7", name: "Ice bucket", quantity: "", persons: "Shawn", personData: "Shawn" },
+            { id: "item-default-8", name: "Shovel", quantity: "", persons: "Shawn", personData: "Shawn" },
+            { id: "item-default-9", name: "Dishwashing liquid", quantity: "", persons: "Tee", personData: "Tee" },
+            { id: "item-default-10", name: "Trash bag", quantity: "", persons: "Tee", personData: "Tee" },
+            { id: "item-default-11", name: "Extension cord", quantity: "", persons: "Alex", personData: "Alex" },
+          ],
+        },
+        "personal-items": {
+          title: "Personal Gear",
+          items: [
+            { id: "item-default-12", name: "Sleeping bag", quantity: "", persons: "All", personData: "All" },
+            { id: "item-default-13", name: "Clothes", quantity: "", persons: "All", personData: "All" },
+            { id: "item-default-14", name: "Rain gear", quantity: "", persons: "All", personData: "All" },
+            { id: "item-default-15", name: "Toiletries", quantity: "", persons: "All", personData: "All" },
+            { id: "item-default-16", name: "Camera", quantity: "", persons: "Milli", personData: "Milli" },
+          ],
+        },
+      }
+    };
+
+    renderSavedItems(defaultData);
   }
+  
+  hasLoadedDefaultItems = true;
   
   // 延遲設置 isInitialLoad = false，確保初始化完成
   setTimeout(() => {
@@ -472,32 +506,37 @@ function createItemElement(list, item) {
   const currentPerson = getCurrentFilterPerson();
   const isAllPage = currentPerson === 'all';
 
-  if (isAllPage) {
-    const responsiblePersons = (item.persons || item.personData || 'All').split(',').map(p => p.trim());
-    const statusContainer = createStatusIndicator(item.id, responsiblePersons);
-    li.appendChild(statusContainer);
-  } else {
-    const customCheckbox = document.createElement("div");
-    customCheckbox.className = "custom-checkbox";
+  // 總是創建 checkbox 和狀態圓點，但只顯示當前需要的
+  const customCheckbox = document.createElement("div");
+  customCheckbox.className = "custom-checkbox";
+  customCheckbox.style.display = isAllPage ? 'none' : 'inline-block';
 
-    const checkbox = document.createElement("input");
-    checkbox.type = "checkbox";
-    checkbox.id = item.id;
+  const checkbox = document.createElement("input");
+  checkbox.type = "checkbox";
+  checkbox.id = item.id;
 
-    const checkboxLabel = document.createElement("label");
-    checkboxLabel.className = "checkbox-label";
-    checkboxLabel.setAttribute("for", item.id);
+  const checkboxLabel = document.createElement("label");
+  checkboxLabel.className = "checkbox-label";
+  checkboxLabel.setAttribute("for", item.id);
 
-    customCheckbox.appendChild(checkbox);
-    customCheckbox.appendChild(checkboxLabel);
-    li.appendChild(customCheckbox);
-  }
+  customCheckbox.appendChild(checkbox);
+  customCheckbox.appendChild(checkboxLabel);
+  li.appendChild(customCheckbox);
+
+  // 創建狀態圓點
+  const responsiblePersons = (item.persons || item.personData || 'All').split(',').map(p => p.trim());
+  const statusContainer = createStatusIndicator(item.id, responsiblePersons);
+  statusContainer.style.display = isAllPage ? 'flex' : 'none';
+  li.appendChild(statusContainer);
 
   const itemLabel = document.createElement("label");
   itemLabel.className = "item-label";
   
   if (!isAllPage) {
     itemLabel.setAttribute("for", item.id);
+    itemLabel.style.cursor = 'pointer';
+  } else {
+    itemLabel.style.cursor = 'default';
   }
 
   const nameSpan = document.createElement("span");
@@ -607,8 +646,8 @@ function setupFilterButtons() {
       });
       this.classList.add('active');
       
-      // 重新渲染當前視圖的項目（All 或個人）
-      rerenderItemsForCurrentView();
+      // 不要重新渲染項目，只是改變顯示方式
+      switchViewMode(person);
       filterItems(person);
       
       // 根據當前視圖更新狀態
@@ -620,6 +659,81 @@ function setupFilterButtons() {
       
       updateProgress();
     });
+  });
+}
+
+// 新增：切換視圖模式而不重新渲染項目
+function switchViewMode(person) {
+  const isAllPage = person === 'all';
+  
+  document.querySelectorAll('.item').forEach(item => {
+    const customCheckbox = item.querySelector('.custom-checkbox');
+    const statusContainer = item.querySelector('.status-container');
+    const itemLabel = item.querySelector('.item-label');
+    
+    if (isAllPage) {
+      // 切換到 All 頁面：顯示狀態圓點，隱藏 checkbox
+      if (customCheckbox) {
+        customCheckbox.style.display = 'none';
+      }
+      
+      if (!statusContainer) {
+        // 創建狀態圓點
+        const itemId = item.querySelector('input[type="checkbox"]')?.id || 
+                      item.querySelector('.item-name')?.textContent.replace(/\s+/g, '-').toLowerCase();
+        const responsiblePersons = item.dataset.person ? 
+          item.dataset.person.split(',').map(p => p.trim()) : ['All'];
+        
+        const newStatusContainer = createStatusIndicator(itemId, responsiblePersons);
+        item.insertBefore(newStatusContainer, itemLabel);
+      } else {
+        statusContainer.style.display = 'flex';
+      }
+      
+      // All 頁面的標籤不可點擊
+      if (itemLabel) {
+        itemLabel.style.cursor = 'default';
+        itemLabel.removeAttribute('for');
+      }
+      
+    } else {
+      // 切換到個人頁面：顯示 checkbox，隱藏狀態圓點
+      if (statusContainer) {
+        statusContainer.style.display = 'none';
+      }
+      
+      if (!customCheckbox) {
+        // 創建 checkbox
+        const itemId = item.querySelector('.item-name')?.textContent.replace(/\s+/g, '-').toLowerCase() || 
+                      `item-${Date.now()}-${Math.floor(Math.random() * 100)}`;
+        
+        const newCustomCheckbox = document.createElement("div");
+        newCustomCheckbox.className = "custom-checkbox";
+
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.id = itemId;
+
+        const checkboxLabel = document.createElement("label");
+        checkboxLabel.className = "checkbox-label";
+        checkboxLabel.setAttribute("for", itemId);
+
+        newCustomCheckbox.appendChild(checkbox);
+        newCustomCheckbox.appendChild(checkboxLabel);
+        item.insertBefore(newCustomCheckbox, itemLabel);
+      } else {
+        customCheckbox.style.display = 'inline-block';
+      }
+      
+      // 個人頁面的標籤可點擊
+      if (itemLabel) {
+        itemLabel.style.cursor = 'pointer';
+        const checkbox = item.querySelector('input[type="checkbox"]');
+        if (checkbox) {
+          itemLabel.setAttribute('for', checkbox.id);
+        }
+      }
+    }
   });
 }
 
