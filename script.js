@@ -1,7 +1,8 @@
-// script.js - 專注即時線上同步的版本
+// script.js - 修改版：使用分離式狀態指示器，移除勾選提示
 let personCheckedItems = {};
 let isInitialLoad = true;
 let firebaseInitialized = false;
+let currentSyncState = 'synced'; // synced, syncing, error
 
 // ============================================
 // 初始化
@@ -12,6 +13,7 @@ document.addEventListener("DOMContentLoaded", function () {
   
   initializeBasicFunctions();
   setupEventDelegation();
+  initializeSyncStatus();
   
   // 等待 Firebase 並載入資料
   waitForFirebase();
@@ -33,6 +35,7 @@ function waitForFirebase() {
     } else {
       console.log("❌ Firebase 連接失敗，載入預設資料");
       loadDefaultItems(); // 離線模式
+      updateSyncStatus('error');
     }
   };
   
@@ -93,7 +96,89 @@ function initializePersonCheckedItems() {
 }
 
 // ============================================
-// Firebase 即時同步 - 核心功能
+// 同步狀態管理 - 新增功能
+// ============================================
+
+function initializeSyncStatus() {
+  updateSyncStatus('syncing'); // 初始狀態為同步中
+}
+
+function updateSyncStatus(status) {
+  currentSyncState = status;
+  const container = document.getElementById('sync-status');
+  const indicator = document.getElementById('sync-indicator');
+  const button = document.getElementById('manual-sync');
+  
+  if (!container || !indicator || !button) return;
+  
+  // 清除所有狀態類
+  container.classList.remove('synced', 'syncing', 'error');
+  indicator.classList.remove('synced', 'syncing', 'error');
+  
+  // 根據狀態更新 UI
+  switch (status) {
+    case 'synced':
+      container.classList.add('synced');
+      indicator.classList.add('synced');
+      indicator.innerHTML = `
+        <span>✓</span>
+        <span>已同步到雲端</span>
+      `;
+      button.textContent = '重新同步';
+      button.disabled = false;
+      break;
+      
+    case 'syncing':
+      container.classList.add('syncing');
+      indicator.classList.add('syncing');
+      indicator.innerHTML = `
+        <span class="spinner">⟳</span>
+        <span>同步中...</span>
+      `;
+      button.textContent = '同步中';
+      button.disabled = true;
+      break;
+      
+    case 'error':
+      container.classList.add('error');
+      indicator.classList.add('error');
+      indicator.innerHTML = `
+        <span>⚠</span>
+        <span>同步失敗</span>
+      `;
+      button.textContent = '重試同步';
+      button.disabled = false;
+      break;
+  }
+}
+
+function manualSync() {
+  if (currentSyncState === 'syncing') return;
+  
+  console.log("🔄 手動觸發同步");
+  updateSyncStatus('syncing');
+  
+  if (firebaseInitialized) {
+    pushToFirebase('items');
+    pushToFirebase('checklist');
+    
+    // 模擬同步完成
+    setTimeout(() => {
+      updateSyncStatus('synced');
+    }, 2000);
+  } else {
+    // 模擬重新嘗試連接
+    setTimeout(() => {
+      updateSyncStatus('error');
+    }, 2000);
+  }
+}
+
+// 將 manualSync 設為全域函數
+window.manualSync = manualSync;
+
+// ============================================
+// Firebase 即時同步 - 移除勾選提示
 // ============================================
 
 function setupRealtimeListeners() {
@@ -101,21 +186,18 @@ function setupRealtimeListeners() {
 
   console.log("👂 設置即時監聽器");
 
-  // 監聽勾選狀態變化
+  // 監聽勾選狀態變化 - 移除提示通知
   const checklistRef = window.firebaseRef("checklist");
   window.firebaseOnValue(checklistRef, (snapshot) => {
     const data = snapshot.val();
     if (data && data.personChecked) {
-      if (!isInitialLoad) {
-        console.log("📥 收到即時勾選更新");
-        showUpdateNotification("有人更新了勾選狀態");
-      }
+      // 移除了 showUpdateNotification("有人更新了勾選狀態");
       updatePersonCheckedItems(data.personChecked);
       updateAllUIStates();
     }
   });
 
-  // 監聽項目變化
+  // 監聽項目變化 - 保留項目更新提示
   const itemsRef = window.firebaseRef("items");
   window.firebaseOnValue(itemsRef, (snapshot) => {
     const data = snapshot.val();
@@ -133,6 +215,7 @@ function loadFromFirebase() {
   if (!firebaseInitialized) return;
 
   console.log("📡 從 Firebase 載入初始資料");
+  updateSyncStatus('syncing');
   
   // 載入項目
   const itemsRef = window.firebaseRef("items");
@@ -141,9 +224,11 @@ function loadFromFirebase() {
     if (data && Object.keys(data).length > 0) {
       console.log("✅ 載入線上項目資料");
       renderItemsFromFirebase(data);
+      updateSyncStatus('synced');
     } else {
       console.log("📋 沒有線上資料，載入預設項目");
       loadDefaultItems();
+      updateSyncStatus('synced');
     }
     
     // 完成初始載入
@@ -206,14 +291,17 @@ function updateAllUIStates() {
 }
 
 // ============================================
-// 即時推送到 Firebase
+// 即時推送到 Firebase - 加入狀態更新
 // ============================================
 
 function pushToFirebase(type, data) {
   if (!firebaseInitialized) {
     console.log("⚠️ Firebase 未連接，無法同步");
+    updateSyncStatus('error');
     return;
   }
+
+  updateSyncStatus('syncing');
 
   if (type === 'checklist') {
     pushChecklistToFirebase();
@@ -243,8 +331,14 @@ function pushChecklistToFirebase() {
     });
     
     console.log("📤 勾選狀態已推送到 Firebase");
+    
+    // 延遲更新狀態，讓用戶看到同步過程
+    setTimeout(() => {
+      updateSyncStatus('synced');
+    }, 500);
   } catch (error) {
     console.error("❌ 推送勾選狀態失敗:", error);
+    updateSyncStatus('error');
   }
 }
 
@@ -260,8 +354,14 @@ function pushItemsToFirebase() {
     });
     
     console.log("📤 項目清單已推送到 Firebase");
+    
+    // 延遲更新狀態，讓用戶看到同步過程
+    setTimeout(() => {
+      updateSyncStatus('synced');
+    }, 500);
   } catch (error) {
     console.error("❌ 推送項目清單失敗:", error);
+    updateSyncStatus('error');
   }
 }
 
@@ -613,6 +713,144 @@ function switchViewMode(person) {
       if (itemLabel) {
         itemLabel.style.cursor = 'pointer';
         const checkbox = item.querySelector('input[type="checkbox"]');
+        const nameSpan = item.querySelector(".item-name");
+        const quantitySpan = item.querySelector(".item-quantity");
+        const personTags = item.querySelectorAll(".person-tag");
+
+        if (!nameSpan) return;
+
+        const persons = Array.from(personTags)
+          .map((tag) => tag.textContent)
+          .join(",");
+
+        const itemId = checkbox ? checkbox.id : generateSafeId('temp');
+
+        items[categoryId].push({
+          id: itemId,
+          name: nameSpan.textContent,
+          quantity: quantitySpan ? quantitySpan.textContent.replace("x", "") : "",
+          persons: persons || 'All',
+          personData: item.dataset.person || 'All',
+        });
+      });
+    }
+  });
+
+  return items;
+}
+
+function getCurrentFilterPerson() {
+  const activeButton = document.querySelector('.filter-btn.active');
+  return activeButton ? activeButton.dataset.person : 'all';
+}
+
+function sanitizeFirebaseKey(key) {
+  return key.replace(/[.$#[\]/]/g, '_');
+}
+
+function generateSafeId(prefix = 'item') {
+  return `${prefix}-${Date.now()}-${Math.floor(Math.random() * 100)}`;
+}
+
+// ============================================
+// 更新通知 - 僅保留項目清單更新提示
+// ============================================
+
+function showUpdateNotification(message) {
+  // 簡單的通知提示
+  const notification = document.createElement('div');
+  notification.style.cssText = `
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: #4CAF50;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 8px;
+    z-index: 1000;
+    font-size: 14px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  `;
+  notification.textContent = message;
+  
+  document.body.appendChild(notification);
+  
+  setTimeout(() => {
+    notification.remove();
+  }, 3000);
+}
+
+// ============================================
+// 倒數計時功能
+// ============================================
+
+// 設定目標日期：2025年3月15日 11:30
+const targetDate = new Date(2025, 2, 15, 11, 30, 0).getTime();
+
+// 定義倒數計時間隔變數
+let countdownInterval;
+
+// 更新倒數計時的函數
+function updateCountdown() {
+  // 取得現在的時間
+  const now = new Date().getTime();
+
+  // 計算剩餘的時間（毫秒）
+  const timeRemaining = targetDate - now;
+
+  // 如果已經到達或超過目標時間
+  if (timeRemaining <= 0) {
+    const daysEl = document.getElementById("days");
+    const hoursEl = document.getElementById("hours");
+    const minutesEl = document.getElementById("minutes");
+    const secondsEl = document.getElementById("seconds");
+    
+    if (daysEl) daysEl.textContent = "00";
+    if (hoursEl) hoursEl.textContent = "00";
+    if (minutesEl) minutesEl.textContent = "00";
+    if (secondsEl) secondsEl.textContent = "00";
+    
+    if (countdownInterval) {
+      clearInterval(countdownInterval);
+    }
+    return;
+  }
+
+  // 計算天、小時、分鐘和秒數
+  const days = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((timeRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
+  const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
+
+  // 更新HTML元素 - 確保元素存在且總是有兩位數字
+  const daysEl = document.getElementById("days");
+  const hoursEl = document.getElementById("hours");
+  const minutesEl = document.getElementById("minutes");
+  const secondsEl = document.getElementById("seconds");
+  
+  if (daysEl) daysEl.textContent = days.toString().padStart(2, "0");
+  if (hoursEl) hoursEl.textContent = hours.toString().padStart(2, "0");
+  if (minutesEl) minutesEl.textContent = minutes.toString().padStart(2, "0");
+  if (secondsEl) secondsEl.textContent = seconds.toString().padStart(2, "0");
+}
+
+// 啟動倒數計時
+function startCountdown() {
+  // 初次執行
+  updateCountdown();
+  
+  // 設定每秒更新一次
+  countdownInterval = setInterval(updateCountdown, 1000);
+}
+
+// 當 DOM 載入完成後啟動倒數計時
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', startCountdown);
+} else {
+  startCountdown();
+}
+
+console.log('🚀 修改版本載入完成 - 使用分離式狀態指示器，移除勾選提示');querySelector('input[type="checkbox"]');
         if (checkbox) itemLabel.setAttribute('for', checkbox.id);
       }
     }
@@ -756,90 +994,4 @@ function getCurrentItemsData() {
       items[categoryId] = [];
 
       itemElements.forEach((item) => {
-        const checkbox = item.querySelector('input[type="checkbox"]');
-        const nameSpan = item.querySelector(".item-name");
-        const quantitySpan = item.querySelector(".item-quantity");
-        const personTags = item.querySelectorAll(".person-tag");
-
-        if (!nameSpan) return;
-
-        const persons = Array.from(personTags)
-          .map((tag) => tag.textContent)
-          .join(",");
-
-        const itemId = checkbox ? checkbox.id : generateSafeId('temp');
-
-        items[categoryId].push({
-          id: itemId,
-          name: nameSpan.textContent,
-          quantity: quantitySpan ? quantitySpan.textContent.replace("x", "") : "",
-          persons: persons || 'All',
-          personData: item.dataset.person || 'All',
-        });
-      });
-    }
-  });
-
-  return items;
-}
-
-function getCurrentFilterPerson() {
-  const activeButton = document.querySelector('.filter-btn.active');
-  return activeButton ? activeButton.dataset.person : 'all';
-}
-
-function sanitizeFirebaseKey(key) {
-  return key.replace(/[.$#[\]/]/g, '_');
-}
-
-function generateSafeId(prefix = 'item') {
-  return `${prefix}-${Date.now()}-${Math.floor(Math.random() * 100)}`;
-}
-
-// ============================================
-// 更新通知
-// ============================================
-
-function showUpdateNotification(message) {
-  // 簡單的通知提示
-  const notification = document.createElement('div');
-  notification.style.cssText = `
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    background: #4CAF50;
-    color: white;
-    padding: 12px 20px;
-    border-radius: 8px;
-    z-index: 1000;
-    font-size: 14px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-  `;
-  notification.textContent = message;
-  
-  document.body.appendChild(notification);
-  
-  setTimeout(() => {
-    notification.remove();
-  }, 3000);
-}
-
-// ============================================
-// 全域函數
-// ============================================
-
-function saveList() {
-  console.log("💾 手動儲存清單");
-  
-  if (firebaseInitialized) {
-    pushToFirebase('items');
-    pushToFirebase('checklist');
-    alert('清單已儲存到雲端！');
-  } else {
-    alert('無法連接到伺服器，請檢查網路連線');
-  }
-}
-
-window.saveList = saveList;
-
-console.log('🚀 即時同步版本載入完成');
+        const checkbox = item.
