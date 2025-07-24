@@ -1,4 +1,4 @@
-// script.js - 修復版本
+// script.js - 完整修復版本
 let personCheckedItems = {};
 let isInitialLoad = true;
 let hasLoadedDefaultItems = false;
@@ -95,8 +95,21 @@ function initializePersonCheckedItems() {
 }
 
 // ============================================
+// Firebase 安全處理函數
+// ============================================
+
+function sanitizeFirebaseKey(key) {
+  return key.replace(/[.$#[\]/]/g, '_');
+}
+
+function generateSafeId(prefix = 'item') {
+  return `${prefix}-${Date.now()}-${Math.floor(Math.random() * 100)}`;
+}
+
+// ============================================  
 // 狀態指示器相關函數
 // ============================================
+
 function getStatusClass(itemId, responsiblePersons) {
   const checkedCount = responsiblePersons.filter(person => 
     personCheckedItems[person] && personCheckedItems[person][itemId]
@@ -153,13 +166,12 @@ function initializeFirebaseListeners() {
   }
 
   try {
-    // 監聽 checklist 變化
+    // 只在初始化時同步一次，避免循環
     const checklistRef = window.firebaseRef("checklist");
     window.firebaseOnValue(checklistRef, (snapshot) => {
       const data = snapshot.val();
-      if (data && data.personChecked) {
-        console.log("Syncing checklist from Firebase");
-        // 避免覆蓋本地狀態，而是合併
+      if (data && data.personChecked && !isInitialLoad) {
+        console.log("Syncing checklist from Firebase (not initial load)");
         mergePersonCheckedItems(data.personChecked);
         updateAllCheckboxStates();
         updateStatusIndicators();
@@ -167,19 +179,23 @@ function initializeFirebaseListeners() {
       }
     });
 
-    // 監聽 items 變化
+    // 項目監聽器只在沒有本地項目時觸發
     const itemsRef = window.firebaseRef("items");
     window.firebaseOnValue(itemsRef, (snapshot) => {
       const data = snapshot.val();
-      if (data && Object.keys(data).length > 0) {
+      const hasLocalItems = document.querySelectorAll('.item').length > 0;
+      
+      if (data && Object.keys(data).length > 0 && !hasLocalItems) {
         console.log("Loading items from Firebase");
         renderItemsFromFirebase(data);
       }
     });
     
-    // 首次同步到 Firebase
+    // 初始同步
     if (hasLoadedDefaultItems) {
-      syncToFirebase();
+      setTimeout(() => {
+        syncToFirebase();
+      }, 1000);
     }
   } catch (error) {
     console.error("Error setting up Firebase listeners:", error);
@@ -187,12 +203,10 @@ function initializeFirebaseListeners() {
 }
 
 function mergePersonCheckedItems(firebaseData) {
-  // 合併 Firebase 資料和本地資料，避免完全覆蓋
   for (const person in firebaseData) {
     if (!personCheckedItems[person]) {
       personCheckedItems[person] = {};
     }
-    // 只合併新的項目，保留本地修改
     Object.assign(personCheckedItems[person], firebaseData[person]);
   }
 }
@@ -208,7 +222,6 @@ function syncChecklistToFirebase() {
   if (!firebaseInitialized) return;
 
   try {
-    // 清理 personCheckedItems 的 keys
     const sanitizedData = {};
     for (const person in personCheckedItems) {
       sanitizedData[sanitizeFirebaseKey(person)] = {};
@@ -268,7 +281,7 @@ function getCurrentItemsData() {
           .map((tag) => tag.textContent)
           .join(",");
 
-        const itemId = checkbox ? checkbox.id : `temp-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+        const itemId = checkbox ? checkbox.id : generateSafeId('temp');
 
         items[categoryId].push({
           id: itemId,
@@ -311,7 +324,7 @@ function renderItemsFromFirebase(data) {
 // 資料載入函數
 // ============================================
 
-async function loadDefaultItems() {
+function loadDefaultItems() {
   console.log("Loading default items...");
 
   const defaultData = {
@@ -347,11 +360,17 @@ async function loadDefaultItems() {
 
   renderSavedItems(defaultData);
   hasLoadedDefaultItems = true;
-  isInitialLoad = false;
   
-  // Firebase 準備好後立即同步
+  // 延遲設置 isInitialLoad = false，確保初始化完成
+  setTimeout(() => {
+    isInitialLoad = false;
+    console.log("Initial load completed");
+  }, 2000);
+  
   if (firebaseInitialized) {
-    syncToFirebase();
+    setTimeout(() => {
+      syncToFirebase();
+    }, 3000);
   }
 }
 
@@ -511,11 +530,9 @@ function createPersonFilters() {
 function setupFilterButtons() {
   const filterButtons = document.querySelectorAll('.filter-btn');
   filterButtons.forEach(button => {
-    // 移除舊的事件監聽器
     button.replaceWith(button.cloneNode(true));
   });
   
-  // 重新獲取按鈕並添加事件監聽器
   const newFilterButtons = document.querySelectorAll('.filter-btn');
   newFilterButtons.forEach(button => {
     button.addEventListener('click', function () {
@@ -548,8 +565,7 @@ function rerenderItemsForCurrentView() {
         .map(tag => tag.textContent)
         .join(',');
 
-      // 確保 ID 是 Firebase 安全的
-      const itemId = checkbox ? checkbox.id : `temp-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+      const itemId = checkbox ? checkbox.id : generateSafeId('temp');
 
       allItems.push({
         id: itemId,
@@ -605,18 +621,17 @@ function handleCheckboxChange(checkbox) {
     }
   }
   
-  console.log('Updated personCheckedItems:', personCheckedItems);
-  
   updateProgress();
   updateStatusIndicators();
   
-  // 延遲同步到 Firebase，避免頻繁更新
+  // 減少 Firebase 同步頻率，避免循環
   clearTimeout(window.firebaseSyncTimeout);
   window.firebaseSyncTimeout = setTimeout(() => {
-    if (firebaseInitialized) {
+    if (firebaseInitialized && !isInitialLoad) {
+      console.log("Syncing checkbox change to Firebase");
       syncChecklistToFirebase();
     }
-  }, 500);
+  }, 2000); // 增加延遲時間
 }
 
 function addUnifiedItem() {
@@ -646,7 +661,6 @@ function addUnifiedItem() {
 
   addNewItem(listId, name, quantity, persons);
 
-  // 清空表單
   nameInput.value = '';
   if (quantityInput) quantityInput.value = '';
   if (personInput) personInput.value = '';
@@ -659,7 +673,6 @@ function addNewItem(listId, name, quantity, persons) {
     return;
   }
   
-  // 生成 Firebase 安全的 ID
   const id = generateSafeId('item');
   
   const item = {
@@ -715,16 +728,6 @@ function deleteItem(itemElement) {
 // 輔助函數
 // ============================================
 
-// Firebase 安全的鍵值生成和清理
-function sanitizeFirebaseKey(key) {
-  // Firebase 不允許的字符：. $ # [ ] /
-  return key.replace(/[.$#[\]/]/g, '_');
-}
-
-function generateSafeId(prefix = 'item') {
-  return `${prefix}-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
-}
-
 function updateProgress() {
   const visibleItems = Array.from(document.querySelectorAll('.item')).filter(item => item.style.display !== 'none');
   const total = visibleItems.length;
@@ -733,7 +736,6 @@ function updateProgress() {
   const currentPerson = getCurrentFilterPerson();
   
   if (currentPerson === 'all') {
-    // All 頁面的進度計算：根據狀態圓點來計算
     visibleItems.forEach(item => {
       const statusContainer = item.querySelector('.status-container');
       if (statusContainer && statusContainer.classList.contains('status-complete')) {
@@ -741,7 +743,6 @@ function updateProgress() {
       }
     });
   } else {
-    // 個人頁面的進度計算：根據 checkbox
     visibleItems.forEach(item => {
       const checkbox = item.querySelector('input[type="checkbox"]');
       if (checkbox && checkbox.checked) {
@@ -841,7 +842,7 @@ function saveList() {
         .join(',');
 
       items.push({
-        id: checkbox ? checkbox.id : `item-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+        id: checkbox ? checkbox.id : generateSafeId('item'),
         name: nameSpan.textContent,
         quantity: quantitySpan ? quantitySpan.textContent.replace('x', '') : '',
         persons: persons || 'All',
@@ -857,8 +858,11 @@ function saveList() {
 
   localStorage.setItem('campingChecklist2025', JSON.stringify(savedData));
   
+  // 手動同步，不依賴 Firebase 監聽器
   if (firebaseInitialized) {
-    syncToFirebase();
+    console.log("Manual sync to Firebase from saveList");
+    syncItemsToFirebase();
+    syncChecklistToFirebase();
   }
   
   alert('List saved successfully!');
