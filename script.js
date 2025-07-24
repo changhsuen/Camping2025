@@ -403,25 +403,103 @@ function deleteItem(itemElement) {
 }
 
 // ============================================
-// 新功能：移除人員
+// 新功能：完全移除人員
 // ============================================
 
 function removePerson(personName) {
-  if (confirm(`確定要移除 ${personName} 嗎？這將清除該人員的所有勾選狀態。`)) {
-    console.log(`🗑️ 移除人員: ${personName}`);
+  if (confirm(`確定要完全移除 ${personName} 嗎？\n\n• 只由 ${personName} 負責的項目將被刪除\n• 多人負責的項目將移除 ${personName} 標籤\n• ${personName} 的所有勾選狀態將被清除`)) {
+    console.log(`🗑️ 完全移除人員: ${personName}`);
     
-    // 清除該人員的勾選狀態
+    // 1. 清除該人員的勾選狀態
     if (personCheckedItems[personName]) {
       delete personCheckedItems[personName];
     }
     
-    // 立即推送變更
-    pushToFirebase('checklist');
+    // 2. 處理項目：刪除或修改
+    const itemsToRemove = [];
+    const itemsToUpdate = [];
     
-    // 切換回 All 頁面
+    document.querySelectorAll('.item').forEach(item => {
+      const personData = item.dataset.person;
+      if (personData && personData.includes(personName)) {
+        const personsList = personData.split(',').map(p => p.trim()).filter(p => p);
+        
+        if (personsList.length === 1 && personsList[0] === personName) {
+          // 只有這個人負責 → 刪除整個項目
+          itemsToRemove.push(item);
+        } else if (personsList.includes(personName)) {
+          // 多人負責 → 只移除該人員標籤
+          const newPersonsList = personsList.filter(p => p !== personName);
+          const newPersonsData = newPersonsList.join(',');
+          
+          // 更新 dataset
+          item.dataset.person = newPersonsData;
+          
+          // 更新視覺標籤
+          const personTags = item.querySelector('.person-tags');
+          if (personTags) {
+            personTags.innerHTML = '';
+            newPersonsList.forEach(person => {
+              const personTag = document.createElement('span');
+              personTag.className = 'person-tag';
+              personTag.textContent = person;
+              personTags.appendChild(personTag);
+            });
+          }
+          
+          itemsToUpdate.push(item);
+        }
+      }
+    });
+    
+    // 3. 實際移除項目
+    itemsToRemove.forEach(item => {
+      const itemId = item.querySelector('input[type="checkbox"]')?.id;
+      const itemName = item.querySelector('.item-name')?.textContent;
+      console.log(`  🗑️ 刪除項目: ${itemName} (只由 ${personName} 負責)`);
+      
+      // 從所有人的勾選記錄中移除
+      if (itemId) {
+        for (let person in personCheckedItems) {
+          delete personCheckedItems[person][itemId];
+        }
+      }
+      
+      item.remove();
+    });
+    
+    // 4. 更新修改過的項目的狀態指示器
+    itemsToUpdate.forEach(item => {
+      const itemId = item.querySelector('input[type="checkbox"]')?.id;
+      if (itemId) {
+        const responsiblePersons = item.dataset.person.split(',').map(p => p.trim());
+        const statusContainer = item.querySelector('.status-container');
+        if (statusContainer) {
+          const newStatusClass = getStatusClass(itemId, responsiblePersons);
+          statusContainer.classList.remove('status-none', 'status-partial', 'status-complete');
+          statusContainer.classList.add(newStatusClass);
+        }
+      }
+    });
+    
+    // 5. 立即推送變更到 Firebase
+    pushToFirebase('checklist');
+    pushToFirebase('items');
+    
+    // 6. 更新 UI 狀態
+    updateAllUIStates();
+    
+    // 7. 切換回 All 頁面
     switchToAllPage();
     
-    showUpdateNotification(`已移除 ${personName} 的所有勾選狀態`);
+    // 8. 顯示操作結果
+    const removedCount = itemsToRemove.length;
+    const updatedCount = itemsToUpdate.length;
+    let message = `已完全移除 ${personName}`;
+    if (removedCount > 0) message += `\n• 刪除了 ${removedCount} 個項目`;
+    if (updatedCount > 0) message += `\n• 更新了 ${updatedCount} 個項目`;
+    
+    showUpdateNotification(message);
   }
 }
 
@@ -573,19 +651,23 @@ function createPersonFilters() {
   
   personFilter.innerHTML = '<button class="filter-btn" data-person="all">All</button>';
 
-  const allPersons = new Set(['Milli', 'Shawn', 'Henry', 'Peggy', 'Jin', 'Tee', 'Alex']);
+  // 重新收集目前存在的人員（從實際項目中動態獲取）
+  const allPersons = new Set();
   
   document.querySelectorAll('.item').forEach(item => {
     const persons = item.dataset.person.split(',');
     persons.forEach(person => {
       const trimmedPerson = person.trim();
-      if (trimmedPerson && trimmedPerson !== 'All') {
+      if (trimmedPerson && trimmedPerson !== 'All' && trimmedPerson !== '') {
         allPersons.add(trimmedPerson);
       }
     });
   });
 
-  allPersons.forEach(person => {
+  // 按字母順序排序
+  const sortedPersons = Array.from(allPersons).sort();
+  
+  sortedPersons.forEach(person => {
     if (person && person !== 'all') {
       const button = document.createElement('button');
       button.className = 'filter-btn';
@@ -595,11 +677,15 @@ function createPersonFilters() {
     }
   });
 
+  // 設置當前活躍按鈕，如果原本的人員被移除了，就切換到 All
   const buttonToActivate = personFilter.querySelector(`[data-person="${currentPerson}"]`);
   if (buttonToActivate) {
     buttonToActivate.classList.add('active');
   } else {
-    personFilter.querySelector('[data-person="all"]').classList.add('active');
+    const allButton = personFilter.querySelector('[data-person="all"]');
+    if (allButton) {
+      allButton.classList.add('active');
+    }
   }
 
   setupFilterButtons();
