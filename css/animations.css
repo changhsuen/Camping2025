@@ -1,13 +1,51 @@
 /* ================================
-   Camping 2025 - 卡片出場動畫樣式
+   Camping 2025 - 簡單區塊淡入動畫
    ================================ */
 
-/* 載入時的整體淡入效果 */
-.container {
-  animation: containerFadeIn 1s ease-out;
+/* 標題區塊 */
+.header {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeInUp 0.8s ease-out 0.2s forwards;
 }
 
-@keyframes containerFadeIn {
+/* 快速連結 */
+.quick-links {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeInUp 0.8s ease-out 0.4s forwards;
+}
+
+/* 倒數計時卡片 */
+.countdown-card {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeInUp 0.8s ease-out 0.6s forwards;
+}
+
+/* 行程區塊 */
+.schedule-section {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeInUp 0.8s ease-out 0.8s forwards;
+}
+
+/* 天氣區塊 */
+.weather-section {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeInUp 0.8s ease-out 1s forwards;
+}
+
+/* 打包清單區塊 */
+.packing-section {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeInUp 0.8s ease-out 1.2s forwards;
+}
+
+/* 淡入動畫 */
+@keyframes fadeInUp {
   from {
     opacity: 0;
     transform: translateY(20px);
@@ -18,359 +56,16 @@
   }
 }
 
-/* 標題動畫 */
-.title {
-  animation: slideInFromTop 0.8s ease-out 0.2s both;
-}
-
-.year {
-  animation: slideInFromTop 0.8s ease-out 0.4s both;
-}
-
-@keyframes slideInFromTop {
-  from {
-    opacity: 0;
-    transform: translateY(-30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* 快速連結卡片 */
-.quick-links {
-  animation: slideInFromLeft 0.6s ease-out 0.6s both;
-}
-
-.quick-links .link-btn {
-  opacity: 0;
-  animation: fadeInUp 0.4s ease-out forwards;
-}
-
-.quick-links .link-btn:nth-child(1) {
-  animation-delay: 0.8s;
-}
-
-.quick-links .link-btn:nth-child(2) {
-  animation-delay: 0.9s;
-}
-
-/* 倒數計時卡片 */
-.countdown-card {
-  animation: scaleIn 0.8s ease-out 1s both;
-}
-
-.countdown-item {
-  opacity: 0;
-  animation: bounceIn 0.6s ease-out forwards;
-}
-
-.countdown-item:nth-child(1) { animation-delay: 1.2s; }
-.countdown-item:nth-child(2) { animation-delay: 1.3s; }
-.countdown-item:nth-child(3) { animation-delay: 1.4s; }
-.countdown-item:nth-child(4) { animation-delay: 1.5s; }
-
-/* 倒數計時數字的脈動效果 */
-.countdown-number {
-  animation: pulse 2s ease-in-out infinite 2s;
-}
-
-@keyframes pulse {
-  0%, 100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.05);
-  }
-}
-
-/* 行程卡片 */
-.schedule-card {
-  animation: slideInFromRight 0.6s ease-out 1.6s both;
-}
-
-.schedule-item {
-  opacity: 0;
-  animation: slideInFromLeft 0.4s ease-out forwards;
-}
-
-.schedule-item:nth-child(1) { animation-delay: 1.8s; }
-.schedule-item:nth-child(2) { animation-delay: 1.9s; }
-.schedule-item:nth-child(3) { animation-delay: 2s; }
-.schedule-item:nth-child(4) { animation-delay: 2.1s; }
-
-/* 天氣卡片 */
-.weather-section {
-  animation: fadeInUp 0.6s ease-out 2.2s both;
-}
-
-.weather-card {
-  opacity: 0;
-  animation: slideInFromBottom 0.5s ease-out forwards;
-}
-
-.weather-section .weather-card:first-child {
-  animation-delay: 2.4s;
-}
-
-.weather-section .weather-card:last-child {
-  animation-delay: 2.5s;
-}
-
-/* 打包清單區域 */
-.packing-section {
-  animation: fadeInUp 0.8s ease-out 2.6s both;
-}
-
-.section-title {
-  opacity: 0;
-  animation: slideInFromLeft 0.5s ease-out 2.8s both;
-}
-
-/* 進度條動畫 */
-.progress-bar {
-  opacity: 0;
-  animation: scaleInX 0.8s ease-out 3s both;
-}
-
-.progress-fill {
-  animation: fillProgress 1s ease-out 3.2s both;
-}
-
-@keyframes scaleInX {
-  from {
-    opacity: 0;
-    transform: scaleX(0);
-  }
-  to {
-    opacity: 1;
-    transform: scaleX(1);
-  }
-}
-
-@keyframes fillProgress {
-  from {
-    width: 0%;
-  }
-}
-
-/* 篩選按鈕 */
-.filter-buttons {
-  opacity: 0;
-  animation: fadeInUp 0.6s ease-out 3.4s both;
-}
-
-.filter-btn {
-  opacity: 0;
-  animation: bounceIn 0.4s ease-out forwards;
-}
-
-.filter-btn:nth-child(1) { animation-delay: 3.6s; }
-.filter-btn:nth-child(2) { animation-delay: 3.7s; }
-.filter-btn:nth-child(3) { animation-delay: 3.8s; }
-.filter-btn:nth-child(4) { animation-delay: 3.9s; }
-.filter-btn:nth-child(5) { animation-delay: 4s; }
-.filter-btn:nth-child(6) { animation-delay: 4.1s; }
-.filter-btn:nth-child(7) { animation-delay: 4.2s; }
-.filter-btn:nth-child(8) { animation-delay: 4.3s; }
-
-/* 分類標題 */
-.category-title {
-  opacity: 0;
-  animation: slideInFromLeft 0.5s ease-out forwards;
-}
-
-.category-section:nth-child(1) .category-title {
-  animation-delay: 4.4s;
-}
-
-.category-section:nth-child(2) .category-title {
-  animation-delay: 4.6s;
-}
-
-/* 項目列表動畫 */
-.item {
-  opacity: 0;
-  animation: slideInFromLeft 0.4s ease-out forwards;
-}
-
-/* 為項目添加漸進延遲 */
-.item:nth-child(1) { animation-delay: 4.8s; }
-.item:nth-child(2) { animation-delay: 4.9s; }
-.item:nth-child(3) { animation-delay: 5s; }
-.item:nth-child(4) { animation-delay: 5.1s; }
-.item:nth-child(5) { animation-delay: 5.2s; }
-.item:nth-child(6) { animation-delay: 5.3s; }
-.item:nth-child(7) { animation-delay: 5.4s; }
-.item:nth-child(8) { animation-delay: 5.5s; }
-.item:nth-child(9) { animation-delay: 5.6s; }
-.item:nth-child(10) { animation-delay: 5.7s; }
-.item:nth-child(n+11) { animation-delay: 5.8s; }
-
-/* 新增項目表單 */
-.add-item-section {
-  opacity: 0;
-  animation: fadeInUp 0.6s ease-out 6s both;
-}
-
-/* ================================
-   動畫關鍵幀定義
-   ================================ */
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes slideInFromLeft {
-  from {
-    opacity: 0;
-    transform: translateX(-50px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-@keyframes slideInFromRight {
-  from {
-    opacity: 0;
-    transform: translateX(50px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-@keyframes slideInFromBottom {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes scaleIn {
-  from {
-    opacity: 0;
-    transform: scale(0.8);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-@keyframes bounceIn {
-  0% {
-    opacity: 0;
-    transform: scale(0.3) translateY(50px);
-  }
-  50% {
-    opacity: 1;
-    transform: scale(1.05) translateY(-10px);
-  }
-  70% {
-    transform: scale(0.9) translateY(0px);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-  }
-}
-
-/* ================================
-   互動效果增強
-   ================================ */
-
-/* 懸停效果 */
-.quick-links .link-btn:hover {
-  transform: translateY(-2px);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.countdown-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.schedule-card:hover,
-.weather-card:hover {
-  transform: translateY(-2px);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.filter-btn:hover {
-  transform: scale(1.05);
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.item:hover {
-  background-color: rgba(0, 0, 0, 0.02);
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* ================================
-   響應式動畫調整
-   ================================ */
-
 /* 尊重用戶的動畫偏好設定 */
 @media (prefers-reduced-motion: reduce) {
-  * {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
-  
-  .countdown-number {
+  .header,
+  .quick-links,
+  .countdown-card,
+  .schedule-section,
+  .weather-section,
+  .packing-section {
     animation: none !important;
-  }
-}
-
-/* 小螢幕優化 */
-@media (max-width: 480px) {
-  .container {
-    animation-duration: 0.6s;
-  }
-  
-  .title, .year {
-    animation-duration: 0.5s;
-  }
-  
-  .countdown-card {
-    animation-duration: 0.6s;
-  }
-  
-  /* 減少小螢幕上的動畫延遲 */
-  .filter-btn:nth-child(n) {
-    animation-delay: 2s;
-  }
-  
-  .item:nth-child(n) {
-    animation-delay: 2.5s;
-  }
-}
-
-/* 超小螢幕進一步簡化 */
-@media (max-width: 360px) {
-  .item:nth-child(n) {
-    animation: fadeInUp 0.3s ease-out 2s both;
-  }
-  
-  .filter-btn:nth-child(n) {
-    animation: fadeInUp 0.3s ease-out 1.8s both;
+    opacity: 1 !important;
+    transform: none !important;
   }
 }
