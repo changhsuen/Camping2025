@@ -83,7 +83,7 @@ function setupEventDelegation() {
     }
   });
 
-  // Remove Person 按鈕
+  // Delete Person 按鈕
   document.addEventListener('click', function(e) {
     if (e.target.classList.contains('remove-person-btn')) {
       e.preventDefault();
@@ -793,36 +793,38 @@ function updateRemovePersonButton() {
     existingBtn.remove();
   }
   
-  // 如果不是 All 頁面，添加 Remove Person 按鈕
+  // 如果不是 All 頁面，添加 Delete Person 按鈕
   if (currentPerson !== 'all') {
     const addItemSection = document.querySelector('.add-item-section');
     if (addItemSection) {
-      const removeBtn = document.createElement('button');
-      removeBtn.className = 'remove-person-btn';
-      removeBtn.textContent = `Remove ${currentPerson}`;
-      removeBtn.style.cssText = `
-        background: #da1e28;
-        color: white;
+      const deleteBtn = document.createElement('button');
+      deleteBtn.className = 'remove-person-btn';
+      deleteBtn.textContent = `Delete ${currentPerson}`;
+      
+      // 使用與設計圖一致的樣式（灰色邊框）
+      deleteBtn.style.cssText = `
+        background: transparent;
+        color: var(--text-primary);
         height: 40px;
-        border: none;
+        border: 1px solid var(--border-secondary);
         border-radius: 20px;
         font-size: 14px;
         font-weight: 500;
         cursor: pointer;
         width: 100%;
-        transition: background 0.2s ease;
+        transition: all 0.2s ease;
         margin-top: 16px;
       `;
       
-      removeBtn.addEventListener('mouseover', function() {
-        this.style.background = '#ba1b23';
+      deleteBtn.addEventListener('mouseover', function() {
+        this.style.background = var(--background-hover);
       });
       
-      removeBtn.addEventListener('mouseout', function() {
-        this.style.background = '#da1e28';
+      deleteBtn.addEventListener('mouseout', function() {
+        this.style.background = 'transparent';
       });
       
-      addItemSection.appendChild(removeBtn);
+      addItemSection.appendChild(deleteBtn);
     }
   }
 }
