@@ -111,9 +111,13 @@ function generateSafeId(prefix = 'item') {
 // ============================================
 
 function getStatusClass(itemId, responsiblePersons) {
-  const checkedCount = responsiblePersons.filter(person => 
-    personCheckedItems[person] && personCheckedItems[person][itemId]
-  ).length;
+  const checkedCount = responsiblePersons.filter(person => {
+    // 確保檢查正確的 person 鍵值
+    const personKey = person === 'All' ? 'All' : person;
+    return personCheckedItems[personKey] && personCheckedItems[personKey][itemId] === true;
+  }).length;
+  
+  console.log(`Status check for ${itemId}: ${checkedCount}/${responsiblePersons.length} checked by ${responsiblePersons.join(',')}`);
   
   if (checkedCount === 0) return 'status-none';
   if (checkedCount === responsiblePersons.length) return 'status-complete';
@@ -203,12 +207,25 @@ function initializeFirebaseListeners() {
 }
 
 function mergePersonCheckedItems(firebaseData) {
+  console.log("Merging Firebase data:", firebaseData);
+  
   for (const person in firebaseData) {
-    if (!personCheckedItems[person]) {
-      personCheckedItems[person] = {};
+    // 處理 Firebase 清理過的鍵值
+    const originalPerson = person.replace(/_/g, '.');
+    const personKey = originalPerson;
+    
+    if (!personCheckedItems[personKey]) {
+      personCheckedItems[personKey] = {};
     }
-    Object.assign(personCheckedItems[person], firebaseData[person]);
+    
+    // 合併資料，保留本地修改
+    for (const itemId in firebaseData[person]) {
+      const originalItemId = itemId.replace(/_/g, '.');
+      personCheckedItems[personKey][originalItemId] = firebaseData[person][itemId];
+    }
   }
+  
+  console.log("Merged personCheckedItems:", personCheckedItems);
 }
 
 function syncToFirebase() {
@@ -324,9 +341,45 @@ function renderItemsFromFirebase(data) {
 // 資料載入函數
 // ============================================
 
+// 添加 localStorage 備份功能
+function saveToLocalStorage() {
+  const data = {
+    personCheckedItems: personCheckedItems,
+    items: getCurrentItemsData(),
+    lastSaved: new Date().toISOString()
+  };
+  
+  try {
+    localStorage.setItem('campingChecklist2025', JSON.stringify(data));
+    console.log("Saved to localStorage");
+  } catch (error) {
+    console.error("Failed to save to localStorage:", error);
+  }
+}
+
+function loadFromLocalStorage() {
+  try {
+    const data = localStorage.getItem('campingChecklist2025');
+    if (data) {
+      const parsed = JSON.parse(data);
+      if (parsed.personCheckedItems) {
+        personCheckedItems = parsed.personCheckedItems;
+        console.log("Loaded from localStorage:", personCheckedItems);
+        return true;
+      }
+    }
+  } catch (error) {
+    console.error("Failed to load from localStorage:", error);
+  }
+  return false;
+}
+
 function loadDefaultItems() {
   console.log("Loading default items...");
 
+  // 先嘗試從 localStorage 載入
+  const hasLocalData = loadFromLocalStorage();
+  
   const defaultData = {
     categories: {
       "shared-items": {
@@ -361,10 +414,19 @@ function loadDefaultItems() {
   renderSavedItems(defaultData);
   hasLoadedDefaultItems = true;
   
+  // 如果沒有本地資料，初始化空的勾選狀態
+  if (!hasLocalData) {
+    console.log("No local data, initializing empty state");
+  }
+  
   // 延遲設置 isInitialLoad = false，確保初始化完成
   setTimeout(() => {
     isInitialLoad = false;
     console.log("Initial load completed");
+    
+    // 初始化完成後立即更新 All 頁面的狀態
+    updateStatusIndicators();
+    updateProgress();
   }, 2000);
   
   if (firebaseInitialized) {
@@ -538,15 +600,24 @@ function setupFilterButtons() {
     button.addEventListener('click', function () {
       const person = this.dataset.person;
       
+      console.log(`Switching to person: ${person}`);
+      
       document.querySelectorAll('.filter-btn').forEach(btn => {
         btn.classList.remove('active');
       });
       this.classList.add('active');
       
+      // 重新渲染當前視圖的項目（All 或個人）
       rerenderItemsForCurrentView();
       filterItems(person);
-      updateCheckboxStates();
-      updateStatusIndicators();
+      
+      // 根據當前視圖更新狀態
+      if (person === 'all') {
+        updateStatusIndicators();  // All 頁面更新狀態圓點
+      } else {
+        updateCheckboxStates();    // 個人頁面更新 checkbox
+      }
+      
       updateProgress();
     });
   });
@@ -621,8 +692,13 @@ function handleCheckboxChange(checkbox) {
     }
   }
   
+  console.log('Updated personCheckedItems:', personCheckedItems);
+  
   updateProgress();
   updateStatusIndicators();
+  
+  // 立即保存到 localStorage
+  saveToLocalStorage();
   
   // 減少 Firebase 同步頻率，避免循環
   clearTimeout(window.firebaseSyncTimeout);
@@ -688,19 +764,26 @@ function addNewItem(listId, name, quantity, persons) {
   createPersonFilters();
   updateStatusIndicators();
 
+  // 為新人員初始化資料結構
   if (persons) {
     const personsList = persons.split(',');
     personsList.forEach(person => {
       const trimmedPerson = person.trim();
       if (trimmedPerson && !personCheckedItems[trimmedPerson]) {
         personCheckedItems[trimmedPerson] = {};
+        console.log(`Initialized person: ${trimmedPerson}`);
       }
     });
   }
   
+  // 立即同步新項目到 Firebase
   if (firebaseInitialized) {
+    console.log("Syncing new item to Firebase");
     syncItemsToFirebase();
   }
+  
+  // 手動同步到 localStorage 作為備份
+  saveToLocalStorage();
 }
 
 function deleteItem(itemElement) {
