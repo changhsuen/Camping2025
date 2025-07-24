@@ -486,6 +486,7 @@ header {
   border-color: #10b981;
 }
 
+/* Add Item Button */
 .add-btn {
   background: transparent;
   height: 40px;
@@ -498,11 +499,31 @@ header {
   cursor: pointer;
   transition: background 70ms cubic-bezier(0, 0, 0.38, 0.9);
   margin-bottom: var(--spacing-03);
+  width: 100%;
 }
 
 .add-btn:hover {
   background: var(--button-primary);
   color: var(--text-on-color);
+}
+
+/* Remove Person Button */
+.remove-person-btn {
+  background: transparent;
+  color: var(--text-primary);
+  height: 40px;
+  border: 1px solid var(--border-secondary);
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  width: 100%;
+  transition: all 0.2s ease;
+  margin-top: var(--spacing-05);
+}
+
+.remove-person-btn:hover {
+  background: var(--background-hover);
 }
 
 /* Save Button */
