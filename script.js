@@ -208,9 +208,19 @@ function syncChecklistToFirebase() {
   if (!firebaseInitialized) return;
 
   try {
+    // 清理 personCheckedItems 的 keys
+    const sanitizedData = {};
+    for (const person in personCheckedItems) {
+      sanitizedData[sanitizeFirebaseKey(person)] = {};
+      for (const itemId in personCheckedItems[person]) {
+        const sanitizedItemId = sanitizeFirebaseKey(itemId);
+        sanitizedData[sanitizeFirebaseKey(person)][sanitizedItemId] = personCheckedItems[person][itemId];
+      }
+    }
+
     const checklistRef = window.firebaseRef("checklist");
     window.firebaseSet(checklistRef, {
-      personChecked: personCheckedItems,
+      personChecked: sanitizedData,
       lastUpdated: new Date().toISOString(),
     });
     console.log("Synced checklist to Firebase");
@@ -519,6 +529,7 @@ function setupFilterButtons() {
       rerenderItemsForCurrentView();
       filterItems(person);
       updateCheckboxStates();
+      updateStatusIndicators();
       updateProgress();
     });
   });
@@ -701,65 +712,6 @@ function deleteItem(itemElement) {
 }
 
 // ============================================
-// 全域函數
-// ============================================
-
-function saveList() {
-  const categories = document.querySelectorAll('.category-section');
-  const savedData = {
-    categories: {},
-    personChecked: personCheckedItems,
-    lastSaved: new Date().toISOString()
-  };
-
-  categories.forEach(category => {
-    const categoryList = category.querySelector('.item-list');
-    if (!categoryList) return;
-    
-    const categoryId = categoryList.id;
-    const categoryTitle = category.querySelector('.category-title')?.textContent || 'Unknown';
-    const items = [];
-
-    category.querySelectorAll('.item').forEach(item => {
-      const checkbox = item.querySelector('input[type="checkbox"]');
-      const nameSpan = item.querySelector('.item-name');
-      const quantitySpan = item.querySelector('.item-quantity');
-      const personTags = item.querySelectorAll('.person-tag');
-
-      if (!nameSpan) return;
-
-      const persons = Array.from(personTags)
-        .map(tag => tag.textContent)
-        .join(',');
-
-      items.push({
-        id: checkbox ? checkbox.id : `item-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
-        name: nameSpan.textContent,
-        quantity: quantitySpan ? quantitySpan.textContent.replace('x', '') : '',
-        persons: persons || 'All',
-        personData: item.dataset.person || 'All',
-      });
-    });
-
-    savedData.categories[categoryId] = {
-      title: categoryTitle,
-      items: items,
-    };
-  });
-
-  localStorage.setItem('campingChecklist2025', JSON.stringify(savedData));
-  
-  if (firebaseInitialized) {
-    syncToFirebase();
-  }
-  
-  alert('List saved successfully!');
-  console.log('List saved successfully');
-}
-
-window.saveList = saveList;
-
-// ============================================
 // 輔助函數
 // ============================================
 
@@ -773,40 +725,30 @@ function generateSafeId(prefix = 'item') {
   return `${prefix}-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
 }
 
-function syncChecklistToFirebase() {
-  if (!firebaseInitialized) return;
-
-  try {
-    // 清理 personCheckedItems 的 keys
-    const sanitizedData = {};
-    for (const person in personCheckedItems) {
-      sanitizedData[sanitizeFirebaseKey(person)] = {};
-      for (const itemId in personCheckedItems[person]) {
-        const sanitizedItemId = sanitizeFirebaseKey(itemId);
-        sanitizedData[sanitizeFirebaseKey(person)][sanitizedItemId] = personCheckedItems[person][itemId];
-      }
-    }
-
-    const checklistRef = window.firebaseRef("checklist");
-    window.firebaseSet(checklistRef, {
-      personChecked: sanitizedData,
-      lastUpdated: new Date().toISOString(),
-    });
-    console.log("Synced checklist to Firebase");
-  } catch (error) {
-    console.error("Error syncing checklist to Firebase:", error);
-  }
-}
+function updateProgress() {
   const visibleItems = Array.from(document.querySelectorAll('.item')).filter(item => item.style.display !== 'none');
   const total = visibleItems.length;
   let checked = 0;
 
-  visibleItems.forEach(item => {
-    const checkbox = item.querySelector('input[type="checkbox"]');
-    if (checkbox && checkbox.checked) {
-      checked++;
-    }
-  });
+  const currentPerson = getCurrentFilterPerson();
+  
+  if (currentPerson === 'all') {
+    // All 頁面的進度計算：根據狀態圓點來計算
+    visibleItems.forEach(item => {
+      const statusContainer = item.querySelector('.status-container');
+      if (statusContainer && statusContainer.classList.contains('status-complete')) {
+        checked++;
+      }
+    });
+  } else {
+    // 個人頁面的進度計算：根據 checkbox
+    visibleItems.forEach(item => {
+      const checkbox = item.querySelector('input[type="checkbox"]');
+      if (checkbox && checkbox.checked) {
+        checked++;
+      }
+    });
+  }
 
   const progressBar = document.getElementById('progress-fill');
   const progressText = document.getElementById('progress-text');
@@ -865,5 +807,64 @@ function updateCheckboxStates() {
 function updateAllCheckboxStates() {
   updateCheckboxStates();
 }
+
+// ============================================
+// 全域函數
+// ============================================
+
+function saveList() {
+  const categories = document.querySelectorAll('.category-section');
+  const savedData = {
+    categories: {},
+    personChecked: personCheckedItems,
+    lastSaved: new Date().toISOString()
+  };
+
+  categories.forEach(category => {
+    const categoryList = category.querySelector('.item-list');
+    if (!categoryList) return;
+    
+    const categoryId = categoryList.id;
+    const categoryTitle = category.querySelector('.category-title')?.textContent || 'Unknown';
+    const items = [];
+
+    category.querySelectorAll('.item').forEach(item => {
+      const checkbox = item.querySelector('input[type="checkbox"]');
+      const nameSpan = item.querySelector('.item-name');
+      const quantitySpan = item.querySelector('.item-quantity');
+      const personTags = item.querySelectorAll('.person-tag');
+
+      if (!nameSpan) return;
+
+      const persons = Array.from(personTags)
+        .map(tag => tag.textContent)
+        .join(',');
+
+      items.push({
+        id: checkbox ? checkbox.id : `item-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+        name: nameSpan.textContent,
+        quantity: quantitySpan ? quantitySpan.textContent.replace('x', '') : '',
+        persons: persons || 'All',
+        personData: item.dataset.person || 'All',
+      });
+    });
+
+    savedData.categories[categoryId] = {
+      title: categoryTitle,
+      items: items,
+    };
+  });
+
+  localStorage.setItem('campingChecklist2025', JSON.stringify(savedData));
+  
+  if (firebaseInitialized) {
+    syncToFirebase();
+  }
+  
+  alert('List saved successfully!');
+  console.log('List saved successfully');
+}
+
+window.saveList = saveList;
 
 console.log('Fixed script loaded successfully');
