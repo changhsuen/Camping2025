@@ -788,29 +788,7 @@ function updateRemovePersonButton() {
       removeBtn.className = 'remove-person-btn';
       removeBtn.textContent = `Remove ${currentPerson}`;
       
-      // 使用與設計圖一致的樣式（灰色邊框）
-      removeBtn.style.cssText = `
-        background: transparent;
-        color: var(--text-primary);
-        height: 40px;
-        border: 1px solid var(--border-secondary);
-        border-radius: 20px;
-        font-size: 14px;
-        font-weight: 500;
-        cursor: pointer;
-        width: 100%;
-        transition: all 0.2s ease;
-        margin-top: 16px;
-      `;
-      
-      removeBtn.addEventListener('mouseover', function() {
-        this.style.background = 'var(--background-hover)';
-      });
-      
-      removeBtn.addEventListener('mouseout', function() {
-        this.style.background = 'transparent';
-      });
-      
+      // 移除所有內聯樣式，改用 CSS class
       addItemSection.appendChild(removeBtn);
     }
   }
