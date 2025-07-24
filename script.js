@@ -1,4 +1,4 @@
-// script.js - 專注即時線上同步的版本
+// script.js - 更新版：移除Save List，修改UI邏輯
 let personCheckedItems = {};
 let isInitialLoad = true;
 let firebaseInitialized = false;
@@ -80,6 +80,18 @@ function setupEventDelegation() {
       e.stopPropagation();
       const item = e.target.closest('.item');
       if (item) deleteItem(item);
+    }
+  });
+
+  // Remove Person 按鈕
+  document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('remove-person-btn')) {
+      e.preventDefault();
+      e.stopPropagation();
+      const currentPerson = getCurrentFilterPerson();
+      if (currentPerson && currentPerson !== 'all') {
+        removePerson(currentPerson);
+      }
     }
   });
 }
@@ -200,6 +212,7 @@ function updateAllUIStates() {
   updateStatusIndicators();
   updateProgress();
   createPersonFilters();
+  updateAddItemFormVisibility(); // 新增：更新表單顯示狀態
 }
 
 // ============================================
@@ -390,7 +403,38 @@ function deleteItem(itemElement) {
 }
 
 // ============================================
-// UI 工具函數
+// 新功能：移除人員
+// ============================================
+
+function removePerson(personName) {
+  if (confirm(`確定要移除 ${personName} 嗎？這將清除該人員的所有勾選狀態。`)) {
+    console.log(`🗑️ 移除人員: ${personName}`);
+    
+    // 清除該人員的勾選狀態
+    if (personCheckedItems[personName]) {
+      delete personCheckedItems[personName];
+    }
+    
+    // 立即推送變更
+    pushToFirebase('checklist');
+    
+    // 切換回 All 頁面
+    switchToAllPage();
+    
+    showUpdateNotification(`已移除 ${personName} 的所有勾選狀態`);
+  }
+}
+
+function switchToAllPage() {
+  // 找到 All 按鈕並點擊
+  const allButton = document.querySelector('[data-person="all"]');
+  if (allButton) {
+    allButton.click();
+  }
+}
+
+// ============================================
+// UI 工具函數 - 更新版
 // ============================================
 
 function createItemElement(list, item) {
@@ -464,14 +508,16 @@ function createItemElement(list, item) {
   }
   itemLabel.appendChild(personTags);
 
-  // 刪除按鈕
-  const deleteBtn = document.createElement("button");
-  deleteBtn.className = "delete-btn";
-  deleteBtn.innerHTML = "×";
-  deleteBtn.title = "刪除項目";
+  // 刪除按鈕（只在 All 頁面顯示）
+  if (isAllPage) {
+    const deleteBtn = document.createElement("button");
+    deleteBtn.className = "delete-btn";
+    deleteBtn.innerHTML = "×";
+    deleteBtn.title = "刪除項目";
+    li.appendChild(deleteBtn);
+  }
 
   li.appendChild(itemLabel);
-  li.appendChild(deleteBtn);
   list.appendChild(li);
 }
 
@@ -577,6 +623,8 @@ function setupFilterButtons() {
       
       switchViewMode(person);
       filterItems(person);
+      updateAddItemFormVisibility(); // 更新表單顯示
+      updateRemovePersonButton(); // 更新移除人員按鈕
       
       if (person === 'all') {
         updateStatusIndicators();
@@ -596,15 +644,28 @@ function switchViewMode(person) {
     const customCheckbox = item.querySelector('.custom-checkbox');
     const statusContainer = item.querySelector('.status-container');
     const itemLabel = item.querySelector('.item-label');
+    const deleteBtn = item.querySelector('.delete-btn');
     
     if (isAllPage) {
+      // All 頁面：顯示狀態指示器，隱藏 checkbox，顯示刪除按鈕
       if (customCheckbox) customCheckbox.style.display = 'none';
       if (statusContainer) statusContainer.style.display = 'flex';
       if (itemLabel) {
         itemLabel.style.cursor = 'default';
         itemLabel.removeAttribute('for');
+        // 移除 All 頁面的刪除線
+        itemLabel.classList.remove('checked');
+      }
+      // 如果沒有刪除按鈕就添加一個
+      if (!deleteBtn) {
+        const newDeleteBtn = document.createElement("button");
+        newDeleteBtn.className = "delete-btn";
+        newDeleteBtn.innerHTML = "×";
+        newDeleteBtn.title = "刪除項目";
+        item.appendChild(newDeleteBtn);
       }
     } else {
+      // 個人頁面：顯示 checkbox，隱藏狀態指示器，隱藏刪除按鈕
       if (customCheckbox) customCheckbox.style.display = 'inline-block';
       if (statusContainer) statusContainer.style.display = 'none';
       if (itemLabel) {
@@ -612,8 +673,72 @@ function switchViewMode(person) {
         const checkbox = item.querySelector('input[type="checkbox"]');
         if (checkbox) itemLabel.setAttribute('for', checkbox.id);
       }
+      // 移除刪除按鈕
+      if (deleteBtn) {
+        deleteBtn.remove();
+      }
     }
   });
+}
+
+// ============================================
+// 新功能：更新表單和按鈕顯示
+// ============================================
+
+function updateAddItemFormVisibility() {
+  const addItemSection = document.querySelector('.add-item-section');
+  const currentPerson = getCurrentFilterPerson();
+  
+  if (addItemSection) {
+    if (currentPerson === 'all') {
+      addItemSection.style.display = 'block';
+    } else {
+      addItemSection.style.display = 'none';
+    }
+  }
+}
+
+function updateRemovePersonButton() {
+  const currentPerson = getCurrentFilterPerson();
+  
+  // 先移除現有的按鈕
+  const existingBtn = document.querySelector('.remove-person-btn');
+  if (existingBtn) {
+    existingBtn.remove();
+  }
+  
+  // 如果不是 All 頁面，添加 Remove Person 按鈕
+  if (currentPerson !== 'all') {
+    const addItemSection = document.querySelector('.add-item-section');
+    if (addItemSection) {
+      const removeBtn = document.createElement('button');
+      removeBtn.className = 'remove-person-btn';
+      removeBtn.textContent = `Remove ${currentPerson}`;
+      removeBtn.style.cssText = `
+        background: #da1e28;
+        color: white;
+        height: 40px;
+        border: none;
+        border-radius: 20px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        width: 100%;
+        transition: background 0.2s ease;
+        margin-top: 16px;
+      `;
+      
+      removeBtn.addEventListener('mouseover', function() {
+        this.style.background = '#ba1b23';
+      });
+      
+      removeBtn.addEventListener('mouseout', function() {
+        this.style.background = '#da1e28';
+      });
+      
+      addItemSection.appendChild(removeBtn);
+    }
+  }
 }
 
 function updateProgress() {
@@ -680,10 +805,13 @@ function updateCheckboxStates() {
     
     checkbox.checked = isChecked;
     
-    if (isChecked) {
-      itemLabel.classList.add('checked');
-    } else {
-      itemLabel.classList.remove('checked');
+    // 只在非 All 頁面顯示刪除線
+    if (getCurrentFilterPerson() !== 'all') {
+      if (isChecked) {
+        itemLabel.classList.add('checked');
+      } else {
+        itemLabel.classList.remove('checked');
+      }
     }
   });
 }
@@ -821,22 +949,4 @@ function showUpdateNotification(message) {
   }, 3000);
 }
 
-// ============================================
-// 全域函數 - 保持原本的 Save List 功能
-// ============================================
-
-function saveList() {
-  console.log("💾 手動儲存清單");
-  
-  if (firebaseInitialized) {
-    pushToFirebase('items');
-    pushToFirebase('checklist');
-    alert('清單已儲存到雲端！');
-  } else {
-    alert('無法連接到伺服器，請檢查網路連線');
-  }
-}
-
-window.saveList = saveList;
-
-console.log('🚀 即時同步版本載入完成 - 僅移除勾選提示，保留 Save List');
+console.log('🚀 更新版本載入完成 - 移除Save List，修改UI邏輯');
