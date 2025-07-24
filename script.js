@@ -258,7 +258,7 @@ function getCurrentItemsData() {
           .map((tag) => tag.textContent)
           .join(",");
 
-        const itemId = checkbox ? checkbox.id : `temp-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+        const itemId = checkbox ? checkbox.id : `temp-${Date.now()}-${Math.random()}`;
 
         items[categoryId].push({
           id: itemId,
@@ -537,11 +537,8 @@ function rerenderItemsForCurrentView() {
         .map(tag => tag.textContent)
         .join(',');
 
-      // 確保 ID 是 Firebase 安全的
-      const itemId = checkbox ? checkbox.id : `temp-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
-
       allItems.push({
-        id: itemId,
+        id: checkbox ? checkbox.id : `temp-${Date.now()}-${Math.random()}`,
         name: nameSpan.textContent,
         quantity: quantitySpan ? quantitySpan.textContent.replace('x', '') : '',
         persons: persons || 'All',
@@ -648,8 +645,7 @@ function addNewItem(listId, name, quantity, persons) {
     return;
   }
   
-  // 生成 Firebase 安全的 ID
-  const id = generateSafeId('item');
+  const id = `item-${Date.now()}`;
   
   const item = {
     id: id,
@@ -733,7 +729,7 @@ function saveList() {
         .join(',');
 
       items.push({
-        id: checkbox ? checkbox.id : `item-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+        id: checkbox ? checkbox.id : `item-${Date.now()}-${Math.random()}`,
         name: nameSpan.textContent,
         quantity: quantitySpan ? quantitySpan.textContent.replace('x', '') : '',
         persons: persons || 'All',
@@ -763,40 +759,7 @@ window.saveList = saveList;
 // 輔助函數
 // ============================================
 
-// Firebase 安全的鍵值生成和清理
-function sanitizeFirebaseKey(key) {
-  // Firebase 不允許的字符：. $ # [ ] /
-  return key.replace(/[.$#[\]/]/g, '_');
-}
-
-function generateSafeId(prefix = 'item') {
-  return `${prefix}-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
-}
-
-function syncChecklistToFirebase() {
-  if (!firebaseInitialized) return;
-
-  try {
-    // 清理 personCheckedItems 的 keys
-    const sanitizedData = {};
-    for (const person in personCheckedItems) {
-      sanitizedData[sanitizeFirebaseKey(person)] = {};
-      for (const itemId in personCheckedItems[person]) {
-        const sanitizedItemId = sanitizeFirebaseKey(itemId);
-        sanitizedData[sanitizeFirebaseKey(person)][sanitizedItemId] = personCheckedItems[person][itemId];
-      }
-    }
-
-    const checklistRef = window.firebaseRef("checklist");
-    window.firebaseSet(checklistRef, {
-      personChecked: sanitizedData,
-      lastUpdated: new Date().toISOString(),
-    });
-    console.log("Synced checklist to Firebase");
-  } catch (error) {
-    console.error("Error syncing checklist to Firebase:", error);
-  }
-}
+function updateProgress() {
   const visibleItems = Array.from(document.querySelectorAll('.item')).filter(item => item.style.display !== 'none');
   const total = visibleItems.length;
   let checked = 0;
