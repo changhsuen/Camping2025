@@ -26,8 +26,6 @@
   --green90: #4a5443;
   --green100: #37402f;
 
- 
-
   --beige50: #b4a587;
 
   --hover-grey10: #e8e8e8;
@@ -59,8 +57,8 @@
   --layer-04: var(--green20);
 
   /* 按鈕顏色 */
-  --button-primary: var(--green100);
-  --button-primary-hover: var(--green90);
+  --button-primary: var(--grey100);
+  --button-primary-hover: var(--grey90);
 
   /* 邊框顏色 */
   --border-subtle: color-mix(in srgb, var(--grey100) 10%, transparent);
@@ -78,7 +76,7 @@
   /*狀態 */
   --status-red: #da1e28;
   --status-yellow: #f1c21b;
-  --status-green: #24A148;
+  --status-green: #24a148;
 
   /* Typography - 使用系統字體 */
   --font-tc: "Work Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
