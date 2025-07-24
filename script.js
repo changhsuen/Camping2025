@@ -1,4 +1,4 @@
-// script.js - 更新版：移除Save List，修改UI邏輯
+// script.js - 專注即時線上同步的版本 - 修復版
 let personCheckedItems = {};
 let isInitialLoad = true;
 let firebaseInitialized = false;
@@ -83,7 +83,7 @@ function setupEventDelegation() {
     }
   });
 
-  // Delete Person 按鈕
+  // 新增：Remove Person 按鈕
   document.addEventListener('click', function(e) {
     if (e.target.classList.contains('remove-person-btn')) {
       e.preventDefault();
@@ -105,7 +105,7 @@ function initializePersonCheckedItems() {
 }
 
 // ============================================
-// Firebase 即時同步 - 移除勾選提示
+// Firebase 即時同步 - 核心功能（移除勾選提示）
 // ============================================
 
 function setupRealtimeListeners() {
@@ -124,7 +124,7 @@ function setupRealtimeListeners() {
     }
   });
 
-  // 監聽項目變化 - 保留項目更新提示
+  // 監聽項目變化
   const itemsRef = window.firebaseRef("items");
   window.firebaseOnValue(itemsRef, (snapshot) => {
     const data = snapshot.val();
@@ -212,7 +212,8 @@ function updateAllUIStates() {
   updateStatusIndicators();
   updateProgress();
   createPersonFilters();
-  updateAddItemFormVisibility(); // 新增：更新表單顯示狀態
+  updateAddItemFormVisibility(); // 新增：控制表單顯示
+  updateRemovePersonButton(); // 新增：控制 Remove 按鈕
 }
 
 // ============================================
@@ -496,8 +497,8 @@ function removePerson(personName) {
     const removedCount = itemsToRemove.length;
     const updatedCount = itemsToUpdate.length;
     let message = `已完全移除 ${personName}`;
-    if (removedCount > 0) message += `\n• 刪除了 ${removedCount} 個項目`;
-    if (updatedCount > 0) message += `\n• 更新了 ${updatedCount} 個項目`;
+    if (removedCount > 0) message += `\n刪除了 ${removedCount} 個項目`;
+    if (updatedCount > 0) message += `\n更新了 ${updatedCount} 個項目`;
     
     showUpdateNotification(message);
   }
@@ -512,7 +513,7 @@ function switchToAllPage() {
 }
 
 // ============================================
-// UI 工具函數 - 更新版
+// UI 工具函數 - 修改版
 // ============================================
 
 function createItemElement(list, item) {
@@ -586,16 +587,14 @@ function createItemElement(list, item) {
   }
   itemLabel.appendChild(personTags);
 
-  // 刪除按鈕（只在 All 頁面顯示）
-  if (isAllPage) {
-    const deleteBtn = document.createElement("button");
-    deleteBtn.className = "delete-btn";
-    deleteBtn.innerHTML = "×";
-    deleteBtn.title = "刪除項目";
-    li.appendChild(deleteBtn);
-  }
+  // 刪除按鈕
+  const deleteBtn = document.createElement("button");
+  deleteBtn.className = "delete-btn";
+  deleteBtn.innerHTML = "×";
+  deleteBtn.title = "刪除項目";
 
   li.appendChild(itemLabel);
+  li.appendChild(deleteBtn);
   list.appendChild(li);
 }
 
@@ -651,7 +650,7 @@ function createPersonFilters() {
   
   personFilter.innerHTML = '<button class="filter-btn" data-person="all">All</button>';
 
-  // 重新收集目前存在的人員（從實際項目中動態獲取）
+  // 動態收集目前存在的人員
   const allPersons = new Set();
   
   document.querySelectorAll('.item').forEach(item => {
@@ -709,8 +708,8 @@ function setupFilterButtons() {
       
       switchViewMode(person);
       filterItems(person);
-      updateAddItemFormVisibility(); // 更新表單顯示
-      updateRemovePersonButton(); // 更新移除人員按鈕
+      updateAddItemFormVisibility(); // 新增
+      updateRemovePersonButton(); // 新增
       
       if (person === 'all') {
         updateStatusIndicators();
@@ -730,28 +729,17 @@ function switchViewMode(person) {
     const customCheckbox = item.querySelector('.custom-checkbox');
     const statusContainer = item.querySelector('.status-container');
     const itemLabel = item.querySelector('.item-label');
-    const deleteBtn = item.querySelector('.delete-btn');
     
     if (isAllPage) {
-      // All 頁面：顯示狀態指示器，隱藏 checkbox，顯示刪除按鈕
       if (customCheckbox) customCheckbox.style.display = 'none';
       if (statusContainer) statusContainer.style.display = 'flex';
       if (itemLabel) {
         itemLabel.style.cursor = 'default';
         itemLabel.removeAttribute('for');
-        // 移除 All 頁面的刪除線
+        // 關鍵修改：All 頁面不顯示刪除線
         itemLabel.classList.remove('checked');
       }
-      // 如果沒有刪除按鈕就添加一個
-      if (!deleteBtn) {
-        const newDeleteBtn = document.createElement("button");
-        newDeleteBtn.className = "delete-btn";
-        newDeleteBtn.innerHTML = "×";
-        newDeleteBtn.title = "刪除項目";
-        item.appendChild(newDeleteBtn);
-      }
     } else {
-      // 個人頁面：顯示 checkbox，隱藏狀態指示器，隱藏刪除按鈕
       if (customCheckbox) customCheckbox.style.display = 'inline-block';
       if (statusContainer) statusContainer.style.display = 'none';
       if (itemLabel) {
@@ -759,16 +747,12 @@ function switchViewMode(person) {
         const checkbox = item.querySelector('input[type="checkbox"]');
         if (checkbox) itemLabel.setAttribute('for', checkbox.id);
       }
-      // 移除刪除按鈕
-      if (deleteBtn) {
-        deleteBtn.remove();
-      }
     }
   });
 }
 
 // ============================================
-// 新功能：更新表單和按鈕顯示
+// 新功能：控制表單和按鈕顯示
 // ============================================
 
 function updateAddItemFormVisibility() {
@@ -776,10 +760,13 @@ function updateAddItemFormVisibility() {
   const currentPerson = getCurrentFilterPerson();
   
   if (addItemSection) {
-    if (currentPerson === 'all') {
-      addItemSection.style.display = 'block';
-    } else {
-      addItemSection.style.display = 'none';
+    const addItemForm = addItemSection.querySelector('.add-item-form');
+    if (addItemForm) {
+      if (currentPerson === 'all') {
+        addItemForm.style.display = 'block';
+      } else {
+        addItemForm.style.display = 'none';
+      }
     }
   }
 }
@@ -793,16 +780,16 @@ function updateRemovePersonButton() {
     existingBtn.remove();
   }
   
-  // 如果不是 All 頁面，添加 Delete Person 按鈕
+  // 如果不是 All 頁面，添加 Remove Person 按鈕
   if (currentPerson !== 'all') {
     const addItemSection = document.querySelector('.add-item-section');
     if (addItemSection) {
-      const deleteBtn = document.createElement('button');
-      deleteBtn.className = 'remove-person-btn';
-      deleteBtn.textContent = `Delete ${currentPerson}`;
+      const removeBtn = document.createElement('button');
+      removeBtn.className = 'remove-person-btn';
+      removeBtn.textContent = `Remove ${currentPerson}`;
       
       // 使用與設計圖一致的樣式（灰色邊框）
-      deleteBtn.style.cssText = `
+      removeBtn.style.cssText = `
         background: transparent;
         color: var(--text-primary);
         height: 40px;
@@ -816,15 +803,15 @@ function updateRemovePersonButton() {
         margin-top: 16px;
       `;
       
-      deleteBtn.addEventListener('mouseover', function() {
-        this.style.background = var(--background-hover);
+      removeBtn.addEventListener('mouseover', function() {
+        this.style.background = 'var(--background-hover)';
       });
       
-      deleteBtn.addEventListener('mouseout', function() {
+      removeBtn.addEventListener('mouseout', function() {
         this.style.background = 'transparent';
       });
       
-      addItemSection.appendChild(deleteBtn);
+      addItemSection.appendChild(removeBtn);
     }
   }
 }
@@ -1010,7 +997,7 @@ function generateSafeId(prefix = 'item') {
 }
 
 // ============================================
-// 更新通知 - 僅保留項目清單更新提示
+// 更新通知
 // ============================================
 
 function showUpdateNotification(message) {
@@ -1037,4 +1024,4 @@ function showUpdateNotification(message) {
   }, 3000);
 }
 
-console.log('🚀 更新版本載入完成 - 移除Save List，修改UI邏輯');
+console.log('🚀 修復版本載入完成 - 基於原始正常代碼的最小修改');
