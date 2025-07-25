@@ -72,7 +72,7 @@
   --icon-on-color: var(--white);
 
   /* 輸入欄位 */
-  --field: var(--grey30);
+  --field: var(--grey10);
 
   /*狀態 */
   --status-red: #da1e28;
