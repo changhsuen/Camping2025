@@ -53,6 +53,9 @@
   /* 背景層級 */
   --layer-01: var(--grey20);
   --layer-02: var(--grey30);
+  --layer-03: var(--grey40);
+
+  --layer-02-hover: var(--hover-grey30);
 
   /* 按鈕顏色 */
   --button-primary: var(--grey100);
@@ -69,7 +72,7 @@
   --icon-on-color: var(--white);
 
   /* 輸入欄位 */
-  --field: var(--white);
+  --field: var(--grey30);
 
   /*狀態 */
   --status-red: #da1e28;
