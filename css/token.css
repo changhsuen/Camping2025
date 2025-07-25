@@ -52,9 +52,7 @@
 
   /* 背景層級 */
   --layer-01: var(--grey20);
-  --layer-02: var(--green50);
-  --layer-03: var(--beige50);
-  --layer-04: var(--green20);
+  --layer-02: var(--grey30);
 
   /* 按鈕顏色 */
   --button-primary: var(--grey100);
