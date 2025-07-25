@@ -401,6 +401,7 @@ header {
 
 .item-quantity {
   margin-left: var(--spacing-02);
+  font-size: 12px;
   font-weight: 400;
   color: var(--text-primary);
 }
@@ -442,26 +443,20 @@ header {
 
 /* Add Item Section */
 .add-item-section {
-  border-radius: 12px;
   margin-top: 16px;
 }
 
 .add-item-form {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-02); /* 使用 --spacing-02 來符合設計圖 */
+  gap: var(--spacing-02); 
 }
 
-.form-row {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-02);
-}
 
 /* Item 和 Number 的橫向佈局 */
 .form-row-horizontal {
   display: flex;
-  gap: var(--spacing-02); /* 使用 --spacing-02 來符合設計圖 */
+  gap: var(--spacing-02); 
   width: 100%;
 }
 
