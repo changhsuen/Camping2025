@@ -449,7 +449,7 @@ header {
 .add-item-form {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-02); 
+  gap: 4px; 
 }
 
 
