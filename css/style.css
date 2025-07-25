@@ -64,7 +64,7 @@ header {
 }
 
 .link-btn:hover {
-  background: var(--layer-03);
+  background: var(--layer-02-hover);
 }
 
 /* Countdown Card */
