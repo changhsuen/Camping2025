@@ -457,8 +457,7 @@ header {
   gap: var(--spacing-03);
 }
 
-.itemNumber{
-  display: flexbox;
+
   
 .form-input {
   height: 48px;
@@ -474,6 +473,19 @@ header {
   border: 1px solid var(--button-primary);
 }
 
+.itemNumber{
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-03);
+  align-self: stretch;
+  
+.new-item-name{
+  flex: 1 0 0;
+}
+
+.new-item-quantity{
+  width: 120px;
+}
 .form-select {
   height: 48px;
   padding: var(--spacing-03) var(--spacing-07) var(--spacing-03) var(--spacing-05);
