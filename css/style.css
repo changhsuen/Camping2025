@@ -49,7 +49,7 @@ header {
 }
 
 .link-btn {
-  background: #e5e7eb;
+  background: var(--layer-02);
   color: var(--text-primary);
   height: 40px;
   display: flex;
@@ -64,12 +64,12 @@ header {
 }
 
 .link-btn:hover {
-  background: #d1d5db;
+  background: var(--layer-03);
 }
 
 /* Countdown Card */
 .countdown-card {
-  background: var(--layer-03);
+  background: var(--beige50);
   color: var(--text-primary);
   padding: var(--spacing-05);
   border-radius: 20px;
@@ -117,7 +117,7 @@ header {
 }
 
 .schedule-card {
-  background: var(--layer-02);
+  background: var(--green50);
   color: var(--text-primary);
   padding: var(--spacing-05);
   border-radius: 20px;
@@ -152,7 +152,7 @@ header {
 
 .weather-card {
   flex: 1;
-  background: var(--layer-04);
+  background: var(--green20);
   padding: 16px;
   border-radius: 20px;
 }
@@ -400,9 +400,9 @@ header {
 }
 
 .item-quantity {
-  margin-left: 5px;
-  font-weight: bold;
-  color: #6b7280;
+  margin-left: var(--spacing-02);
+  font-weight: 400;
+  color: var(--text-primary);
 }
 
 .person-tags {
@@ -412,8 +412,8 @@ header {
 
 .person-tag {
   height: 18px;
-  background: #f3f4f6;
-  color: #6b7280;
+  background: var(--layer-02);
+  color: var(--text-primary);
   padding: 2px 8px;
   border-radius: 10px;
   font-size: 12px;
@@ -458,10 +458,10 @@ header {
 }
 
 .form-input {
-  height: 40px;
+  height: 48px;
   padding: 8px 16px;
   border: none;
-  border-radius: 20px;
+  border-radius: 24px;
   font-size: 14px;
   background: var(--field);
 }
@@ -488,12 +488,12 @@ header {
 
 /* Add Item Button */
 .add-btn {
-  background: transparent;
-  height: 40px;
-  color: var(--button-primary);
+  background: var(--button-primary);
+  height: 48px;
+  color: var(--text-on-color);
   padding: 0 16px;
-  border: solid 1px var(--button-primary);
-  border-radius: 20px;
+  border: none;
+  border-radius: 24px;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
@@ -503,17 +503,16 @@ header {
 }
 
 .add-btn:hover {
-  background: var(--button-primary);
-  color: var(--text-on-color);
+  background: var(--button-primary-hover);
 }
 
 /* Remove Person Button */
 .remove-person-btn {
   background: transparent;
   color: var(--text-primary);
-  height: 40px;
-  border: 1px solid var(--border-secondary);
-  border-radius: 20px;
+  height: 48px;
+  border: 1px solid var(--button-primary);
+  border-radius: 24px;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
@@ -523,7 +522,7 @@ header {
 }
 
 .remove-person-btn:hover {
-  background: var(--background-hover);
+  background: var(--button-primary);
 }
 
 /* Save Button */
