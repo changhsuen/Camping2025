@@ -44,7 +44,7 @@ header {
   border-radius: 20px;
   margin-bottom: var(--spacing-03);
   display: flex;
-  gap: var(--spacing-03);
+  gap: var(--spacing-02);
   flex-wrap: wrap;
 }
 
