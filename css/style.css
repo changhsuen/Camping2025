@@ -347,7 +347,7 @@ header {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-right: var(--spacing-05);
+  margin-right: var(--spacing-03);
   flex-shrink: 0;
 }
 
