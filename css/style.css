@@ -448,22 +448,23 @@ header {
 .add-item-form {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-03);
+  gap: var(--spacing-02); /* 使用 --spacing-02 來符合設計圖 */
 }
 
 .form-row {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-03);
+  gap: var(--spacing-02);
 }
 
-/* 新增：Item 和 Number 的橫向佈局 */
+/* Item 和 Number 的橫向佈局 */
 .form-row-horizontal {
   display: flex;
-  gap: var(--spacing-03);
+  gap: var(--spacing-02); /* 使用 --spacing-02 來符合設計圖 */
   width: 100%;
 }
-  
+
+/* 基本輸入框樣式 */
 .form-input {
   height: 48px;
   padding: 8px 16px;
@@ -472,6 +473,7 @@ header {
   font-size: 14px;
   background: var(--field);
   border: 1px solid transparent;
+  width: 100%; /* 預設所有輸入框都 100% fill */
 }
 
 .form-input:focus {
@@ -491,6 +493,7 @@ header {
   flex-shrink: 0; /* 防止被壓縮 */
 }
 
+/* Select 下拉選單 - 100% fill */
 .form-select {
   height: 48px;
   padding: var(--spacing-03) var(--spacing-07) var(--spacing-03) var(--spacing-05);
@@ -500,6 +503,7 @@ header {
   background: var(--field);
   cursor: pointer;
   border: 1px solid transparent;
+  width: 100%; /* 確保 select 也是 100% fill */
 }
 
 .form-select:focus {
@@ -604,7 +608,7 @@ header {
 
   /* 響應式設計 - 小螢幕優化 */
   .form-row-horizontal {
-    gap: 8px;
+    gap: var(--spacing-02); /* 保持一致的間距 */
   }
   
   .form-input.number-input {
