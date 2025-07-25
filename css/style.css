@@ -449,14 +449,17 @@ header {
 .add-item-form {
   display: flex;
   flex-direction: column;
-  gap: 4px; 
+  gap: var(--spacing-02);
 }
 
+.add-item-form.hidden {
+  display: none !important;
+}
 
 /* Item 和 Number 的橫向佈局 */
 .form-row-horizontal {
   display: flex;
-  gap: var(--spacing-02); 
+  gap: var(--spacing-02);
   width: 100%;
 }
 
@@ -606,7 +609,7 @@ header {
   .form-row-horizontal {
     gap: var(--spacing-02); /* 保持一致的間距 */
   }
-  
+
   .form-input.number-input {
     width: 100px; /* 小螢幕時稍微縮小 */
   }
