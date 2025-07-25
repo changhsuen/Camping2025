@@ -408,6 +408,7 @@ header {
 .person-tags {
   display: flex;
   gap: var(--spacing-02);
+  margin-left: var(--spacing-02);
 }
 
 .person-tag {
