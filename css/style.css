@@ -456,6 +456,13 @@ header {
   flex-direction: column;
   gap: var(--spacing-03);
 }
+
+/* 新增：Item 和 Number 的橫向佈局 */
+.form-row-horizontal {
+  display: flex;
+  gap: var(--spacing-03);
+  width: 100%;
+}
   
 .form-input {
   height: 48px;
@@ -464,11 +471,24 @@ header {
   border-radius: 24px;
   font-size: 14px;
   background: var(--field);
+  border: 1px solid transparent;
 }
 
 .form-input:focus {
-  outline: 1px solid var(--button-primary);
+  outline: none;
   border: 1px solid var(--button-primary);
+}
+
+/* Item input - 自動填滿剩餘空間 */
+.form-input.item-input {
+  flex: 1;
+  min-width: 0; /* 防止 flex item 超出容器 */
+}
+
+/* Number input - 固定寬度 120px */
+.form-input.number-input {
+  width: 120px;
+  flex-shrink: 0; /* 防止被壓縮 */
 }
 
 .form-select {
@@ -479,11 +499,12 @@ header {
   font-size: 14px;
   background: var(--field);
   cursor: pointer;
+  border: 1px solid transparent;
 }
 
 .form-select:focus {
   outline: none;
-  border-color: #10b981;
+  border: 1px solid var(--button-primary);
 }
 
 /* Add Item Button */
@@ -523,6 +544,7 @@ header {
 
 .remove-person-btn:hover {
   background: var(--button-primary);
+  color: var(--text-on-color);
 }
 
 /* Save Button */
@@ -578,5 +600,14 @@ header {
 
   .countdown-number {
     font-size: 24px;
+  }
+
+  /* 響應式設計 - 小螢幕優化 */
+  .form-row-horizontal {
+    gap: 8px;
+  }
+  
+  .form-input.number-input {
+    width: 100px; /* 小螢幕時稍微縮小 */
   }
 }
