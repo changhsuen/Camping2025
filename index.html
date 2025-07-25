@@ -124,16 +124,22 @@
 
         <div class="add-item-section">
           <div class="add-item-form">
-            <div class="form-row">
-              <select class="form-select" id="category-select">
-                <option value="Personal Gear">Personal Gear</option>
-                <option value="Shared Gear">Shared Gear</option>
-              </select>
-              <input type="text" class="form-input" id="new-item-name" placeholder="Item" />
-              <input type="text" class="form-input" id="new-item-quantity" placeholder="Number" />
-              <input type="text" class="form-input" id="new-item-person" placeholder="Name, Name, Name" />
+            <!-- Category 選擇器 - 單獨一行 -->
+            <select class="form-select" id="category-select">
+              <option value="Personal Gear">Personal Gear</option>
+              <option value="Shared Gear">Shared Gear</option>
+            </select>
+            
+            <!-- Item 和 Number - 同一行 -->
+            <div class="form-row-horizontal">
+              <input type="text" class="form-input item-input" id="new-item-name" placeholder="Item" />
+              <input type="text" class="form-input number-input" id="new-item-quantity" placeholder="Number" />
             </div>
             
+            <!-- Name 輸入框 - 單獨一行 -->
+            <input type="text" class="form-input" id="new-item-person" placeholder="Name, Name, Name" />
+            
+            <!-- Add 按鈕 -->
             <button class="add-btn" id="add-unified-item">Add Item</button>
           </div>
         </div>
